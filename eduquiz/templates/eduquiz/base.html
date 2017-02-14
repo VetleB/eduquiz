@@ -1,0 +1,32 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <title>EDUQUIZ</title>
+    <link rel="shortcut icon" type="image/png" href="{% static "eduquiz/img/favicon.ico" %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/bootstrap.min.css" %}">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
+
+    <script src="{% static "eduquiz/js/jquery-3.1.1.min.js" %}"></script>
+    <script src="{% static "eduquiz/js/bootstrap.min.js" %}"></script>
+
+    {% block head %}
+    {% endblock head %}
+  </head>
+
+  <body>
+    {% block header %}
+    {% endblock header %}
+
+    {% block content %}
+    {% endblock content %}
+  </body>
+
+  {% block footer %}
+  {% endblock footer %}
+
+</html>

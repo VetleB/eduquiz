@@ -3,27 +3,28 @@
 
 <html lang="en">
   <head>
-    <title>EDUQUIZ</title>
+    <title>EDU QUIZ</title>
     <link rel="shortcut icon" type="image/png" href="{% static "eduquiz/img/favicon.ico" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/semantic.min.css" %}">
 
-    <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/bootstrap.min.css" %}">
-
+    <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/style.css" %}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
-
-    <script src="{% static "eduquiz/js/jquery-3.1.1.min.js" %}"></script>
-    <script src="{% static "eduquiz/js/bootstrap.min.js" %}"></script>
 
     {% block head %}
     {% endblock head %}
+
+    <script src="{% static "eduquiz/js/jquery-3.1.1.min.js" %}"></script>
+    <script src="{% static "eduquiz/js/semantic.min.js" %}"></script>
   </head>
 
   <body>
-    {% block header %}
-    {% endblock header %}
-
-    {% block content %}
-    {% endblock content %}
+    <div class="pusher">
+      {% block header %}
+      {% endblock header %}
+      
+      {% block content %}
+      {% endblock content %}
+    </div>
   </body>
 
   {% block footer %}

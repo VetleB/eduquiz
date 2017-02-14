@@ -1,0 +1,55 @@
+
+.mobile {
+  display: none;
+}
+
+.desktop {
+  display: inline;
+}
+
+.ui.top .item {
+  height: 80px;
+  font-size: 30px;
+}
+
+.logo {
+  font-size: 60px;
+}
+
+
+@media screen and (max-device-width: 480px), screen and (max-width: 720px) {
+  .mobile {
+    display: inline;
+  }
+
+  .desktop {
+    display: none;
+  }
+
+  .ui.top .item {
+    height: 140px;
+    font-size: 50px;
+  }
+
+  .logo {
+    font-size: 100px;
+  }
+
+  .sidebar .item {
+    font-size: 4vh;
+  }
+
+  .material-icons {
+    font-size: 80px;
+  }
+
+  .sidebar {
+    width: 40vw !important;
+  }
+
+  .sidetoggle {
+    position: absolute !important;
+    right: 0 !important;
+  }
+
+}

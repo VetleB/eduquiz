@@ -52,4 +52,16 @@
     right: 0 !important;
   }
 
+  .item::before {
+    width: 0 !important;
+  }
+
+}
+
+@media screen and (max-device-width: 400px), screen and (max-width: 500px) {
+  .top .logo, .top .material-icons {
+    font-size: 18vw;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }

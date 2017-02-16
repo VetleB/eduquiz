@@ -3,6 +3,11 @@ from django.contrib.auth.admin import User
 from django.utils import timezone
 
 
+class Player(models.Model):
+    skill_lvl = models.DecimalField(max_digits=3, decimal_places=3, verbose_name='Skill Lvl')
+    user = models.ForeignKey(User)
+
+
 class Category(models.Model):
     title = models.TextField(max_length=100, verbose_name='Title')
 
@@ -18,19 +23,16 @@ class Topic(models.Model):
     subject = models.ForeignKey(Subject)
 
 
-class QuestionTopic(models.Model):
-    topic = models.ForeignKey(Topic)
-    question = models.ForeignKey(Question)
-
-
 class Question(models.Model):
     question_text = models.TextField(max_length=200, verbose_name='Question')
     creator = models.ForeignKey(Player)
     creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
     difficulty = models.DecimalField(max_digits=3, decimal_places=3, verbose_name='Difficulty')
 
-    class Meta:
-        abstract = True
+
+class QuestionTopic(models.Model):
+    topic = models.ForeignKey(Topic)
+    question = models.ForeignKey(Question)
 
 
 class TextQuestion(Question):
@@ -55,8 +57,3 @@ class PlayerAnswer(models.Model):
     question = models.ForeignKey(Question)
     result = models.BooleanField(verbose_name='Result')
     answer_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
-
-
-class Player(models.Model):
-    skill_lvl = models.DecimalField(max_digits=3, decimal_places=3, verbose_name='Skill Lvl')
-    user = models.ForeignKey(User)

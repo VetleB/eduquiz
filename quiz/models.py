@@ -1,36 +1,62 @@
 from django.db import models
 from django.contrib.auth.admin import User
+from django.utils import timezone
+
+
+class Category(models.Model):
+    title = models.TextField(max_length=100, verbose_name='Title')
+
+
+class Subject(models.Model):
+    title = models.TextField(max_length=100, verbose_name='Title')
+    code = models.TextField(max_length=10, verbose_name='Code')
+    category = models.ForeignKey(Category)
+
+
+class Topic(models.Model):
+    title = models.TextField(max_length=100, verbose_name='Title')
+    subject = models.ForeignKey(Subject)
+
+
+class QuestionTopic(models.Model):
+    topic = models.ForeignKey(Topic)
+    question = models.ForeignKey(Question)
 
 
 class Question(models.Model):
-    question_text = models.TextField()
-    creator = models.ForeignKey(User)
-    difficulty = models.DecimalField(max_digits=3, decimal_places=3)
+    question_text = models.TextField(max_length=200, verbose_name='Question')
+    creator = models.ForeignKey(Player)
+    creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
+    difficulty = models.DecimalField(max_digits=3, decimal_places=3, verbose_name='Difficulty')
 
     class Meta:
         abstract = True
 
 
-class TextAnswer(Question):
-    answer = models.CharField()
+class TextQuestion(Question):
+    answer = models.CharField(max_length=50, verbose_name='Answer')
 
 
-class MultipleChoice(Question):
-    num_of_options = models.PositiveSmallIntegerField()
-
-    def get_text(self):
-        return self.question_text
+class TrueFalseQuestion(Question):
+    answer = models.BooleanField(verbose_name='Answer')
 
 
-class TrueFalse(Question):
-    answer = models.BooleanField()
+class MultipleChoiceQuestion(Question):
+    pass
 
 
-class QuestionAnswer(models.Model):
-    user = models.ForeignKey(User)
+class MultipleChoiceAnswer(models.Model):
+    answer = models.CharField(max_length=100, verbose_name='Answer')
+    correct = models.BooleanField(verbose_name='Correct')
+
+
+class PlayerAnswer(models.Model):
+    player = models.ForeignKey(Player)
     question = models.ForeignKey(Question)
-    correct = models.BooleanField()
+    result = models.BooleanField(verbose_name='Result')
+    answer_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
 
 
 class Player(models.Model):
-    skill = models.DecimalField(max_digits=3, decimal_places=3)
+    skill_lvl = models.DecimalField(max_digits=3, decimal_places=3, verbose_name='Skill Lvl')
+    user = models.ForeignKey(User)

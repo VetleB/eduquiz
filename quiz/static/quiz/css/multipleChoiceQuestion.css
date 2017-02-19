@@ -1,7 +1,31 @@
 .page {
   text-align: center;
 }
+
 .quiz {
+  width: 90%;
+  max-width: 1000px;
   display: inline-block;
   margin-top: 100px;
+}
+
+.question {
+  width: 96% !important;
+  margin: 3% 2% !important;
+  min-height: 200px !important;
+}
+
+.questionText {
+  font-size: 25px;
+  margin-top: 10px;
+}
+
+.answer {
+  display: inline-block !important;
+  width: 47% !important;
+  margin: 1% 1% !important;
+}
+
+.answer {
+  font-size: 20px;
 }

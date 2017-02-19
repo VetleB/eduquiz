@@ -3,6 +3,7 @@
 
 {% block head %}
   <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "quiz/css/MultipleChoiceQuestion.css" %}">
 {% endblock head %}
 
 {% block header %}
@@ -12,4 +13,28 @@
 {% endblock header %}
 
 {% block content %}
+
+  <div class="quiz">
+    <div class="ui card">
+      <div class="content">
+        <h4 class="ui sub header">
+          {% for topic in topics %}
+            {{ topic }} - {{ topic.subject.code }}<br>
+          {% endfor %}
+        </h4>
+        <div class="ui small feed">
+          {{ question }}
+        </div>
+      </div>
+    </div>
+
+    {% for answer in answers %}
+      <div class="ui card answer">
+        <div class="content">
+            {{ answer.answer }}
+        </div>
+      </div>
+    {% endfor %}
+  <div>
+
 {% endblock content %}

@@ -1,3 +1,11 @@
 from django.shortcuts import render
+from quiz.models import MultipleChoiceQuestion
 
-# Create your views here.
+
+def question(request):
+
+    context = {
+        question: MultipleChoiceQuestion.objects.order_by('?').first(),
+    }
+
+    return render(request, 'quiz/question.html', context)

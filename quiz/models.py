@@ -54,7 +54,7 @@ class Category(models.Model):
 
 class Subject(models.Model):
     title = models.CharField(max_length=100, verbose_name='Title')
-    short = models.CharField(max_length=5, verbose_name='Short')
+    short = models.CharField(max_length=10, verbose_name='Short')
     code = models.CharField(max_length=10, verbose_name='Code')
     category = models.ForeignKey(Category)
 

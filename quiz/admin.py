@@ -114,6 +114,7 @@ class SubjectAdmin(admin.ModelAdmin):
             'fields': (
                 'code',
                 'title',
+                'short',
                 'category',
             )
         }),

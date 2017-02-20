@@ -95,8 +95,15 @@ class TextQuestion(Question):
     def __str__(self):
         return super().question_text
 
+    def validate(self, userAnswer):
+        return userAnswer == self.answer
+
     def answerFeedback(self, answer):
+        answeredCorrect = self.validate(answer)
         return JsonResponse({
+            'answer': answer,
+            'correct': self.answer,
+            'answeredCorrect': answeredCorrect,
         }, safe=False)
 
 

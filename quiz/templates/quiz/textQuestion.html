@@ -15,7 +15,7 @@
 {% block content %}
 
   <div class="quiz">
-    <div class="ui card question">
+    <div class="ui card question" question="{{ question.id }}">
       <div class="content">
         <h4 class="ui sub header">
           {% for topic in topics %}
@@ -30,39 +30,80 @@
 
     <form class="ui form segment">
         <div class="field">
-          <input type="text" name="field1">
+          <input type="text" class="inputfield" name="field1">
         </div>
-    <div class="ui primary submit button">Submit</div>
-    <div class="ui error message"></div>
+    <div class="ui primary button">Submit</div>
     </form>
+
+    <div class="ui positive message">
+      <div class="header">
+        Correct
+      </div>
+      <p>You are <b>very</b> talented</p>
+    </div>
+
+    <div class="ui negative message">
+      <div class="header">
+        Wrong
+      </div>
+      <p>You suck!</p>
+    </div>
   </div>
 
-    <style>
-        .card {
-            margin: 1% !important;
-            width: 100% !important;
-        }
-        .card {
-            margin: 0px 0px 0px 0px !important;
-            background-color: blue;
-        }
-    </style>
 
-      <script>
-        $('.ui.form')
-          .form({
-            fields: {
-              field1: {
-                rules: [
-                  {
-                    type   : 'exactly[dog]',
-                    prompt : '{name} is set to "{value}" that is totally wrong. It should be {ruleValue}'
-                  }
-                ]
-              }
+
+  <style>
+    .message {
+      display: none;
+    }
+    .card {
+        margin: 1% !important;
+        width: 100% !important;
+    }
+    .card {
+        margin: 0px 0px 0px 0px !important;
+        background-color: blue;
+    }
+  </style>
+
+  <script>
+    var answered = false;
+
+    $('.button').click(function() {
+      if (!answered) {
+        answered = true;
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
             }
-          })
-        ;
-      </script>
+        });
+
+        $.ajax({
+          type: "POST",
+          url: '',
+          data: {
+            'question': $('.question').attr('question'),
+            'answer': $('.inputfield').val(),
+          },
+          success: function(data) {
+            setTimeout(function() {
+              location.reload();
+            }, 500);
+            var answer = data['answer'];
+            var correct = data['correct'];
+            var answeredCorrect = data['answeredCorrect'];
+            if (answeredCorrect) {
+              $('.positive').css('display', 'block');
+            } else {
+              $('.negative').css('display', 'block');
+            }
+          }
+        });
+      }
+    });
+
+
+  </script>
 
 {% endblock content %}

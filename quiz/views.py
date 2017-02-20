@@ -26,8 +26,11 @@ def question(request):
         }, safe=False)
 
     else:
-        if random.random() > 0.5:
+        r = random.random()
+        if r > 2/3:
             return multipleChoiceQuestion(request, None)
+        elif r > 1/3:
+            return textQuestion(request, None)
         else:
             return trueFalseQuestion(request, None)
 
@@ -55,7 +58,8 @@ def multipleChoiceQuestion(request, question):
 def trueFalseQuestion(request, question):
 
     # REMOVE LATER
-    question = TrueFalseQuestion.objects.all()[0]
+    questions = TrueFalseQuestion.objects.all()
+    question = questions[random.randint(0, len(questions) - 1)]
     # END
 
     qts = QuestionTopic.objects.filter(question=question)
@@ -69,3 +73,23 @@ def trueFalseQuestion(request, question):
     }
 
     return render(request, 'quiz/trueFalseQuestion.html', context)
+
+
+def textQuestion(request, question):
+
+    ## REMOVE LATER
+    questions = TextQuestion.objects.all()
+    question = questions[random.randint(0, len(questions) - 1)]
+    # END
+
+    qts = QuestionTopic.objects.filter(question=question)
+    topics = [qt.topic for qt in qts]
+    answers = question.answer
+
+    context = {
+        'question': question,
+        'topics': topics,
+        'answer': answers,
+    }
+
+    return render(request, 'quiz/textQuestion.html', context)

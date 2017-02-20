@@ -58,18 +58,20 @@
             'answer': $(this).attr('answer'),
           },
           success: function(data) {
+            
             var answer = data['answer'];
             var correct = data['correct'];
+
             $('.answer[answer=' + answer + ']').css('background-color', '#EF5350');
             for (var i = 0; i < correct.length; i++) {
               $('.answer[answer=' + correct[i] + ']').css('background-color', '#66BB6A');
             }
+
+            setTimeout(function() {
+              location.reload();
+            }, 500);
           }
         });
-
-        setTimeout(function() {
-          location.reload();
-        }, 500);
       }
     });
   </script>

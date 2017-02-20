@@ -87,17 +87,20 @@
             'answer': $('.inputfield').val(),
           },
           success: function(data) {
-            setTimeout(function() {
-              location.reload();
-            }, 500);
+
             var answer = data['answer'];
             var correct = data['correct'];
             var answeredCorrect = data['answeredCorrect'];
+
             if (answeredCorrect) {
               $('.positive').css('display', 'block');
             } else {
               $('.negative').css('display', 'block');
             }
+
+            setTimeout(function() {
+              location.reload();
+            }, 500);
           }
         });
       }

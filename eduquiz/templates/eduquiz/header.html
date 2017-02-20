@@ -2,11 +2,17 @@
 
 <div class="desktop">
   <div class="ui top massive menu">
-    <div class="item">
-      <img class="logo" src="{% static "eduquiz/img/logo.png" %}">
-    </div>
-    <a class="item">Play</a>
-    <a class="item">Sign in</a>
+    <a href="/">
+      <div class="item">
+          <img class="logo" src="{% static "eduquiz/img/logo.png" %}">
+      </div>
+    </a>
+    <a class="item" href="/quiz">
+      Play
+    </a>
+    <a class="item" href="/authentication/login">
+      Sign in
+    </a>
   </div>
 </div>
 
@@ -21,10 +27,10 @@
 
 <div class="mobile">
   <div class="ui sidebar inverted vertical menu">
-    <a class="item">
+    <a class="item" href="/quiz">
       Play
     </a>
-    <a class="item">
+    <a class="item" href="/authentication/login">
       Sign in
     </a>
   </div>

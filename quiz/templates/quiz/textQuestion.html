@@ -1,0 +1,72 @@
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "quiz/css/MultipleChoiceQuestion.css" %}">
+{% endblock head %}
+
+{% block header %}
+
+  {% include 'eduquiz/header.html' %}
+
+{% endblock header %}
+
+{% block content %}
+
+  <div class="quiz">
+    <div class="ui card">
+      <div class="content">
+        <h4 class="ui sub header">
+          {% for topic in topics %}
+            {{ topic }} - {{ topic.subject.code }}<br>
+          {% endfor %}
+        </h4>
+        <div class="ui small feed">
+          {{ question }}
+        </div>
+      </div>
+    </div>
+
+    <form class="ui form segment">
+        <div class="field">
+          <label>Answer</label>
+          <input type="text" name="field1">
+        </div>
+    <div class="ui primary submit button">Submit</div>
+    <div class="ui error message">
+    </div>
+    </form>
+  </div>
+    <style>
+        .quiz {
+            width: 50%;
+            background-color: red;
+        }
+        .content {
+            position: relative;
+            left: 100px;
+            background-color: green !important;
+        }
+        .card {
+            background-color: blue;
+        }
+    </style>
+  <script>
+    $('.ui.form')
+      .form({
+        fields: {
+          field1: {
+            rules: [
+              {
+                type   : 'exactly[dog]',
+                prompt : '{name} is set to "{value}" that is totally wrong. It should be {ruleValue}'
+              }
+            ]
+          }
+        }
+      })
+    ;
+  </script>
+
+{% endblock content %}

@@ -1,0 +1,31 @@
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
+
+{% include 'eduquiz/header.html' %}
+
+
+{% block content %}
+<form action="/"> </form>
+<form class="ui form" action="/">
+
+  <div class="field">
+    <label>Username</label>
+    <input type="text" name="username" placeholder="Username">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input type="password" name="password" placeholder="Password">
+  </div>
+  <div class="field">
+    <div class="ui checkbox">
+      <input type="checkbox" tabindex="0" class="hidden">
+        <label>I agree to giving my soul to the creators of this page</label>
+    </div>
+  </div>
+  <button class="ui button" type="submit">Submit</button>
+</form>
+
+
+{% endblock content %}
+
+

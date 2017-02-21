@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.admin import User
 from django.utils import timezone
+from django.http import JsonResponse
 
 
 class Achievement(models.Model):
@@ -54,6 +55,7 @@ class Category(models.Model):
 
 class Subject(models.Model):
     title = models.CharField(max_length=100, verbose_name='Title')
+    short = models.CharField(max_length=10, verbose_name='Short')
     code = models.CharField(max_length=10, verbose_name='Code')
     category = models.ForeignKey(Category)
 
@@ -93,6 +95,17 @@ class TextQuestion(Question):
     def __str__(self):
         return super().question_text
 
+    def validate(self, userAnswer):
+        return userAnswer == self.answer
+
+    def answerFeedback(self, answer):
+        answeredCorrect = self.validate(answer)
+        return JsonResponse({
+            'answer': answer,
+            'correct': self.answer,
+            'answeredCorrect': answeredCorrect,
+        }, safe=False)
+
 
 class TrueFalseQuestion(Question):
     answer = models.BooleanField(verbose_name='Answer')
@@ -100,11 +113,30 @@ class TrueFalseQuestion(Question):
     def __str__(self):
         return super().question_text
 
+    def answerFeedback(self, answer):
+        answeredCorrect = answer == self.answer
+        return JsonResponse({
+            'answer': str(answer),
+            'correct': str(self.answer),
+            'answeredCorrect': answeredCorrect,
+        }, safe=False)
+
 
 class MultipleChoiceQuestion(Question):
 
     def __str__(self):
         return super().question_text
+
+    def answerFeedback(self, answerID):
+        answer = MultipleChoiceAnswer.objects.get(id=answerID)
+        answeredCorrect = answer.correct
+        answers = MultipleChoiceAnswer.objects.filter(question=self.id, correct=True)
+        answerIDs = [answer.id for answer in answers]
+        return JsonResponse({
+            'answer': answerID,
+            'correct': answerIDs,
+            'answeredCorrect': answeredCorrect,
+        }, safe=False)
 
 
 class MultipleChoiceAnswer(models.Model):

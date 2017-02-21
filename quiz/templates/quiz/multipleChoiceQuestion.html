@@ -1,0 +1,81 @@
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "quiz/css/multipleChoiceQuestion.css" %}">
+{% endblock head %}
+
+{% block header %}
+
+  {% include 'eduquiz/header.html' %}
+
+{% endblock header %}
+
+{% block content %}
+
+  <div class="quiz">
+    <div class="ui card question" question="{{ question.id }}">
+      <div class="content">
+        <h4 class="ui sub header">
+          {% for topic in topics %}
+            {{ topic }} - {{ topic.subject.code }}<br>
+          {% endfor %}
+        </h4>
+        <div class="ui questionText">
+          {{ question }}
+        </div>
+      </div>
+    </div>
+
+    {% for answer in answers %}
+      <div class="ui card answer" answer="{{ answer.id }}">
+        <div class="content">
+            {{ answer.answer }}
+        </div>
+      </div>
+    {% endfor %}
+  <div>
+
+  <script>
+    var answered = false;
+
+    $('.answer').click(function() {
+      if (!answered) {
+        answered = true;
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+            }
+        });
+
+        $.ajax({
+          type: "POST",
+          url: '',
+          data: {
+            'question': $('.question').attr('question'),
+            'answer': $(this).attr('answer'),
+          },
+          success: function(data) {
+            
+            var answer = data['answer'];
+            var correct = data['correct'];
+
+            $('.answer[answer=' + answer + ']').css('background-color', '#EF5350');
+            for (var i = 0; i < correct.length; i++) {
+              $('.answer[answer=' + correct[i] + ']').css('background-color', '#66BB6A');
+            }
+
+            setTimeout(function() {
+              location.reload();
+            }, 500);
+          }
+        });
+      }
+    });
+  </script>
+
+
+
+{% endblock content %}

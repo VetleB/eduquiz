@@ -1,0 +1,112 @@
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "quiz/css/multipleChoiceQuestion.css" %}">
+{% endblock head %}
+
+{% block header %}
+
+  {% include 'eduquiz/header.html' %}
+
+{% endblock header %}
+
+{% block content %}
+
+  <div class="quiz">
+    <div class="ui card question" question="{{ question.id }}">
+      <div class="content">
+        <h4 class="ui sub header">
+          {% for topic in topics %}
+            {{ topic }} - {{ topic.subject.code }}<br>
+          {% endfor %}
+        </h4>
+        <div class="ui questionText">
+          {{ question }}
+        </div>
+      </div>
+    </div>
+
+    <form class="ui form segment">
+        <div class="field">
+          <input type="text" class="inputfield" name="field1">
+        </div>
+    <div class="ui primary button">Submit</div>
+    </form>
+
+    <div class="ui positive message">
+      <div class="header">
+        Correct
+      </div>
+      <p>You are <b>very</b> talented</p>
+    </div>
+
+    <div class="ui negative message">
+      <div class="header">
+        Wrong
+      </div>
+      <p>You suck!</p>
+    </div>
+  </div>
+
+
+
+  <style>
+    .message {
+      display: none;
+    }
+    .card {
+        margin: 1% !important;
+        width: 100% !important;
+    }
+    .card {
+        margin: 0px 0px 0px 0px !important;
+        background-color: blue;
+    }
+  </style>
+
+  <script>
+    var answered = false;
+
+    $('.button').click(function() {
+      if (!answered) {
+        answered = true;
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+            }
+        });
+
+        $.ajax({
+          type: "POST",
+          url: '',
+          data: {
+            'question': $('.question').attr('question'),
+            'answer': $('.inputfield').val(),
+          },
+          success: function(data) {
+
+            var answer = data['answer'];
+            var correct = data['correct'];
+            var answeredCorrect = data['answeredCorrect'];
+
+            if (answeredCorrect) {
+              $('.positive').css('display', 'block');
+            } else {
+              $('.negative').css('display', 'block');
+            }
+
+            setTimeout(function() {
+              location.reload();
+            }, 500);
+          }
+        });
+      }
+    });
+
+
+  </script>
+
+{% endblock content %}

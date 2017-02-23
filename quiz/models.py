@@ -98,26 +98,25 @@ class TextQuestion(Question):
     def validate(self, userAnswer):
         userAnswer = userAnswer.strip().casefold().replace(',', '.')
 
-        for d in userAnswer:
-            if d != '0' or len(userAnswer) < 2:
-                break
+        while userAnswer[0] == '0' and len(userAnswer) > 1:
             userAnswer = userAnswer[1:]
 
         # sjekker om det er '.' i strengen
-        if (userAnswer.find('.') + 1):
+        if '.' in userAnswer:
             userAnswer = userAnswer.split('.')
 
             # gjør om heltallsdelen til '0' hvis den er ingenting
-            userAnswer[0] += '0'*(not userAnswer[0])
+            if userAnswer[0] == "":
+                userAnswer[0] = '0'
 
-            decLen = len(userAnswer[1])
+            numOfDecimals = len(userAnswer[1])
 
             # legger på nuller til det er tre desimaler
-            if decLen < 3:
-                userAnswer[1] += ''.join(['0']*(3-decLen))
+            if numOfDecimals < 3:
+                userAnswer[1] += ''.join(['0']*(3-numOfDecimals))
 
             #Fjerner ekstra nuller fra desimaldelen
-            if decLen > 3:
+            if numOfDecimals > 3:
                 extra = userAnswer[1][3:]
                 zeroMatch = match(r'^0*$', extra)
                 if zeroMatch:

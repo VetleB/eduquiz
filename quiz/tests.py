@@ -59,6 +59,7 @@ class TextQuestionTestCase(TestCase):
         question = TextQuestion()
         question.answer = '10.000'
         self.assertTrue(question.validate('010'))
+        self.assertTrue(question.validate('00000000000010'))
         self.assertTrue(question.validate('010.000'))
 
     def test_validation_of_hexadecimal_capitalization(self):

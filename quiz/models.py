@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.admin import User
 from django.utils import timezone
 from django.http import JsonResponse
-
+from re import *
 
 class Achievement(models.Model):
     name = models.CharField(max_length=50, verbose_name='Title')
@@ -91,18 +91,51 @@ class QuestionTopic(models.Model):
 
 class TextQuestion(Question):
     answer = models.CharField(max_length=50, verbose_name='Answer')
-
     def __str__(self):
         return super().question_text
 
+    #Antar at self.answer er numerisk med tre desimaler
     def validate(self, userAnswer):
-        return userAnswer == self.answer
+        userAnswer = userAnswer.strip().casefold().replace(',', '.')
+
+        for d in userAnswer:
+            if d != '0' or len(userAnswer) < 2:
+                break
+            userAnswer = userAnswer[1:]
+
+        # sjekker om det er '.' i strengen
+        if (userAnswer.find('.') + 1):
+            userAnswer = userAnswer.split('.')
+
+            # gjør om heltallsdelen til '0' hvis den er ingenting
+            userAnswer[0] += '0'*(not userAnswer[0])
+
+            decLen = len(userAnswer[1])
+
+            # legger på nuller til det er tre desimaler
+            if decLen < 3:
+                userAnswer[1] += ''.join(['0']*(3-decLen))
+
+            #Fjerner ekstra nuller fra desimaldelen
+            if decLen > 3:
+                extra = userAnswer[1][3:]
+                zeroMatch = match(r'^0*$', extra)
+                if zeroMatch:
+                    userAnswer[1] = userAnswer[1][0:3]
+
+            userAnswer = '.'.join(userAnswer)
+        else:
+            userAnswer += '.000'
+
+        # matcher et heksadesimalt tall med tre desimaler
+        patternMatch = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]{3}$', userAnswer))
+        return (userAnswer == self.answer.casefold()) and patternMatch
 
     def answerFeedback(self, answer):
         answeredCorrect = self.validate(answer)
         return JsonResponse({
-            'answer': answer,
-            'correct': self.answer,
+            'answer': str(answer),
+            'correct': str(self.answer),
             'answeredCorrect': answeredCorrect,
         }, safe=False)
 

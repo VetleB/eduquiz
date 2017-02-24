@@ -1,8 +1,7 @@
 from django.test import TestCase
 from quiz.models import *
-
-# Create your tests here.
-
+from django.contrib.auth.admin import User
+import random
 
 class TextQuestionTestCase(TestCase):
     def test_validation_of_correct_answer(self):
@@ -69,3 +68,68 @@ class TextQuestionTestCase(TestCase):
         self.assertTrue(question.validate('AB3.BF1'))
         self.assertTrue(question.validate('Ab3.Bf1'))
         self.assertTrue(question.validate('aB3.bF1'))
+
+
+class MultipleChoiceTestCase(TestCase):
+
+    def setUp(self):
+        player = Player.objects.create(
+            user = User.objects.create(),
+        )
+        question = MultipleChoiceQuestion.objects.create(
+            question_text = 'TEST_QUESTION',
+            creator = player,
+            difficulty = 0.0,
+        )
+        answers = [MultipleChoiceAnswer.objects.create(
+                question = question,
+                answer = 'TEST_ANSWER_%s' % ans,
+                correct = False,
+            ) for ans in ('A', 'B', 'C', 'D')]
+        trueAnswer = answers[random.randint(0,3)]
+        trueAnswer.correct = True
+        trueAnswer.save()
+
+
+    def testAnswerCorrect(self):
+        question = MultipleChoiceQuestion.objects.get()
+        correctAnswers = MultipleChoiceAnswer.objects.filter(correct=True)
+        correctAnswer = correctAnswers[0]
+        response = question.answerFeedback(correctAnswer.id)
+        json = {
+            'answer': correctAnswer.id,
+            'correct': [correctAnswer.id for correctAnswer in correctAnswers],
+            'answeredCorrect': True,
+        }
+        self.assertEqual(response, json)
+
+    def testAnswerIncorrect(self):
+        question = MultipleChoiceQuestion.objects.get()
+        wrongAnswers = MultipleChoiceAnswer.objects.filter(correct=False)
+        correctAnswers = MultipleChoiceAnswer.objects.filter(correct=True)
+        wrongAnswer = wrongAnswers[0]
+        response = question.answerFeedback(wrongAnswer.id)
+        json = {
+            'answer': wrongAnswer.id,
+            'correct': [correctAnswer.id for correctAnswer in correctAnswers],
+            'answeredCorrect': False,
+        }
+        self.assertEqual(response, json)
+
+
+class CategorySubjectTopicTestCase(TestCase):
+
+    def setUp(self):
+        category = Category.objects.create(
+            title = 'TEST_CATEGORY',
+        )
+        subject = Subject.objects.create(
+            title = 'TEST_SUBJECT',
+            short = 'TS',
+            code = 'TST1001',
+            category = category
+        )
+        topic = Topic.objects.create(
+            title = 'TEST_TOPIC',
+            subject = subject,
+        )

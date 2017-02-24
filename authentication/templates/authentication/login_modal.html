@@ -1,0 +1,36 @@
+<div class="ui modal">
+  <!--<i class="close icon"></i>-->
+  <div class="header">
+    Login
+  </div>
+  <div class="content">
+    <div class="description">
+      <form class="ui form" action="/">
+
+        <div class="field">
+          <label>Username</label>
+          <input type="text" name="username">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" name="password">
+        </div>
+
+      </form>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui positive right icon button submit">
+      Login
+    </div>
+  </div>
+</div>
+
+<script>
+  $(".login").click(function() {
+    $('.ui.modal').modal('show');
+  });
+  $(".submit").click(function() {
+    $('form').submit();
+  });
+</script>

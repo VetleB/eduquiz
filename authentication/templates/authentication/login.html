@@ -1,18 +1,16 @@
 {% extends 'eduquiz/base.html' %}
 {% load staticfiles %}
-
-#{% include 'eduquiz/header.html' %}
-
+{% include 'eduquiz/header.html' %}
 
 {% block head %}
   <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
 {% endblock head %}
 
 {% block header %}
-
-  {% include 'eduquiz/header.html' %}
-
+{% include 'eduquiz/header.html' %}
 {% endblock header %}
+
+
 <style>
 /* Full-width input fields */
 input[type=text], input[type=password] {
@@ -148,26 +146,37 @@ input[type=text]{
 </style>
 
 {% block content %}
+<script>
+  $(".login").click(funtion())
+  {
+    $('.ui.basic.modal').modal('show');
+  };
+</script>
+
 <body>
 
-<button onclick="document.getElementById('id01').style.display='block'" style="width:auto;">Login
-</button>
 
-<div id="id01" class="modal">
-  <form class="modal-content animate" action="/action_page.php">
-    <div class="imgcontainer">
-      <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
-        <img src="AdrianParty.png" alt="Avatar" class="avatar">
-      </div>
 
-    <div class="container">
-      <label>Username</label>
-      <input type="text" placeholder="Enter Username" name="uname" required>
+<div class="ui basic modal">
+  <div class="ui icon header">
+    <i class="archive icon"></i>
+    Archive Old Messages
+  </div>
+  <div class="content">
+    <p>Your inbox is getting full, would you like us to enable automatic archiving of old messages?</p>
+  </div>
+  <div class="actions">
+    <div class="ui red basic cancel inverted button">
+      <i class="remove icon"></i>
+      No
     </div>
-  </form>
+    <div class="ui green ok inverted button">
+      <i class="checkmark icon"></i>
+      Yes
+    </div>
+  </div>
 </div>
 </body>
-
 
 
 
@@ -211,6 +220,7 @@ input[type=text]{
 
 </form>
 
+<!--
 <script>
 // Get the modal
 var modal = document.getElementById('id01');
@@ -222,7 +232,7 @@ window.onclick = function(event) {
     }
 }
 </script>
-
+-->
 {% endblock content %}
 
 

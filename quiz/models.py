@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.admin import User
 from django.utils import timezone
-from django.http import JsonResponse
 from re import *
 
 class Achievement(models.Model):
@@ -132,11 +131,11 @@ class TextQuestion(Question):
 
     def answerFeedback(self, answer):
         answeredCorrect = self.validate(answer)
-        return JsonResponse({
+        return {
             'answer': str(answer),
             'correct': str(self.answer),
             'answeredCorrect': answeredCorrect,
-        }, safe=False)
+        }
 
 
 class TrueFalseQuestion(Question):
@@ -147,11 +146,11 @@ class TrueFalseQuestion(Question):
 
     def answerFeedback(self, answer):
         answeredCorrect = answer == self.answer
-        return JsonResponse({
+        return {
             'answer': str(answer),
             'correct': str(self.answer),
             'answeredCorrect': answeredCorrect,
-        }, safe=False)
+        }
 
 
 class MultipleChoiceQuestion(Question):
@@ -164,11 +163,11 @@ class MultipleChoiceQuestion(Question):
         answeredCorrect = answer.correct
         answers = MultipleChoiceAnswer.objects.filter(question=self.id, correct=True)
         answerIDs = [answer.id for answer in answers]
-        return JsonResponse({
+        return {
             'answer': answerID,
             'correct': answerIDs,
             'answeredCorrect': answeredCorrect,
-        }, safe=False)
+        }
 
 
 class MultipleChoiceAnswer(models.Model):

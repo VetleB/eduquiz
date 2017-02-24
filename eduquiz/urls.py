@@ -6,6 +6,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.index, name='index'),
     url(r'^authentication/', include('authentication.urls')),
-    url(r'^account/', include('account.urls')),
     url(r'^quiz/', include('quiz.urls')),
 ]

@@ -17,7 +17,6 @@ INSTALLED_APPS = [
     'eduquiz',
     'quiz',
     'authentication',
-    'account',
 ]
 
 MIDDLEWARE = [

@@ -11,9 +11,15 @@
       Play
     </a>
     {% if user.is_authenticated %}
-      <a class="item" href="/account">
-        My Account
-      </a>
+      <div class="ui dropdown item">
+        <div class="text">{{ user }}</div>
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <a class="item" href="#">My account</a>
+          <a class="item" href="#">Change password</a>
+          <a class="item" href="#">Sign out</a>
+        </div>
+      </div>
     {% else %}
       <a class="item login">
         Sign in
@@ -54,5 +60,8 @@
     $(".sidetoggle").click(function() {
       $('.ui.sidebar').sidebar('toggle');
     });
+    $('.ui.dropdown').dropdown({
+      action: 'hide',
+    })
   });
 </script>

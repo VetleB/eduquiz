@@ -175,7 +175,6 @@ class PlayerAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': (
-                'regitration_date',
                 'title',
                 'skill_lvl',
                 'user',
@@ -184,6 +183,19 @@ class PlayerAdmin(admin.ModelAdmin):
     )
     inlines = (
         TitleUnlockInline,
+    )
+
+@admin.register(PlayerAnswer)
+class PlayerAnswerAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': (
+                'player',
+                'question',
+                'result',
+                'answer_date'
+            )
+        }),
     )
 
 

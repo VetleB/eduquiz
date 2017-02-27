@@ -23,7 +23,7 @@ class Title(models.Model):
 class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
     skill_lvl = models.DecimalField(max_digits=3, decimal_places=3, default=0, verbose_name='Skill Lvl')
-    user = models.ForeignKey(User)
+    user = models.OneToOneField(User)
 
     def __str__(self):
         return self.user.username
@@ -185,4 +185,4 @@ class PlayerAnswer(models.Model):
     answer_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
 
     def __str__(self):
-        return '%b - %s - %s' % (self.result, self.player, self.question)
+        return '%r - %s - %s' % (self.result, self.player, self.question)

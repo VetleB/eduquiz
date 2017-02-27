@@ -13,17 +13,20 @@ def question(request):
             + list(MultipleChoiceQuestion.objects.filter(id=questionID))
             + list(TextQuestion.objects.filter(id=questionID)))[0]
 
+        feedback = {}
         if isinstance(question, MultipleChoiceQuestion):
-            return JsonResponse(question.answerFeedback(int(request.POST['answer'])), safe=False)
+            feedback = question.answerFeedback(int(request.POST['answer']))
 
         elif isinstance(question, TrueFalseQuestion):
-            return JsonResponse(question.answerFeedback(eval(request.POST['answer'])), safe=False)
+            feedback = question.answerFeedback(eval(request.POST['answer']))
 
         elif isinstance(question, TextQuestion):
-            return JsonResponse(question.answerFeedback(request.POST['answer']), safe=False)
+            feedback = question.answerFeedback(request.POST['answer'])
 
-        return JsonResponse({
-        }, safe=False)
+        if hasattr(request.user, 'player'):
+            PlayerAnswer(player=request.user.player, question=question, result=feedback['answeredCorrect']).save()
+
+        return JsonResponse(feedback, safe=False)
 
     else:
         r = random.random()

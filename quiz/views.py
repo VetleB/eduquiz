@@ -42,13 +42,10 @@ def multipleChoiceQuestion(request, question):
     question = questions[random.randint(0, len(questions)-1)]
     # END
 
-    qts = QuestionTopic.objects.filter(question=question)
-    topics = [qt.topic for qt in qts]
     answers = MultipleChoiceAnswer.objects.filter(question=question)
 
     context = {
         'question': question,
-        'topics': topics,
         'answers': answers,
     }
 
@@ -62,13 +59,10 @@ def trueFalseQuestion(request, question):
     question = questions[random.randint(0, len(questions) - 1)]
     # END
 
-    qts = QuestionTopic.objects.filter(question=question)
-    topics = [qt.topic for qt in qts]
     answers = ('True', 'False')
 
     context = {
         'question': question,
-        'topics': topics,
         'answers': answers,
     }
 
@@ -82,13 +76,10 @@ def textQuestion(request, question):
     question = questions[random.randint(0, len(questions) - 1)]
     # END
 
-    qts = QuestionTopic.objects.filter(question=question)
-    topics = [qt.topic for qt in qts]
     answers = question.answer
 
     context = {
         'question': question,
-        'topics': topics,
         'answer': answers,
     }
 

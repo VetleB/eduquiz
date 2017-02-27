@@ -18,9 +18,7 @@
     <div class="ui card question" question="{{ question.id }}">
       <div class="content">
         <h4 class="ui sub header">
-          {% for topic in topics %}
-            {{ topic }} - {{ topic.subject.code }}<br>
-          {% endfor %}
+          {{ question.topic }} - {{ question.topic.subject.code }}<br>
         </h4>
         <div class="ui questionText">
           {{ question }}

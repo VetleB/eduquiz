@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.admin import User
 from django.utils import timezone
-from re import *
+from re import match
+from django.http import JsonResponse
+from django.contrib.contenttypes.fields import GenericForeignKey
+
 
 class Achievement(models.Model):
     name = models.CharField(max_length=50, verbose_name='Title')
@@ -75,17 +78,11 @@ class Question(models.Model):
     creator = models.ForeignKey(Player)
     creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
     difficulty = models.DecimalField(max_digits=3, decimal_places=3, verbose_name='Difficulty')
+    topic = models.ForeignKey(Topic)
 
     def __str__(self):
         return self.question_text
 
-
-class QuestionTopic(models.Model):
-    topic = models.ForeignKey(Topic)
-    question = models.ForeignKey(Question)
-
-    def __str__(self):
-        return '%s - %s' % (self.topic, self.question)
 
 
 class TextQuestion(Question):

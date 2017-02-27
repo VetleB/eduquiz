@@ -94,8 +94,11 @@ class TextQuestion(Question):
     def validate(self, userAnswer):
         userAnswer = userAnswer.strip().casefold().replace(',', '.')
 
+        # Fjerner ledende nuller
         while userAnswer[0] == '0' and len(userAnswer) > 1:
             userAnswer = userAnswer[1:]
+
+        correctNumOfDecimals = len(self.answer.split('.')[1])
 
         # sjekker om det er '.' i strengen
         if '.' in userAnswer:
@@ -105,25 +108,26 @@ class TextQuestion(Question):
             if userAnswer[0] == "":
                 userAnswer[0] = '0'
 
+
             numOfDecimals = len(userAnswer[1])
 
-            # legger på nuller til det er tre desimaler
-            if numOfDecimals < 3:
-                userAnswer[1] += ''.join(['0']*(3-numOfDecimals))
+            # legger på nuller til det er korrekt antall desimaler
+            if numOfDecimals < correctNumOfDecimals:
+                userAnswer[1] += ''.join(['0']*(correctNumOfDecimals-numOfDecimals))
 
             #Fjerner ekstra nuller fra desimaldelen
-            if numOfDecimals > 3:
-                extra = userAnswer[1][3:]
+            if numOfDecimals > correctNumOfDecimals:
+                extra = userAnswer[1][correctNumOfDecimals:]
                 zeroMatch = match(r'^0*$', extra)
                 if zeroMatch:
-                    userAnswer[1] = userAnswer[1][0:3]
+                    userAnswer[1] = userAnswer[1][0:correctNumOfDecimals]
 
             userAnswer = '.'.join(userAnswer)
         else:
-            userAnswer += '.000'
+            userAnswer += '.' + ''.join(['0']*correctNumOfDecimals)
 
-        # matcher et heksadesimalt tall med tre desimaler
-        patternMatch = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]{3}$', userAnswer))
+        # matcher et heksadesimalt tall med desimaler
+        patternMatch = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]*$', userAnswer))
         return (userAnswer == self.answer.casefold()) and patternMatch
 
     def answerFeedback(self, answer):

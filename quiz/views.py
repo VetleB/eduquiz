@@ -14,13 +14,13 @@ def question(request):
             + list(TextQuestion.objects.filter(id=questionID)))[0]
 
         if isinstance(question, MultipleChoiceQuestion):
-            return question.answerFeedback(int(request.POST['answer']))
+            return JsonResponse(question.answerFeedback(int(request.POST['answer'])), safe=False)
 
         elif isinstance(question, TrueFalseQuestion):
-            return question.answerFeedback(eval(request.POST['answer']))
+            return JsonResponse(question.answerFeedback(eval(request.POST['answer'])), safe=False)
 
         elif isinstance(question, TextQuestion):
-            return question.answerFeedback(request.POST['answer'])
+            return JsonResponse(question.answerFeedback(request.POST['answer']), safe=False)
 
         return JsonResponse({
         }, safe=False)

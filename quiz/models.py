@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.admin import User
 from django.utils import timezone
+from re import match
 from django.http import JsonResponse
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 class Achievement(models.Model):
@@ -76,35 +78,65 @@ class Question(models.Model):
     creator = models.ForeignKey(Player)
     creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
     difficulty = models.DecimalField(max_digits=3, decimal_places=3, verbose_name='Difficulty')
+    topic = models.ForeignKey(Topic, null=True, blank=True)
 
     def __str__(self):
         return self.question_text
 
 
-class QuestionTopic(models.Model):
-    topic = models.ForeignKey(Topic)
-    question = models.ForeignKey(Question)
-
-    def __str__(self):
-        return '%s - %s' % (self.topic, self.question)
-
 
 class TextQuestion(Question):
     answer = models.CharField(max_length=50, verbose_name='Answer')
-
     def __str__(self):
         return super().question_text
 
+    #Antar at self.answer er numerisk med tre desimaler
     def validate(self, userAnswer):
-        return userAnswer == self.answer
+        userAnswer = userAnswer.strip().casefold().replace(',', '.')
+
+        # Fjerner ledende nuller
+        while userAnswer[0] == '0' and len(userAnswer) > 1:
+            userAnswer = userAnswer[1:]
+
+        correctNumOfDecimals = len(self.answer.split('.')[1])
+
+        # sjekker om det er '.' i strengen
+        if '.' in userAnswer:
+            userAnswer = userAnswer.split('.')
+
+            # gjør om heltallsdelen til '0' hvis den er ingenting
+            if userAnswer[0] == "":
+                userAnswer[0] = '0'
+
+
+            numOfDecimals = len(userAnswer[1])
+
+            # legger på nuller til det er korrekt antall desimaler
+            if numOfDecimals < correctNumOfDecimals:
+                userAnswer[1] += ''.join(['0']*(correctNumOfDecimals-numOfDecimals))
+
+            #Fjerner ekstra nuller fra desimaldelen
+            if numOfDecimals > correctNumOfDecimals:
+                extra = userAnswer[1][correctNumOfDecimals:]
+                zeroMatch = match(r'^0*$', extra)
+                if zeroMatch:
+                    userAnswer[1] = userAnswer[1][0:correctNumOfDecimals]
+
+            userAnswer = '.'.join(userAnswer)
+        else:
+            userAnswer += '.' + ''.join(['0']*correctNumOfDecimals)
+
+        # matcher et heksadesimalt tall med desimaler
+        patternMatch = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]*$', userAnswer))
+        return (userAnswer == self.answer.casefold()) and patternMatch
 
     def answerFeedback(self, answer):
         answeredCorrect = self.validate(answer)
-        return JsonResponse({
-            'answer': answer,
-            'correct': self.answer,
+        return {
+            'answer': str(answer),
+            'correct': str(self.answer),
             'answeredCorrect': answeredCorrect,
-        }, safe=False)
+        }
 
 
 class TrueFalseQuestion(Question):
@@ -115,11 +147,11 @@ class TrueFalseQuestion(Question):
 
     def answerFeedback(self, answer):
         answeredCorrect = answer == self.answer
-        return JsonResponse({
+        return {
             'answer': str(answer),
             'correct': str(self.answer),
             'answeredCorrect': answeredCorrect,
-        }, safe=False)
+        }
 
 
 class MultipleChoiceQuestion(Question):
@@ -132,11 +164,11 @@ class MultipleChoiceQuestion(Question):
         answeredCorrect = answer.correct
         answers = MultipleChoiceAnswer.objects.filter(question=self.id, correct=True)
         answerIDs = [answer.id for answer in answers]
-        return JsonResponse({
+        return {
             'answer': answerID,
             'correct': answerIDs,
             'answeredCorrect': answeredCorrect,
-        }, safe=False)
+        }
 
 
 class MultipleChoiceAnswer(models.Model):

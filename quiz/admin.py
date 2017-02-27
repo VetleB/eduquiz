@@ -6,8 +6,18 @@ class MultipleChoiceAnswerInline(admin.TabularInline):
     model = MultipleChoiceAnswer
 
 
-class QuestionTopicInline(admin.TabularInline):
-    model = QuestionTopic
+class MultipleChoiceQuestionInline(admin.TabularInline):
+    model = MultipleChoiceQuestion
+
+class TrueFalseQuestionInline(admin.TabularInline):
+    model = TrueFalseQuestion
+
+class TextQuestionInline(admin.TabularInline):
+    model = TextQuestion
+
+
+class TopicInline(admin.TabularInline):
+    model = Topic
 
 
 @admin.register(MultipleChoiceQuestion)
@@ -16,6 +26,7 @@ class MultipleChoiceQuestionAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'question_text',
+                'topic',
             )
         }),
         ('Advanced options', {
@@ -32,7 +43,6 @@ class MultipleChoiceQuestionAdmin(admin.ModelAdmin):
     )
     inlines = (
         MultipleChoiceAnswerInline,
-        QuestionTopicInline,
     )
 
 
@@ -43,6 +53,7 @@ class TextQuestionAdmin(admin.ModelAdmin):
             'fields': (
                 'question_text',
                 'answer',
+                'topic',
             )
         }),
         ('Advanced options', {
@@ -56,9 +67,6 @@ class TextQuestionAdmin(admin.ModelAdmin):
                 'difficulty',
             ),
         }),
-    )
-    inlines = (
-        QuestionTopicInline,
     )
 
 
@@ -69,6 +77,7 @@ class TrueFalseQuestionAdmin(admin.ModelAdmin):
             'fields': (
                 'question_text',
                 'answer',
+                'topic',
             )
         }),
         ('Advanced options', {
@@ -82,9 +91,6 @@ class TrueFalseQuestionAdmin(admin.ModelAdmin):
                 'difficulty',
             ),
         }),
-    )
-    inlines = (
-        QuestionTopicInline,
     )
 
 
@@ -99,12 +105,10 @@ class TopicAdmin(admin.ModelAdmin):
         }),
     )
     inlines = (
-        QuestionTopicInline,
+        TrueFalseQuestionInline,
+        MultipleChoiceQuestionInline,
+        TextQuestionInline,
     )
-
-
-class TopicInline(admin.TabularInline):
-    model = Topic
 
 
 @admin.register(Subject)

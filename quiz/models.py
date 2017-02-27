@@ -22,7 +22,6 @@ class Title(models.Model):
 
 
 class Player(models.Model):
-    regitration_date = models.DateTimeField(default=timezone.now, verbose_name='Registration Date')
     title = models.ForeignKey(Title, blank=True, null=True)
     skill_lvl = models.DecimalField(max_digits=3, decimal_places=3, default=0, verbose_name='Skill Lvl')
     user = models.ForeignKey(User)

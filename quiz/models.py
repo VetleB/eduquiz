@@ -3,7 +3,6 @@ from django.contrib.auth.admin import User
 from django.utils import timezone
 from re import match
 from django.http import JsonResponse
-from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 class Achievement(models.Model):

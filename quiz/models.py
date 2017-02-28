@@ -85,6 +85,7 @@ class Question(models.Model):
 class TextQuestion(Question):
     answer = models.CharField(max_length=50, verbose_name='Answer')
 
+    # TODO: expand method for validating text answers
     def validate(self, userAnswer):
         return userAnswer.casefold() == self.answer.casefold()
 
@@ -103,8 +104,11 @@ class NumberQuestion(Question):
         return super().question_text
 
     #Antar at self.answer er numerisk
-    def validate(self, userAnswer):
-        userAnswer = userAnswer.strip().casefold().replace(',', '.')
+    def validate(self, inAnswer):
+
+        userAnswer = inAnswer.strip()
+        userAnswer = userAnswer.casefold().strip().replace(',', '.')
+        answer = self.answer.casefold().strip().replace(',', '.')
 
         # Fjerner ledende nuller
         while userAnswer[0] == '0' and len(userAnswer) > 1:
@@ -114,11 +118,11 @@ class NumberQuestion(Question):
             if '.' in userAnswer:
                 spl = userAnswer.split('.')
                 if match(r'^0*$', spl[1]):
-                    return spl[0].casefold() == self.answer.casefold()
+                    return spl[0] == answer
                 return False
-            return userAnswer.casefold() == self.answer.casefold()
+            return userAnswer == answer
 
-        correctNumOfDecimals = len(self.answer.split('.')[1])
+        correctNumOfDecimals = len(answer.split('.')[1])
 
         # sjekker om det er '.' i strengen
         if '.' in userAnswer:
@@ -148,7 +152,7 @@ class NumberQuestion(Question):
 
         # matcher et heksadesimalt tall med desimaler
         patternMatch = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]*$', userAnswer))
-        return (userAnswer == self.answer.casefold()) and patternMatch
+        return (userAnswer == answer) and patternMatch
 
     def answerFeedback(self, answer):
         answeredCorrect = self.validate(answer)

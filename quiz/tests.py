@@ -47,6 +47,8 @@ class NumberQuestionTestCase(TestCase):
         question = NumberQuestion.objects.get()
         question.answer = '42'
         self.assertTrue(question.validate('42.0'))
+        question.answer = 'AB'
+        self.assertTrue(question.validate('AB.0'))
 
     def test_validation_of_comma_as_decimal_mark(self):
         question = NumberQuestion.objects.get()
@@ -104,7 +106,9 @@ class NumberQuestionTestCase(TestCase):
         self.assertTrue(question.validate('ab3.bf1'))
         self.assertTrue(question.validate('AB3.BF1'))
         self.assertTrue(question.validate('Ab3.Bf1'))
-        self.assertTrue(question.validate('aB3.bF1'))
+        question.answer = 'AB123ef'
+        self.assertTrue(question.validate('Ab123eF'))
+
 
 
 class MultipleChoiceTestCase(TestCase):

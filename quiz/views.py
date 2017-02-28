@@ -23,7 +23,7 @@ def question(request):
         elif isinstance(question, TextQuestion):
             feedback = question.answerFeedback(request.POST['answer'])
 
-        if hasattr(request.user, 'player'):
+        if hasattr(request.user, 'player') and feedback:
             PlayerAnswer(player=request.user.player, question=question, result=feedback['answeredCorrect']).save()
 
         return JsonResponse(feedback, safe=False)

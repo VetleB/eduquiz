@@ -82,19 +82,41 @@ class Question(models.Model):
         return self.question_text
 
 
-
 class TextQuestion(Question):
+    answer = models.CharField(max_length=50, verbose_name='Answer')
+
+    def validate(self, userAnswer):
+        return userAnswer.casefold() == self.answer.casefold()
+
+    def answerFeedback(self, answer):
+        answeredCorrect = self.validate(answer)
+        return {
+            'answer': str(answer),
+            'correct': str(self.answer),
+            'answeredCorrect': answeredCorrect,
+        }
+
+
+class NumberQuestion(Question):
     answer = models.CharField(max_length=50, verbose_name='Answer')
     def __str__(self):
         return super().question_text
 
-    #Antar at self.answer er numerisk med tre desimaler
+    #Antar at self.answer er numerisk
     def validate(self, userAnswer):
         userAnswer = userAnswer.strip().casefold().replace(',', '.')
 
         # Fjerner ledende nuller
         while userAnswer[0] == '0' and len(userAnswer) > 1:
             userAnswer = userAnswer[1:]
+
+        if '.' not in self.answer:
+            if '.' in userAnswer:
+                spl = userAnswer.split('.')
+                if match(r'^0*$', spl[1]):
+                    return spl[0].casefold() == self.answer.casefold()
+                return False
+            return userAnswer.casefold() == self.answer.casefold()
 
         correctNumOfDecimals = len(self.answer.split('.')[1])
 
@@ -103,7 +125,7 @@ class TextQuestion(Question):
             userAnswer = userAnswer.split('.')
 
             # gjør om heltallsdelen til '0' hvis den er ingenting
-            if userAnswer[0] == "":
+            if userAnswer[0] == '':
                 userAnswer[0] = '0'
 
 

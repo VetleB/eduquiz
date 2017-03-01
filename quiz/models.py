@@ -85,9 +85,15 @@ class Question(models.Model):
 class TextQuestion(Question):
     answer = models.CharField(max_length=50, verbose_name='Answer')
 
-    # TODO: expand method for validating text answers
-    def validate(self, userAnswer):
-        return userAnswer.casefold() == self.answer.casefold()
+    def validate(self, inAnswer):
+        userAnswer = inAnswer.strip().casefold()
+        correctAnswer = self.answer.strip().casefold()
+
+        # Fjerner alt som ikke er alfanumerisk
+        userAnswer = ''.join([c for c in userAnswer if c.isalnum()])
+        correctAnswer = ''.join([c for c in correctAnswer if c.isalnum()])
+
+        return userAnswer == correctAnswer
 
     def answerFeedback(self, answer):
         answeredCorrect = self.validate(answer)
@@ -113,6 +119,10 @@ class NumberQuestion(Question):
         while len(userAnswer) > 1 and userAnswer[0] == '0':
             userAnswer = userAnswer[1:]
 
+        # Gjør om heltallsdelen til '0' hvis den er ingenting
+        if userAnswer[0] == '.':
+            userAnswer = '0' + userAnswer
+
         if '.' not in correctAnswer:
             if '.' in userAnswer:
                 spl = userAnswer.split('.')
@@ -126,12 +136,6 @@ class NumberQuestion(Question):
         # Sjekker om det er '.' i strengen
         if '.' in userAnswer:
             userAnswer = userAnswer.split('.')
-
-            # Gjør om heltallsdelen til '0' hvis den er ingenting
-            if userAnswer[0] == '':
-                userAnswer[0] = '0'
-
-
             numOfDecimals = len(userAnswer[1])
 
             # Legger på nuller til det er korrekt antall desimaler

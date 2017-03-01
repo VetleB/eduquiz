@@ -20,6 +20,30 @@ class TextQuestionTestCase(TestCase):
     def test_validation_ignores_capitalization(self):
         question = TextQuestion.objects.get()
         self.assertTrue(question.validate('ansWer'))
+        question.answer = 'ANSWER'
+        self.assertTrue(question.validate('ansWer'))
+
+    def test_validation_ignores_special_characters(self):
+        question = TextQuestion.objects.get()
+        question.answer = 'this answer'
+        self.assertTrue(question.validate('this-answer'))
+        self.assertTrue(question.validate('this_answer'))
+        self.assertTrue(question.validate('this.answer'))
+        self.assertTrue(question.validate('this answer'))
+        self.assertTrue(question.validate('thisanswer'))
+        question.answer = 'this-answer'
+        self.assertTrue(question.validate('this answer'))
+        question.answer = 'this_answer'
+        self.assertTrue(question.validate('this answer'))
+        question.answer = 'thisanswer'
+        self.assertTrue(question.validate('this answer'))
+
+    def test_validation_not_ignores_numbers(self):
+        question = TextQuestion.objects.get()
+        question.answer = 'this answer'
+        self.assertFalse(question.validate('this0answer'))
+        question.answer = 'this answer1'
+        self.assertFalse(question.validate('this answer'))
 
 
 class NumberQuestionTestCase(TestCase):
@@ -39,9 +63,7 @@ class NumberQuestionTestCase(TestCase):
         question = NumberQuestion.objects.get()
         question.answer = '1.45'
         self.assertTrue(question.validate('1.45'))
-        self.assertFalse(question.validate('1.46'))
-        question.answer = '42'
-        self.assertTrue(question.validate('42'))
+        self.assertFalse(question.validate('14.5'))
 
     def test_validation_of_float_when_answer_is_int(self):
         question = NumberQuestion.objects.get()
@@ -54,7 +76,6 @@ class NumberQuestionTestCase(TestCase):
         question = NumberQuestion.objects.get()
         self.assertTrue(question.validate('1.000'))
         self.assertTrue(question.validate('1,000'))
-        self.assertTrue(question.validate('1,'))
 
     def test_validation_of_superfluous_spaces(self):
         question = NumberQuestion.objects.get()
@@ -71,34 +92,27 @@ class NumberQuestionTestCase(TestCase):
         question = NumberQuestion.objects.get()
         question.answer = '0.001'
         self.assertTrue(question.validate('.001'))
-        self.assertFalse(question.validate('001'))
+        question.answer = '1.001'
+        self.assertFalse(question.validate('.001'))
 
-    def test_validation_of_too_many_decimals(self):
+    def test_validation_of_trailing_zeros(self):
         question = NumberQuestion.objects.get()
-        self.assertFalse(question.validate('1.0001'))
-        self.assertTrue(question.validate('1.0000'))
-
-    def test_validation_of_too_few_decimals(self):
-        question = NumberQuestion.objects.get()
-        self.assertTrue(question.validate('1.'))
-        self.assertTrue(question.validate('1.0'))
-        self.assertTrue(question.validate('1.00'))
+        question.answer = '0.1'
+        self.assertTrue(question.validate('0.10'))
+        self.assertFalse(question.validate('0.10010'))
 
     def test_validation_of_zero(self):
         question = NumberQuestion.objects.get()
-        question.answer = '0.000'
+        question.answer = '0'
         self.assertTrue(question.validate('0'))
         self.assertTrue(question.validate('0.'))
         self.assertTrue(question.validate('.'))
-        self.assertTrue(question.validate('.000'))
-        self.assertTrue(question.validate('0.00000000000'))
+        self.assertTrue(question.validate('.0'))
 
     def test_validation_of_leading_zeroes(self):
         question = NumberQuestion.objects.get()
-        question.answer = '10.000'
+        question.answer = '10'
         self.assertTrue(question.validate('010'))
-        self.assertTrue(question.validate('00000000000010'))
-        self.assertTrue(question.validate('010.000'))
 
     def test_validation_of_hexadecimal_capitalization(self):
         question = NumberQuestion.objects.get()

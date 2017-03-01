@@ -103,12 +103,12 @@ class NumberQuestion(Question):
     def __str__(self):
         return super().question_text
 
-    #Antar at self.answer er numerisk
+    # Antar at self.answer er numerisk
     def validate(self, inAnswer):
 
         userAnswer = inAnswer.strip()
         userAnswer = userAnswer.casefold().strip().replace(',', '.')
-        answer = self.answer.casefold().strip().replace(',', '.')
+        correctAnswer = self.answer.casefold().strip().replace(',', '.')
 
         # Fjerner ledende nuller
         while userAnswer[0] == '0' and len(userAnswer) > 1:
@@ -118,28 +118,28 @@ class NumberQuestion(Question):
             if '.' in userAnswer:
                 spl = userAnswer.split('.')
                 if match(r'^0*$', spl[1]):
-                    return spl[0] == answer
+                    return spl[0] == correctAnswer
                 return False
-            return userAnswer == answer
+            return userAnswer == correctAnswer
 
-        correctNumOfDecimals = len(answer.split('.')[1])
+        correctNumOfDecimals = len(correctAnswer.split('.')[1])
 
-        # sjekker om det er '.' i strengen
+        # Sjekker om det er '.' i strengen
         if '.' in userAnswer:
             userAnswer = userAnswer.split('.')
 
-            # gjør om heltallsdelen til '0' hvis den er ingenting
+            # Gjør om heltallsdelen til '0' hvis den er ingenting
             if userAnswer[0] == '':
                 userAnswer[0] = '0'
 
 
             numOfDecimals = len(userAnswer[1])
 
-            # legger på nuller til det er korrekt antall desimaler
+            # Legger på nuller til det er korrekt antall desimaler
             if numOfDecimals < correctNumOfDecimals:
                 userAnswer[1] += ''.join(['0']*(correctNumOfDecimals-numOfDecimals))
 
-            #Fjerner ekstra nuller fra desimaldelen
+            # Fjerner ekstra nuller fra desimaldelen
             if numOfDecimals > correctNumOfDecimals:
                 extra = userAnswer[1][correctNumOfDecimals:]
                 zeroMatch = match(r'^0*$', extra)
@@ -150,9 +150,9 @@ class NumberQuestion(Question):
         else:
             userAnswer += '.' + ''.join(['0']*correctNumOfDecimals)
 
-        # matcher et heksadesimalt tall med desimaler
+        # Matcher et heksadesimalt tall med desimaler
         patternMatch = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]*$', userAnswer))
-        return (userAnswer == answer) and patternMatch
+        return (userAnswer == correctAnswer) and patternMatch
 
     def answerFeedback(self, answer):
         answeredCorrect = self.validate(answer)

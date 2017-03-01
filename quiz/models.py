@@ -106,15 +106,14 @@ class NumberQuestion(Question):
     # Antar at self.answer er numerisk
     def validate(self, inAnswer):
 
-        userAnswer = inAnswer.strip()
-        userAnswer = userAnswer.casefold().strip().replace(',', '.')
+        userAnswer = inAnswer.casefold().strip().replace(',', '.')
         correctAnswer = self.answer.casefold().strip().replace(',', '.')
 
         # Fjerner ledende nuller
-        while userAnswer[0] == '0' and len(userAnswer) > 1:
+        while len(userAnswer) > 1 and userAnswer[0] == '0':
             userAnswer = userAnswer[1:]
 
-        if '.' not in self.answer:
+        if '.' not in correctAnswer:
             if '.' in userAnswer:
                 spl = userAnswer.split('.')
                 if match(r'^0*$', spl[1]):

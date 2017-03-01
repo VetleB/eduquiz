@@ -11,7 +11,8 @@ def question(request):
 
         question = (list(TrueFalseQuestion.objects.filter(id=questionID))
             + list(MultipleChoiceQuestion.objects.filter(id=questionID))
-            + list(TextQuestion.objects.filter(id=questionID)))[0]
+            + list(TextQuestion.objects.filter(id=questionID))
+            + list(NumberQuestion.objects.filter(id=questionID)))[0]
 
         feedback = {}
         if isinstance(question, MultipleChoiceQuestion):
@@ -23,6 +24,9 @@ def question(request):
         elif isinstance(question, TextQuestion):
             feedback = question.answerFeedback(request.POST['answer'])
 
+        elif isinstance(question, NumberQuestion):
+            feedback = question.answerFeedback(request.POST['answer'])
+
         if hasattr(request.user, 'player') and feedback:
             PlayerAnswer(player=request.user.player, question=question, result=feedback['answeredCorrect']).save()
 
@@ -30,13 +34,14 @@ def question(request):
 
     else:
         r = random.random()
-        if r > 2/3:
+        if r > 3/4:
             return multipleChoiceQuestion(request, None)
-        elif r > 1/3:
+        elif r > 2/4:
             return textQuestion(request, None)
-        else:
+        elif r > 1/4:
             return trueFalseQuestion(request, None)
-
+        else:
+            return numberQuestion(request, None)
 
 def multipleChoiceQuestion(request, question):
 
@@ -87,3 +92,19 @@ def textQuestion(request, question):
     }
 
     return render(request, 'quiz/textQuestion.html', context)
+
+def numberQuestion(request, question):
+
+    ## REMOVE LATER
+    questions = NumberQuestion.objects.all()
+    question = questions[random.randint(0, len(questions) - 1)]
+    # END
+
+    answers = question.answer
+
+    context = {
+        'question': question,
+        'answer': answers,
+    }
+
+    return render(request, 'quiz/numberQuestion.html', context)

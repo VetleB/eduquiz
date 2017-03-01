@@ -5,7 +5,6 @@ from quiz.models import *
 class MultipleChoiceAnswerInline(admin.TabularInline):
     model = MultipleChoiceAnswer
 
-
 class MultipleChoiceQuestionInline(admin.TabularInline):
     model = MultipleChoiceQuestion
 
@@ -15,6 +14,8 @@ class TrueFalseQuestionInline(admin.TabularInline):
 class TextQuestionInline(admin.TabularInline):
     model = TextQuestion
 
+class NumberQuestionInline(admin.TabularInline):
+    model = NumberQuestion
 
 class TopicInline(admin.TabularInline):
     model = Topic
@@ -68,6 +69,29 @@ class TextQuestionAdmin(admin.ModelAdmin):
             ),
         }),
     )
+
+    @admin.register(NumberQuestion)
+    class NumberQuestionAdmin(admin.ModelAdmin):
+        fieldsets = (
+            (None, {
+                'fields': (
+                    'question_text',
+                    'answer',
+                    'topic',
+                )
+            }),
+            ('Advanced options', {
+                'classes': (
+                    'collapse',
+                    'closed',
+                ),
+                'fields': (
+                    'creator',
+                    'creation_date',
+                    'difficulty',
+                ),
+            }),
+        )
 
 
 @admin.register(TrueFalseQuestion)

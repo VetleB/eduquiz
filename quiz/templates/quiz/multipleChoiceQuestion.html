@@ -19,6 +19,7 @@
       <div class="content">
         <h4 class="ui sub header">
           {{ question.topic }} - {{ question.topic.subject.code }}<br>
+          {{ question.rating|floatformat:"0" }}
         </h4>
         <div class="ui questionText">
           {{ question }}

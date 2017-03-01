@@ -38,7 +38,7 @@ class MultipleChoiceQuestionAdmin(admin.ModelAdmin):
             'fields': (
                 'creator',
                 'creation_date',
-                'difficulty',
+                'rating',
             ),
         }),
     )
@@ -65,7 +65,7 @@ class TextQuestionAdmin(admin.ModelAdmin):
             'fields': (
                 'creator',
                 'creation_date',
-                'difficulty',
+                'rating',
             ),
         }),
     )
@@ -88,7 +88,7 @@ class TextQuestionAdmin(admin.ModelAdmin):
                 'fields': (
                     'creator',
                     'creation_date',
-                    'difficulty',
+                    'rating',
                 ),
             }),
         )
@@ -112,7 +112,7 @@ class TrueFalseQuestionAdmin(admin.ModelAdmin):
             'fields': (
                 'creator',
                 'creation_date',
-                'difficulty',
+                'rating',
             ),
         }),
     )

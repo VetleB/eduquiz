@@ -22,8 +22,22 @@ class Title(models.Model):
 
 class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
-    skill_lvl = models.DecimalField(max_digits=3, decimal_places=3, default=0, verbose_name='Skill Lvl')
+    rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     user = models.OneToOneField(User)
+
+    def update(self, question, win):
+            win = int(win)
+            QUESTION_K = 8
+            PLAYER_K = 16
+
+            rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
+            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
+            question.save()
+            self.rating = rating
+            self.save()
+
+    def exp(self, a, b):
+            return 1/(1+pow(10,(b-a)/400))
 
     def __str__(self):
         return self.user.username
@@ -75,7 +89,7 @@ class Question(models.Model):
     question_text = models.TextField(max_length=200, verbose_name='Question')
     creator = models.ForeignKey(Player)
     creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
-    difficulty = models.DecimalField(max_digits=3, decimal_places=3, verbose_name='Difficulty')
+    rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     topic = models.ForeignKey(Topic, null=True, blank=True)
 
     def __str__(self):

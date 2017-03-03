@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=15, label="username")
     password = forms.CharField(max_length=30, widget=forms.PasswordInput, label="password")
-    password = forms.CharField(max_length=45, widget=forms.PasswordInput, label="email")
 
     def clean(self):
         form_data = self.cleaned_data

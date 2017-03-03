@@ -10,7 +10,6 @@
     <a class="item" href="/quiz">
       Play
     </a>
-
     {% if user.is_authenticated %}
       <div class="ui dropdown item">
         <div class="text">{{ user }}</div>
@@ -18,7 +17,7 @@
         <div class="menu">
           <a class="item" href="#">My account</a>
           <a class="item" href="#">Change password</a>
-          <a class="item signOut" href="/authentication/logout">Sign out</a>
+          <a class="item" href="#">Sign out</a>
         </div>
       </div>
     {% else %}

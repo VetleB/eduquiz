@@ -4,7 +4,6 @@ from authentication.forms import *
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as djangologin
 from authentication.forms import LoginForm
-from django.contrib.auth import logout as djangologout
 from django.core.exceptions import ValidationError
 
 def login(request):
@@ -27,11 +26,3 @@ def login(request):
     }
 
     return render(request, 'authentication/login.html', context)
-
-
-def logout(request):
-    djangologout(request)
-    return HttpResponseRedirect("/")
-
-def register(request):
-    return

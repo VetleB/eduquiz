@@ -200,7 +200,7 @@ class PlayerAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'title',
-                'skill_lvl',
+                'rating',
                 'user',
             )
         }),

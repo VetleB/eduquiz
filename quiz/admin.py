@@ -175,9 +175,8 @@ class PlayerAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': (
-                'regitration_date',
                 'title',
-                'skill_lvl',
+                'rating',
                 'user',
             )
         }),

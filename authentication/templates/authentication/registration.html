@@ -1,11 +1,11 @@
 <div class="ui modal">
   <!--<i class="close icon"></i>-->
   <div class="header">
-    Login
+    Register
   </div>
   <div class="content">
     <div class="description">
-      <form class="ui form" action="/authentication/login/" method="POST">
+      <form class="ui form" action="/registration" method="POST">
         {% csrf_token %}
 
         <div class="field">
@@ -32,7 +32,18 @@
             <p>{{ form.errors.password.0 }}</p>
           </div>
         {% endif %}
-
+      <div class="field">
+          <label>E-mail</label>
+          <input id="id_email" type="email" name="email" required>
+        </div>
+        {% if form.errors.email %}
+          <div class="ui negative message loginerror">
+            <div class="header">
+              <!--Invalid-->
+            </div>
+            <p>{{ form.errors.email.0 }}</p>
+          </div>
+        {% endif %}
       </form>
     </div>
   </div>
@@ -72,4 +83,3 @@
     }
   });
 </script>
-

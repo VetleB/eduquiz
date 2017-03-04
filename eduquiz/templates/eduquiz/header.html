@@ -10,6 +10,15 @@
     <a class="item" href="/quiz">
       Play
     </a>
+    <div class="ui dropdown item">
+      <div class="text">Create question</div>
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <a class="item" href="/quiz/new/multiplechoice">multiple choice</a>
+          <a class="item" href="/quiz/new/trueorfalse">true or false</a>
+          <a class="item" href="/quiz/new/textanswer">text answer</a>
+      </div>
+    </div>
     {% if user.is_authenticated %}
       <div class="ui dropdown item">
         <div class="text">{{ user }} - {{ user.player.rating|floatformat:"0" }}</div>
@@ -42,6 +51,7 @@
     <a class="item" href="/quiz">
       Play
     </a>
+
     {% if user.is_authenticated %}
       <a class="item" href="/account">
         My Account
@@ -50,6 +60,7 @@
       <a class="item login">
         Sign in
       </a>
+
     {% endif %}
   </div>
 </div>

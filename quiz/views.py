@@ -110,3 +110,30 @@ def numberQuestion(request, question):
     }
 
     return render(request, 'quiz/numberQuestion.html', context)
+
+def newMultiplechoice(request):
+
+
+    context = {
+
+    }
+
+    return render(request, 'quiz/newMultiplechoice.html', context)
+
+def newTrueorfalse(request):
+
+
+    context = {
+
+    }
+
+    return render(request, 'quiz/newTrueorfalse.html', context)
+
+def newTextanswer(request):
+
+
+    context = {
+
+    }
+
+    return render(request, 'quiz/newTextanswer.html', context)

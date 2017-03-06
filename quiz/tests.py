@@ -114,7 +114,6 @@ class NumberQuestionTestCase(TestCase):
         self.assertTrue(question.validate('Ab123eF'))
 
 
-
 class MultipleChoiceTestCase(TestCase):
 
     def setUp(self):
@@ -132,7 +131,7 @@ class MultipleChoiceTestCase(TestCase):
 
 
     def testAnswerCorrect(self):
-        question = MultipleChoiceQuestion.objects.get()
+        question = MultipleChoiceQuestion.objects.get(question_text='TEST_QUESTION')
         correctAnswers = MultipleChoiceAnswer.objects.filter(
             question = question,
             correct = True,
@@ -147,7 +146,7 @@ class MultipleChoiceTestCase(TestCase):
         self.assertEqual(response, json)
 
     def testAnswerIncorrect(self):
-        question = MultipleChoiceQuestion.objects.get()
+        question = MultipleChoiceQuestion.objects.get(question_text='TEST_QUESTION')
         wrongAnswers = MultipleChoiceAnswer.objects.filter(
             question = question,
             correct = False,
@@ -161,6 +160,35 @@ class MultipleChoiceTestCase(TestCase):
         json = {
             'answer': wrongAnswer.id,
             'correct': [correctAnswer.id for correctAnswer in correctAnswers],
+            'answeredCorrect': False,
+        }
+        self.assertEqual(response, json)
+
+
+class TrueFalseTestCase(TestCase):
+
+    def setUp(self):
+        question = TrueFalseQuestion.objects.create(
+            question_text = 'TEST_QUESTION',
+            answer = True,
+        )
+
+    def testAnswerCorrect(self):
+        question = TrueFalseQuestion.objects.get(question_text='TEST_QUESTION')
+        response = question.answerFeedback(True)
+        json = {
+            'answer': 'True',
+            'correct': 'True',
+            'answeredCorrect': True,
+        }
+        self.assertEqual(response, json)
+
+    def testAnswerIncorrect(self):
+        question = TrueFalseQuestion.objects.get(question_text='TEST_QUESTION')
+        response = question.answerFeedback(False)
+        json = {
+            'answer': 'False',
+            'correct': 'True',
             'answeredCorrect': False,
         }
         self.assertEqual(response, json)

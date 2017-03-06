@@ -87,7 +87,7 @@ class Topic(models.Model):
 
 class Question(models.Model):
     question_text = models.TextField(max_length=200, verbose_name='Question')
-    creator = models.ForeignKey(Player)
+    creator = models.ForeignKey(Player, blank=True, null=True)
     creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
     rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     topic = models.ForeignKey(Topic, null=True, blank=True)

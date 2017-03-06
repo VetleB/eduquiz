@@ -7,13 +7,8 @@ import random
 class TextQuestionTestCase(TestCase):
 
     def setUp(self):
-        player = Player.objects.create(
-            user = User.objects.create(),
-        )
         question = TextQuestion.objects.create(
             question_text = 'TEST_QUESTION',
-            creator = player,
-            difficulty = 0.0,
             answer = 'Answer',
         )
 
@@ -49,13 +44,8 @@ class TextQuestionTestCase(TestCase):
 class NumberQuestionTestCase(TestCase):
 
     def setUp(self):
-        player = Player.objects.create(
-            user = User.objects.create(),
-        )
         question = NumberQuestion.objects.create(
             question_text = 'TEST_QUESTION',
-            creator = player,
-            difficulty = 0.0,
             answer = '1.000',
         )
 
@@ -128,13 +118,8 @@ class NumberQuestionTestCase(TestCase):
 class MultipleChoiceTestCase(TestCase):
 
     def setUp(self):
-        player = Player.objects.create(
-            user = User.objects.create(),
-        )
         question = MultipleChoiceQuestion.objects.create(
             question_text = 'TEST_QUESTION',
-            creator = player,
-            difficulty = 0.0,
         )
         answers = [MultipleChoiceAnswer.objects.create(
                 question = question,
@@ -148,7 +133,10 @@ class MultipleChoiceTestCase(TestCase):
 
     def testAnswerCorrect(self):
         question = MultipleChoiceQuestion.objects.get()
-        correctAnswers = MultipleChoiceAnswer.objects.filter(correct=True)
+        correctAnswers = MultipleChoiceAnswer.objects.filter(
+            question = question,
+            correct = True,
+        )
         correctAnswer = correctAnswers[0]
         response = question.answerFeedback(correctAnswer.id)
         json = {
@@ -160,8 +148,14 @@ class MultipleChoiceTestCase(TestCase):
 
     def testAnswerIncorrect(self):
         question = MultipleChoiceQuestion.objects.get()
-        wrongAnswers = MultipleChoiceAnswer.objects.filter(correct=False)
-        correctAnswers = MultipleChoiceAnswer.objects.filter(correct=True)
+        wrongAnswers = MultipleChoiceAnswer.objects.filter(
+            question = question,
+            correct = False,
+            )
+        correctAnswers = MultipleChoiceAnswer.objects.filter(
+            question = question,
+            correct = True,
+            )
         wrongAnswer = wrongAnswers[0]
         response = question.answerFeedback(wrongAnswer.id)
         json = {
@@ -170,21 +164,3 @@ class MultipleChoiceTestCase(TestCase):
             'answeredCorrect': False,
         }
         self.assertEqual(response, json)
-
-
-class CategorySubjectTopicTestCase(TestCase):
-
-    def setUp(self):
-        category = Category.objects.create(
-            title = 'TEST_CATEGORY',
-        )
-        subject = Subject.objects.create(
-            title = 'TEST_SUBJECT',
-            short = 'TS',
-            code = 'TST1001',
-            category = category
-        )
-        topic = Topic.objects.create(
-            title = 'TEST_TOPIC',
-            subject = subject,
-        )

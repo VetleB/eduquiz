@@ -51,9 +51,9 @@ class NumberQuestionTestCase(TestCase):
 
     def test_validation_of_correct_answer(self):
         question = NumberQuestion.objects.get()
-        question.answer = '1.45'
-        self.assertTrue(question.validate('1.45'))
-        self.assertFalse(question.validate('14.5'))
+        question.answer = '1231231.45'
+        self.assertTrue(question.validate('1231231.45'))
+        self.assertFalse(question.validate('12312314.5'))
 
     def test_validation_of_float_when_answer_is_int(self):
         question = NumberQuestion.objects.get()

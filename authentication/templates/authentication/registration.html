@@ -1,6 +1,6 @@
 <div class="ui modal register">
   <!--<i class="close icon"></i>-->
-
+    {{ form }}
 
    <div class="header">
   Register
@@ -11,8 +11,8 @@
         <form class="ui form" action="/athentication/register/" method = "POST">
           <div class="two fields">
               <div class="field">
-                <label for="GivenName">First name</label>
-                <input id="GivenName" placeholder="Given Name" type="text" />
+                <label for="id_firstName">First name</label>
+                    <input id="id_firstName" placeholder ="First name " maxlength="15" name="firstName" type="text" required="">
               </div>
 
               <div class="field">
@@ -25,13 +25,13 @@
             <input id="Email" placeholder="Email" type="text">
           </div>
           <div class="field">
-            <label for="Username">Usernames</label>
+            <label for="Username">Username</label>
             <input id="Username" placeholder="Username" type="text">
           </div>
           <div class="two fields">
             <div class="field">
-              <label for="Password">Password</label>
-              <input id="Password" type="password" placeholder="Password mother fucker">
+              <label for="password">Password</label>
+              <input id="id_password" type="password" placeholder="Password mother fucker">
             </div>
 
             <div class="field">
@@ -54,3 +54,4 @@
     $('.ui.modal.register').modal('show');
   });
 </script>
+

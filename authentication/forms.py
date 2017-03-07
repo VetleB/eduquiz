@@ -22,3 +22,10 @@ class LoginForm(forms.Form):
         return form_data
 
 
+class RegistrationForm(forms.Form):
+    firstName = forms.CharField(max_length=15, label="firstName")
+    lastName = forms.CharField(max_length=15, label="lastName")
+    email = forms.EmailField(max_length=50, label="email")
+    username= forms.CharField(max_length=15, label="username")
+    password = forms.CharField(max_length=30, widget=forms.PasswordInput, label="password")
+    passwordConfirm = forms.CharField(max_length=30, widget=forms.PasswordInput, label="passwordConfirm")

@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from authentication.forms import *
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as djangologin
-from authentication.forms import LoginForm
+from authentication.forms import LoginForm, RegistrationForm
 from django.contrib.auth import logout as djangologout
 from django.core.exceptions import ValidationError
 
@@ -36,7 +36,7 @@ def logout(request):
 def register(request):
 
     if request.method == 'POST':
-        form = LoginForm(request.POST)
+        form = RegistrationForm(request.POST)
         if form.is_valid():
             user = authenticate(
                 username = form.cleaned_data['username'],
@@ -46,10 +46,10 @@ def register(request):
                 djangologin(request, user)
                 return HttpResponseRedirect('/')
     else:
-        form = LoginForm()
+        form = RegistrationForm()
 
     context = {
         'form': form,
     }
 
-    return render(request, 'authentication/login_modal.html', context)
+    return render(request, 'authentication/registration.html', context)

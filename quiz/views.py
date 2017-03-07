@@ -1,4 +1,5 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
+from django.db.models import Func, F
 from django.shortcuts import render
 from quiz.models import *
 import random
@@ -6,26 +7,22 @@ import random
 
 def question(request):
     if request.method == 'POST':
+        try:
+            questionID = int(request.POST['question'])
+        except ValueError:
+            JsonResponse({}, safe=False)
 
-        questionID = eval(request.POST['question'])
-
-        question = (list(TrueFalseQuestion.objects.filter(id=questionID))
+        questionList = (list(TrueFalseQuestion.objects.filter(id=questionID))
             + list(MultipleChoiceQuestion.objects.filter(id=questionID))
             + list(TextQuestion.objects.filter(id=questionID))
-            + list(NumberQuestion.objects.filter(id=questionID)))[0]
+            + list(NumberQuestion.objects.filter(id=questionID)))
 
-        feedback = {}
-        if isinstance(question, MultipleChoiceQuestion):
-            feedback = question.answerFeedback(int(request.POST['answer']))
+        if questionList:
+            question = questionList[0]
+        else:
+            JsonResponse({}, safe=False)
 
-        elif isinstance(question, TrueFalseQuestion):
-            feedback = question.answerFeedback(eval(request.POST['answer']))
-
-        elif isinstance(question, TextQuestion):
-            feedback = question.answerFeedback(request.POST['answer'])
-
-        elif isinstance(question, NumberQuestion):
-            feedback = question.answerFeedback(request.POST['answer'])
+        feedback = question.answerFeedbackRaw(request.POST['answer'])
 
         if hasattr(request, 'user') and hasattr(request.user, 'player') and feedback:
             result = feedback['answeredCorrect']
@@ -35,22 +32,33 @@ def question(request):
         return JsonResponse(feedback, safe=False)
 
     else:
-        r = random.random()
-        if r > 3/4:
-            return multipleChoiceQuestion(request, None)
-        elif r > 2/4:
-            return textQuestion(request, None)
-        elif r > 1/4:
-            return trueFalseQuestion(request, None)
+        if hasattr(request, 'user') and hasattr(request.user, 'player'):
+            question = Question.objects.annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
+
+            question = (list(TrueFalseQuestion.objects.filter(id=question.id))
+                + list(MultipleChoiceQuestion.objects.filter(id=question.id))
+                + list(TextQuestion.objects.filter(id=question.id))
+                + list(NumberQuestion.objects.filter(id=question.id)))[0]
+
+            if isinstance(question, MultipleChoiceQuestion):
+                return multipleChoiceQuestion(request, question)
+
+            elif isinstance(question, TrueFalseQuestion):
+                return trueFalseQuestion(request, question)
+
+            elif isinstance(question, TextQuestion):
+                return textQuestion(request, question)
+
+            elif isinstance(question, NumberQuestion):
+                return numberQuestion(request, question)
+
+            else:
+                return HttpResponseRedirect('/')
         else:
-            return numberQuestion(request, None)
+            return HttpResponseRedirect('/')
+
 
 def multipleChoiceQuestion(request, question):
-
-    ## REMOVE LATER
-    questions = MultipleChoiceQuestion.objects.all()
-    question = questions[random.randint(0, len(questions)-1)]
-    # END
 
     answers = MultipleChoiceAnswer.objects.filter(question=question)
 
@@ -64,11 +72,6 @@ def multipleChoiceQuestion(request, question):
 
 def trueFalseQuestion(request, question):
 
-    # REMOVE LATER
-    questions = TrueFalseQuestion.objects.all()
-    question = questions[random.randint(0, len(questions) - 1)]
-    # END
-
     answers = ('True', 'False')
 
     context = {
@@ -81,11 +84,6 @@ def trueFalseQuestion(request, question):
 
 def textQuestion(request, question):
 
-    ## REMOVE LATER
-    questions = TextQuestion.objects.all()
-    question = questions[random.randint(0, len(questions) - 1)]
-    # END
-
     answers = question.answer
 
     context = {
@@ -95,12 +93,8 @@ def textQuestion(request, question):
 
     return render(request, 'quiz/textQuestion.html', context)
 
-def numberQuestion(request, question):
 
-    ## REMOVE LATER
-    questions = NumberQuestion.objects.all()
-    question = questions[random.randint(0, len(questions) - 1)]
-    # END
+def numberQuestion(request, question):
 
     answers = question.answer
 
@@ -111,8 +105,8 @@ def numberQuestion(request, question):
 
     return render(request, 'quiz/numberQuestion.html', context)
 
-def newMultiplechoice(request):
 
+def newMultiplechoice(request):
 
     context = {
 
@@ -120,8 +114,8 @@ def newMultiplechoice(request):
 
     return render(request, 'quiz/newMultiplechoice.html', context)
 
-def newTrueorfalse(request):
 
+def newTrueorfalse(request):
 
     context = {
 
@@ -129,8 +123,8 @@ def newTrueorfalse(request):
 
     return render(request, 'quiz/newTrueorfalse.html', context)
 
-def newTextanswer(request):
 
+def newTextanswer(request):
 
     context = {
 

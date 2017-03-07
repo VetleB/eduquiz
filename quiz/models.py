@@ -109,11 +109,14 @@ class TextQuestion(Question):
 
         return userAnswer == correctAnswer
 
+    def answerFeedbackRaw(self, answer):
+        return self.answerFeedback(answer)
+
     def answerFeedback(self, answer):
         answeredCorrect = self.validate(answer)
         return {
-            'answer': str(answer),
-            'correct': str(self.answer),
+            'answer': answer,
+            'correct': self.answer,
             'answeredCorrect': answeredCorrect,
         }
 
@@ -171,11 +174,14 @@ class NumberQuestion(Question):
         patternMatch = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]*$', userAnswer))
         return (userAnswer == correctAnswer) and patternMatch
 
+    def answerFeedbackRaw(self, answer):
+        return self.answerFeedback(answer)
+
     def answerFeedback(self, answer):
         answeredCorrect = self.validate(answer)
         return {
-            'answer': str(answer),
-            'correct': str(self.answer),
+            'answer': answer,
+            'correct': self.answer,
             'answeredCorrect': answeredCorrect,
         }
 
@@ -186,11 +192,14 @@ class TrueFalseQuestion(Question):
     def __str__(self):
         return super().question_text
 
+    def answerFeedbackRaw(self, answer):
+        return self.answerFeedback(answer.capitalize() == 'True')
+
     def answerFeedback(self, answer):
         answeredCorrect = answer == self.answer
         return {
-            'answer': str(answer),
-            'correct': str(self.answer),
+            'answer': answer,
+            'correct': self.answer,
             'answeredCorrect': answeredCorrect,
         }
 
@@ -199,6 +208,12 @@ class MultipleChoiceQuestion(Question):
 
     def __str__(self):
         return super().question_text
+
+    def answerFeedbackRaw(self, answer):
+        try:
+            return self.answerFeedback(int(answer))
+        except ValueError:
+            return answerFeedback(1)
 
     def answerFeedback(self, answerID):
         answer = MultipleChoiceAnswer.objects.get(id=answerID)

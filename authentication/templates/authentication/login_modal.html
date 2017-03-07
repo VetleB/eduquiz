@@ -1,4 +1,4 @@
-<div class="ui modal">
+<div class="ui modal login">
   <!--<i class="close icon"></i>-->
   <div class="header">
     Login
@@ -44,8 +44,8 @@
 </div>
 
 <script>
-  $(".login").click(function() {
-    $('.ui.modal').modal('show');
+  $(".login.button").click(function() {
+    $('.ui.modal.login').modal('show');
   });
   $(".submit").click(function() {
     $('form').submit();
@@ -66,7 +66,7 @@
     if ($(".loginerror").length) {
       $('.ui.modal').modal({
         autofocus: false,
-      })
+      });
       $('.ui.modal').modal('show');
       setTimeout(function() {$("#id_password").focus();}, 600);
     }

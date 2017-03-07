@@ -58,6 +58,21 @@ def question(request):
             return HttpResponseRedirect('/')
 
 
+def playerTopic(request):
+
+    PlayerTopic.objects.filter(player=request.user.player).delete()
+
+    # TODO: split topicstring into all topics
+    topics = [request.POST]
+
+    for ts in topics:
+        PlayerTopic.objects.create(
+            player = request.user.player,
+            topic = Topic.objects.filter(title=ts),
+        )
+    return HttpResponseRedirect('/quiz')
+
+
 def multipleChoiceQuestion(request, question):
 
     answers = MultipleChoiceAnswer.objects.filter(question=question)

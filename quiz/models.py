@@ -43,6 +43,14 @@ class Player(models.Model):
         return self.user.username
 
 
+class PlayerTopic(models.Model):
+    player = models.ForeignKey(Player)
+    topic = models.ForeignKey(Topic)
+
+    def __str__(self):
+        return "%s - %s" % (self.player, self.topic)
+
+
 class AchievementUnlock(models.Model):
     player = models.ForeignKey(Player)
     achievement = models.ForeignKey(Achievement)

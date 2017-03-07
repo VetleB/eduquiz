@@ -174,6 +174,10 @@ class PlayerInline(admin.TabularInline):
     model = Player
 
 
+class PlayerTopicInline(admin.TabularInline):
+    model = PlayerTopic
+
+
 class TitleUnlockInline(admin.TabularInline):
     model = TitleUnlock
 

@@ -7,7 +7,7 @@ import random
 class TextQuestionTestCase(TestCase):
 
     def setUp(self):
-        question = TextQuestion.objects.create(
+        TextQuestion.objects.create(
             question_text = 'TEST_QUESTION',
             answer = 'Answer',
         )
@@ -44,7 +44,7 @@ class TextQuestionTestCase(TestCase):
 class NumberQuestionTestCase(TestCase):
 
     def setUp(self):
-        question = NumberQuestion.objects.create(
+        NumberQuestion.objects.create(
             question_text = 'TEST_QUESTION',
             answer = '1.000',
         )

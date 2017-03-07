@@ -1,85 +1,50 @@
-<div class="ui modal">
+<div class="ui modal register">
   <!--<i class="close icon"></i>-->
-  <div class="header">
-    Register
-  </div>
-  <div class="content">
-    <div class="description">
-      <form class="ui form" action="/registration" method="POST">
-        {% csrf_token %}
 
-        <div class="field">
-          <label>Username</label>
-          <input id="id_username" type="text" name="username" value="{{ form.username.value }}" required>
-        </div>
-        {% if form.errors.username %}
-          <div class="ui negative message loginerror">
-            <div class="header">
-              <!--Invalid-->
-            </div>
-            <p>{{ form.errors.username.0 }}</p>
-          </div>
-        {% endif %}
-        <div class="field">
-          <label>Password</label>
-          <input id="id_password" type="password" name="password" required>
-        </div>
-        {% if form.errors.password %}
-          <div class="ui negative message loginerror">
-            <div class="header">
-              <!--Invalid-->
-            </div>
-            <p>{{ form.errors.password.0 }}</p>
-          </div>
-        {% endif %}
+
+   <div class="container">
+  <h1>Register</h1>
+
+  <div class="ui form segment">
+    <div class="two fields">
       <div class="field">
-          <label>E-mail</label>
-          <input id="id_email" type="email" name="email" required>
-        </div>
-        {% if form.errors.email %}
-          <div class="ui negative message loginerror">
-            <div class="header">
-              <!--Invalid-->
-            </div>
-            <p>{{ form.errors.email.0 }}</p>
-          </div>
-        {% endif %}
-      </form>
+        <label for="GivenName">First name</label>
+        <input id="GivenName" placeholder="Given Name" type="text" />
+      </div>
+
+      <div class="field">
+        <label for="Surname">Last name</label>
+        <input id="Surname" placeholder="Surname" type="text">
+      </div>
     </div>
-  </div>
-  <div class="actions">
-    <div class="ui positive right icon button submit">
-      Login
+
+    <div class="field">
+      <label for="Email">Email</label>
+      <input id="Email" placeholder="Email" type="text">
     </div>
+
+    <div class="field">
+      <label for="Username">Username</label>
+      <input id="Username" placeholder="Username" type="text">
+    </div>
+
+    <div class="field">
+      <label for="Password">Password</label>
+      <input id="Password" type="password" placeholder="Password mother fucker">
+    </div>
+
+    <div class="field">
+      <label for="PasswordConfirm">Password Confirm</label>
+      <input id="PasswordConfirm" type="password" placeholder="Password again mother fucker">
+    </div>
+
+    <button class="ui blue button">Submit</button>
   </div>
+</div>
 </div>
 
 <script>
-  $(".login").click(function() {
-    $('.ui.modal').modal('show');
-  });
-  $(".submit").click(function() {
-    $('form').submit();
-  });
-  $("#id_username").keypress(function(event) {
-    if (event.which == 13) {
-      event.preventDefault();
-      $("#id_password").focus();
-    }
-  });
-  $("#id_password").keypress(function(event) {
-    if (event.which == 13) {
-      event.preventDefault();
-      $('form').submit();
-    }
-  });
-  $(function() {
-    if ($(".loginerror").length) {
-      $('.ui.modal').modal({
-        autofocus: false,
-      })
-      $('.ui.modal').modal('show');
-      setTimeout(function() {$("#id_password").focus();}, 600);
-    }
+    $(".register").click(function() {
+    $('.ui.modal.register').modal('show');
   });
 </script>

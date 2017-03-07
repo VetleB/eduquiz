@@ -1,4 +1,4 @@
-<div class="ui modal">
+<div class="ui modal login">
   <!--<i class="close icon"></i>-->
   <div class="header">
     Login
@@ -45,8 +45,12 @@
 
 <script>
   $(".login").click(function() {
-    $('.ui.modal').modal('show');
+    $('.ui.modal.login').modal('show');
   });
+
+
+
+
   $(".submit").click(function() {
     $('form').submit();
   });

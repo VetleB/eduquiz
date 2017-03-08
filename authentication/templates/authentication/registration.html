@@ -1,7 +1,5 @@
 <div class="ui modal register">
   <!--<i class="close icon"></i>-->
-    {{ form }}
-
    <div class="header">
   Register
    </div>
@@ -12,31 +10,31 @@
           <div class="two fields">
               <div class="field">
                 <label for="id_firstName">First name</label>
-                    <input id="id_firstName" placeholder ="First name " maxlength="15" name="firstName" type="text" required="">
+                  <input id="id_firstName" placeholder ="First name " maxlength="15" name="firstName" type="text" required="">
               </div>
 
               <div class="field">
-                <label for="Surname">Last name</label>
-                <input id="Surname" placeholder="Surname" type="text">
+                <label for="id_lastName">Last name</label>
+                  <input id="id_lastName" maxlength="15" placeholder ="Last name" name="lastName" type="text" required="">
               </div>
           </div>
           <div class="field">
-            <label for="Email">Email</label>
-            <input id="Email" placeholder="Email" type="text">
+            <label for="id_email">Email</label>
+            <input id="id_email" maxlength="50" placeholder ="E-mail" name="email" type="email" required="">
           </div>
           <div class="field">
-            <label for="Username">Username</label>
-            <input id="Username" placeholder="Username" type="text">
+            <label for="id_username">Username</label>
+            <input id="id_username" maxlength="15" name="username" placeholder ="Username" type="text" required="">
           </div>
           <div class="two fields">
             <div class="field">
-              <label for="password">Password</label>
-              <input id="id_password" type="password" placeholder="Password mother fucker">
+              <label for="id_password">Password</label>
+              <input id="id_password" maxlength="30" name="password" placeholder ="Password" type="password" required="">
             </div>
 
             <div class="field">
-              <label for="PasswordConfirm">Password Confirm</label>
-              <input id="PasswordConfirm" type="password" placeholder="Password again mother fucker">
+              <label for="id_passwordConfirm">Confirm password</label>
+              <input id="id_passwordConfirm" maxlength="30" name="passwordConfirm" placeholder ="Confirm password" type="password" required="">
             </div>
           </div>
         </form>

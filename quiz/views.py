@@ -34,12 +34,13 @@ def question(request):
     else:
         if hasattr(request, 'user') and hasattr(request.user, 'player'):
 
-            """
-            topics = [PT.topic for PT in list(PlayerTopic.objects.filter(player=request.user.player))]
-            if not topics:
-                topics = [None]
-            """
-            question = Question.objects.annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
+            playerTopics = [PT.topic for PT in list(PlayerTopic.objects.filter(player=request.user.player))]
+
+            # Hvis player ikke har spesifisert topics, ta et tilfeldig spørsmål. Må endres senere når alle brukere alltid har en mengde topics/et subject
+            if not playerTopics:
+                question = Question.objects.annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
+            else:
+                question = Question.objects.filter(topic__in=playerTopics).annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
 
             question = (list(TrueFalseQuestion.objects.filter(id=question.id))
                 + list(MultipleChoiceQuestion.objects.filter(id=question.id))
@@ -152,3 +153,11 @@ def newTextanswer(request):
     }
 
     return render(request, 'quiz/newTextanswer.html', context)
+
+def newNumberanswer(request):
+
+    context = {
+
+    }
+
+    return render(request, 'quiz/newNumberanswer.html', context)

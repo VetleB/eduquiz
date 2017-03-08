@@ -6,5 +6,6 @@ urlpatterns = [
     url(r'^new/multiplechoice', views.newMultiplechoice, name='question'),
     url(r'^new/trueorfalse', views.newTrueorfalse, name='question'),
     url(r'^new/textanswer', views.newTextanswer, name='question'),
+    url(r'^new/numberanswer', views.newNumberanswer, name='question'),
 
 ]

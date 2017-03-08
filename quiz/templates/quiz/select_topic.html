@@ -1,0 +1,69 @@
+<div class="ui modal topic">
+  <div class="header">
+    Select topics
+  </div>
+  <div class="content">
+    <div class="description">
+      <form class="ui form" action="/quiz/select-topics/" method="POST">
+        {% csrf_token %}
+
+        <div class="ui selection topic dropdown search scrolling">
+          <input name="subject" type="hidden">
+          <i class="dropdown icon"></i>
+          <div class="default text">Subject</div>
+          <div class="menu">
+            {% for subject in subjects %}
+              <div class="item" data-value="{{ subject }}">{{ subject }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="ui multiple search subject selection dropdown scrolling">
+          <input name="topic" type="hidden">
+          <i class="dropdown icon"></i>
+          <div class="default text">Topics</div>
+          <div class="menu">
+            {% for topic in topics %}
+              <div class="item topic" subject="{{ topic.subject }}" data-value="{{ topic }}">{{ topic }}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui positive right icon button submit">
+      Go
+    </div>
+  </div>
+</div>
+
+<script>
+  $(function() {
+    $('.topic.dropdown').dropdown();
+    $('.subject.dropdown').dropdown();
+
+    $('.play.button').click(function() {
+      $('.ui.modal.topic').modal('show');
+    });
+
+    $('input[name="subject"]').change(function() {
+      $('.topic.item').each(function() {
+        if ($(this).attr('subject') != $('input[name="subject"]').val()) {
+          $(this).addClass('disabled');
+          $(this).css('display', 'none');
+        } else {
+          $(this).removeClass('disabled');
+          $(this).css('display', 'block');
+        }
+        $('.subject.dropdown').dropdown('clear');
+      });
+    });
+  });
+</script>
+
+<style>
+  .topic.dropdown, .subject.dropdown {
+    vertical-align: top;
+  }
+</style>

@@ -33,6 +33,12 @@ def question(request):
 
     else:
         if hasattr(request, 'user') and hasattr(request.user, 'player'):
+
+            """
+            topics = [PT.topic for PT in list(PlayerTopic.objects.filter(player=request.user.player))]
+            if not topics:
+                topics = [None]
+            """
             question = Question.objects.annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
 
             question = (list(TrueFalseQuestion.objects.filter(id=question.id))

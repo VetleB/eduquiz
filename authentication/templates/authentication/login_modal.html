@@ -5,7 +5,7 @@
   </div>
   <div class="content">
     <div class="description">
-      <form class="ui form" action="/authentication/" method="POST">
+      <form class="ui form login" action="/authentication/" method="POST">
         {% csrf_token %}
 
         <div class="field">
@@ -37,7 +37,7 @@
     </div>
   </div>
   <div class="actions">
-    <div class="ui positive right icon button submit">
+    <div class="ui positive right icon button submit login">
       Login
     </div>
   </div>
@@ -47,8 +47,8 @@
   $(".login.button").click(function() {
     $('.ui.modal.login').modal('show');
   });
-  $(".submit").click(function() {
-    $('form').submit();
+  $(".login.button.submit").click(function() {
+    $('form.login').submit();
   });
   $("#id_username").keypress(function(event) {
     if (event.which == 13) {

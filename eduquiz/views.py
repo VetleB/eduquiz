@@ -5,8 +5,7 @@ from authentication.forms import RegistrationForm
 def index(request):
 
     context = {
-        'form': RegistrationForm(),
-
+        'regForm': RegistrationForm(),
     }
 
     return render(request, 'eduquiz/index.html', context)

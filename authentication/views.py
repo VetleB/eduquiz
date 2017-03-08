@@ -7,6 +7,7 @@ from authentication.forms import LoginForm, RegistrationForm
 from django.contrib.auth import logout as djangologout
 from django.core.exceptions import ValidationError
 
+
 def login(request):
 
     if request.method == 'POST':
@@ -20,13 +21,15 @@ def login(request):
                 djangologin(request, user)
                 return HttpResponseRedirect('/')
     else:
-        form = LoginForm()
+        form = LoginForm(initial={
+            'username': '',
+        })
 
     context = {
         'form': form,
     }
 
-    return render(request, 'authentication/login_modal.html', context)
+    return render(request, 'eduquiz/index.html', context)
 
 
 def logout(request):
@@ -34,17 +37,21 @@ def logout(request):
     return HttpResponseRedirect("/")
 
 def register(request):
-
     if request.method == 'POST':
+        print(request.POST)
         form = RegistrationForm(request.POST)
+
         if form.is_valid():
-            user = authenticate(
-                username = form.cleaned_data['username'],
-                password = form.cleaned_data['password'],
+            #Dictionary to hold user information
+            userDict=form.cleaned_data
+            user=User.objects.create_user(
+                username=userDict['username'],
+                password=userDict['password'],
+                first_name=userDict['firstName'],
+                last_name=userDict['lastName'],
+                email=userDict['email'],
             )
-            if user is not None:
-                djangologin(request, user)
-                return HttpResponseRedirect('/')
+            user.save()
     else:
         form = RegistrationForm()
 
@@ -52,4 +59,4 @@ def register(request):
         'form': form,
     }
 
-    return render(request, 'authentication/registration.html', context)
+    return render(request, 'eduquiz/index.html', context)

@@ -46,10 +46,6 @@
     $('.topic.dropdown').dropdown();
     $('.subject.dropdown').dropdown();
 
-    $('.play.button').click(function() {
-      $('.ui.modal.topic').modal('show');
-    });
-
     $('input[name="subject"]').change(function() {
       $('.topic.item').each(function() {
         if ($(this).attr('subject') != $('input[name="subject"]').val()) {

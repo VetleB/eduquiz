@@ -78,6 +78,14 @@ class NumberQuestionTestCase(TestCase):
         self.assertTrue(question.validate('1'))
         self.assertTrue(question.validate('1.'))
 
+    def test_validation_of_answer_without_decimal_part2(self):
+        question = TextQuestion.objects.get()
+        question.answer = '133769'
+        self.assertTrue(question.validate('133769'))
+        self.assertTrue(question.validate('133769.'))
+        self.assertFalse(question.validate('1.33769'))
+        self.assertFalse(question.validate('1.3376.9'))
+
     def test_validation_of_answer_without_integer_part(self):
         question = NumberQuestion.objects.get()
         question.answer = '0.001'

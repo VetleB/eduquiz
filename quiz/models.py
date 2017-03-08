@@ -221,7 +221,7 @@ class MultipleChoiceQuestion(Question):
         try:
             return self.answerFeedback(int(answer))
         except ValueError:
-            return answerFeedback(1)
+            return self.answerFeedback(1)
 
     def answerFeedback(self, answerID):
         answer = MultipleChoiceAnswer.objects.get(id=answerID)

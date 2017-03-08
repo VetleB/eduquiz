@@ -36,7 +36,7 @@ def question(request):
 
             playerTopics = [PT.topic for PT in list(PlayerTopic.objects.filter(player=request.user.player))]
 
-            # Hvis player ikke har spesifisert topics, ta et tilfeldig spørsmål. Må endres senere når alle brukere alltid har en mengde topics/et subject
+            # Hvis player ikke har spesifisert topics, ta et tilfeldig spï¿½rsmï¿½l. Mï¿½ endres senere nï¿½r alle brukere alltid har en mengde topics/et subject
             if not playerTopics:
                 question = Question.objects.annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
             else:

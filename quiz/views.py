@@ -105,7 +105,7 @@ def multipleChoiceQuestion(request, question):
 
 def trueFalseQuestion(request, question):
 
-    answers = ('True', 'False')
+    answers = (('true', 'True'), ('false', 'False'))
 
     context = {
         'question': question,

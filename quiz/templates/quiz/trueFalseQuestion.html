@@ -28,9 +28,9 @@
     </div>
 
     {% for answer in answers %}
-      <div class="ui card answer" answer="{{ answer }}">
+      <div class="ui card answer" answer="{{ answer.0 }}">
         <div class="content">
-            {{ answer }}
+            {{ answer.1 }}
         </div>
       </div>
     {% endfor %}

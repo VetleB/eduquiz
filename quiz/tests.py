@@ -62,6 +62,14 @@ class NumberQuestionTestCase(TestCase):
         question.answer = 'AB'
         self.assertTrue(question.validate('AB.0'))
 
+    def test_validation_of_answer_without_decimal_part2(self):
+        question = TextQuestion.objects.get()
+        question.answer = '133769'
+        self.assertTrue(question.validate('133769'))
+        self.assertTrue(question.validate('133769.'))
+        self.assertFalse(question.validate('1.33769'))
+        self.assertFalse(question.validate('1.3376.9'))
+
     def test_validation_of_comma_as_decimal_mark(self):
         question = NumberQuestion.objects.get()
         self.assertTrue(question.validate('1.000'))

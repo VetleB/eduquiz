@@ -19,6 +19,7 @@
       <div class="content">
         <h4 class="ui sub header">
           {{ question.topic }} - {{ question.topic.subject.code }}<br>
+          {{ question.rating|floatformat:"0" }}
         </h4>
         <div class="ui questionText">
           {{ question }}
@@ -27,9 +28,9 @@
     </div>
 
     {% for answer in answers %}
-      <div class="ui card answer" answer="{{ answer }}">
+      <div class="ui card answer" answer="{{ answer.0 }}">
         <div class="content">
-            {{ answer }}
+            {{ answer.1 }}
         </div>
       </div>
     {% endfor %}

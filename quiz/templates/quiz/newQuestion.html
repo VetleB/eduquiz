@@ -1,0 +1,121 @@
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
+{% endblock head %}
+
+{% block header %}
+
+  {% include 'eduquiz/header.html' %}
+
+{% endblock header %}
+
+{% block content %}
+
+<div class="ui middle aligned center aligned grid">
+  <div class="column">
+    <div class="ui top attached tabular menu">
+      <a class="active item" data-tab="first">MultipleChoice</a>
+      <a class="item" data-tab="second">TrueorFalse</a>
+      <a class="item" data-tab="third">TextAnswer</a>
+      <a class="item" data-tab="fourth">NumberAnswer</a>
+    </div>
+
+    <div class="ui bottom attached active tab segment" data-tab="first">
+      <div class="ui form">
+        <div class="field">
+          <label class="truefalse question label" >Question</label>
+          <input type="text">
+        </div>
+      </div>
+    </div>
+    <div class="ui bottom attached tab segment" data-tab="second">
+      <form actions="/quiz/new/multipleChoiceQuestion">
+        <div class="ui form">
+          <div class="field">
+            <label class="truefalse question label" >Question</label>
+            <input type="text">
+          </div>
+        </div>
+
+        <div class="ui radio checkbox">
+          <input type="radio" name="frequency" checked="checked">
+          <label>True</label>
+        </div>
+
+        <div class="ui radio checkbox">
+          <input type="radio" name="frequency">
+          <label>False</label>
+        </div>
+
+        <div class="actions">
+        <div class="ui positive right icon button submit">
+            Submit
+        </div>
+    </div>
+
+      </form>
+
+
+    </div>
+    <div class="ui bottom attached tab segment" data-tab="third">
+      <div class="ui form">
+        <div class="field">
+          <label>Question</label>
+          <input type="text">
+        </div>
+        <div class="field">
+          <label>Answer</label>
+          <input type="text">
+        </div>
+      </div>
+    </div>
+    <div class="ui bottom attached tab segment" data-tab="fourth">
+      <div class="ui form">
+        <div class="field">
+          <label>Question</label>
+          <input type="text">
+        </div>
+        <div class="field">
+          <label>Answer</label>
+          <input type="text">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  $(function() {
+    $('.menu .item').tab();
+  });
+
+  $(document).keypress(function(event) {
+    if (event.which == 13) {
+      event.preventDefault();
+    }
+  });
+</script>
+
+<style>
+  .radio.checkbox {
+    margin: 10px;
+  }
+
+  .page {
+    background-color: #f0f0f0;
+  }
+  .column {
+    width: 90%;
+    max-width: 900px;
+    margin-top: 50px;
+  }
+  .tabular.menu .item {
+    font-size: 16px !important;
+  }
+</style>
+
+
+{% endblock content %}

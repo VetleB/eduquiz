@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from quiz.models import *
 from authentication.forms import RegistrationForm
 
 

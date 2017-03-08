@@ -48,9 +48,6 @@
     $('.ui.modal.login').modal('show');
   });
 
-
-
-
   $(".login.button.submit").click(function() {
     $('form.login').submit();
   });
@@ -70,7 +67,7 @@
     if ($(".loginerror").length) {
       $('.login.modal').modal({
         autofocus: false,
-      })
+      });
       $('.login.modal').modal('show');
       setTimeout(function() {$("#id_password").focus();}, 600);
     }

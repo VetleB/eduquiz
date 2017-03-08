@@ -1,4 +1,5 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
+from django.db.models import Func, F
 from django.shortcuts import render
 from quiz.models import *
 import random
@@ -6,41 +7,111 @@ import random
 
 def question(request):
     if request.method == 'POST':
+        try:
+            questionID = int(request.POST['question'])
+        except ValueError:
+            JsonResponse({}, safe=False)
 
-        questionID = eval(request.POST['question'])
-
-        question = (list(TrueFalseQuestion.objects.filter(id=questionID))
+        questionList = (list(TrueFalseQuestion.objects.filter(id=questionID))
             + list(MultipleChoiceQuestion.objects.filter(id=questionID))
-            + list(TextQuestion.objects.filter(id=questionID)))[0]
+            + list(TextQuestion.objects.filter(id=questionID))
+            + list(NumberQuestion.objects.filter(id=questionID)))
 
-        if isinstance(question, MultipleChoiceQuestion):
-            return JsonResponse(question.answerFeedback(int(request.POST['answer'])), safe=False)
+        if questionList:
+            question = questionList[0]
+        else:
+            JsonResponse({}, safe=False)
 
-        elif isinstance(question, TrueFalseQuestion):
-            return JsonResponse(question.answerFeedback(eval(request.POST['answer'])), safe=False)
+        feedback = question.answerFeedbackRaw(request.POST['answer'])
 
-        elif isinstance(question, TextQuestion):
-            return JsonResponse(question.answerFeedback(request.POST['answer']), safe=False)
+        if hasattr(request, 'user') and hasattr(request.user, 'player') and feedback:
+            result = feedback['answeredCorrect']
+            PlayerAnswer(player=request.user.player, question=question, result=result).save()
+            request.user.player.update(question, result)
 
-        return JsonResponse({
-        }, safe=False)
+        return JsonResponse(feedback, safe=False)
 
     else:
-        r = random.random()
-        if r > 2/3:
-            return multipleChoiceQuestion(request, None)
-        elif r > 1/3:
-            return textQuestion(request, None)
+        if hasattr(request, 'user') and hasattr(request.user, 'player'):
+
+            playerTopics = [PT.topic for PT in list(PlayerTopic.objects.filter(player=request.user.player))]
+
+            # if no specified topics, grab random question. Change later when all player have topics
+            if not playerTopics:
+                return HttpResponseRedirect('/quiz/select-topics')
+            else:
+                question = Question.objects.filter(topic__in=playerTopics).annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
+
+            question = (list(TrueFalseQuestion.objects.filter(id=question.id))
+                + list(MultipleChoiceQuestion.objects.filter(id=question.id))
+                + list(TextQuestion.objects.filter(id=question.id))
+                + list(NumberQuestion.objects.filter(id=question.id)))[0]
+
+            if isinstance(question, MultipleChoiceQuestion):
+                return multipleChoiceQuestion(request, question)
+
+            elif isinstance(question, TrueFalseQuestion):
+                return trueFalseQuestion(request, question)
+
+            elif isinstance(question, TextQuestion):
+                return textQuestion(request, question)
+
+            elif isinstance(question, NumberQuestion):
+                return numberQuestion(request, question)
+
+            else:
+                return HttpResponseRedirect('/')
         else:
-            return trueFalseQuestion(request, None)
+            return HttpResponseRedirect('/')
+
+
+def selectTopic(request):
+
+    subjects = Subject.objects.all()
+    topics = Topic.objects.all()
+
+    context = {
+        'subjects': subjects,
+        'topics': topics,
+    }
+
+    return render(request, 'quiz/select_topic.html', context)
+
+
+def playerTopic(request):
+
+    # deletes all previously selected topics
+    PlayerTopic.objects.filter(player=request.user.player).delete()
+
+    try:
+        # string
+        subject = request.POST['subject']
+        # string of topics separated by comma
+        topics = request.POST['topics']
+    except ValueError:
+        return HttpResponseRedirect('/')
+
+    # list of strings
+    topics = topics.split(',')
+
+    # if no specified topics, include all topics that belong to subject
+    if topics[0] == '':
+        topics = [T.title for T in Topic.objects.filter(subject=Subject.objects.get(title=subject))]
+
+    # make new player-topic-links in database
+    for topic in topics:
+        try:
+            PlayerTopic.objects.create(
+                player = request.user.player,
+                topic = Topic.objects.get(title=topic),
+            )
+        except Topic.DoesNotExist:
+            pass
+
+    return HttpResponseRedirect('/quiz')
 
 
 def multipleChoiceQuestion(request, question):
-
-    ## REMOVE LATER
-    questions = MultipleChoiceQuestion.objects.all()
-    question = questions[random.randint(0, len(questions)-1)]
-    # END
 
     answers = MultipleChoiceAnswer.objects.filter(question=question)
 
@@ -54,12 +125,7 @@ def multipleChoiceQuestion(request, question):
 
 def trueFalseQuestion(request, question):
 
-    # REMOVE LATER
-    questions = TrueFalseQuestion.objects.all()
-    question = questions[random.randint(0, len(questions) - 1)]
-    # END
-
-    answers = ('True', 'False')
+    answers = (('true', 'True'), ('false', 'False'))
 
     context = {
         'question': question,
@@ -71,11 +137,6 @@ def trueFalseQuestion(request, question):
 
 def textQuestion(request, question):
 
-    ## REMOVE LATER
-    questions = TextQuestion.objects.all()
-    question = questions[random.randint(0, len(questions) - 1)]
-    # END
-
     answers = question.answer
 
     context = {
@@ -84,3 +145,24 @@ def textQuestion(request, question):
     }
 
     return render(request, 'quiz/textQuestion.html', context)
+
+
+def numberQuestion(request, question):
+
+    answers = question.answer
+
+    context = {
+        'question': question,
+        'answer': answers,
+    }
+
+    return render(request, 'quiz/numberQuestion.html', context)
+
+
+def newQuestion(request):
+
+    context = {
+
+    }
+
+    return render(request, 'quiz/newQuestion.html', context)

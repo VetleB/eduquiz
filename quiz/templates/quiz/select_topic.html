@@ -1,0 +1,82 @@
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "quiz/css/multipleChoiceQuestion.css" %}">
+{% endblock head %}
+
+{% block header %}
+
+  {% include 'eduquiz/header.html' %}
+
+{% endblock header %}
+
+{% block content %}
+  <div class="header">
+    Select topics
+  </div>
+  <div class="content">
+    <div class="description">
+      <form class="ui form topics" action="/quiz/playerTopics/" method="POST">
+        {% csrf_token %}
+
+        <div class="ui selection topic dropdown search scrolling">
+          <input name="subject" type="hidden">
+          <i class="dropdown icon"></i>
+          <div class="default text">Subject</div>
+          <div class="menu">
+            {% for subject in subjects %}
+              <div class="item" data-value="{{ subject.title }}">{{ subject }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="ui multiple search subject selection dropdown scrolling">
+          <input name="topics" type="hidden">
+          <i class="dropdown icon"></i>
+          <div class="default text">Topics</div>
+          <div class="menu">
+            {% for topic in topics %}
+              <div class="item topic" subject="{{ topic.subject }}" data-value="{{ topic }}">{{ topic }}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui positive right icon button submit topics">
+      Go
+    </div>
+  </div>
+
+  <script>
+    $(".button.topics.submit").click(function() {
+      $('form.topics').submit();
+    });
+    $(function() {
+      $('.topic.dropdown').dropdown();
+      $('.subject.dropdown').dropdown();
+
+      $('input[name="subject"]').change(function() {
+        $('.topic.item').each(function() {
+          if ($(this).attr('subject') != $('input[name="subject"]').val()) {
+            $(this).addClass('disabled');
+            $(this).css('display', 'none');
+          } else {
+            $(this).removeClass('disabled');
+            $(this).css('display', 'block');
+          }
+          $('.subject.dropdown').dropdown('clear');
+        });
+      });
+    });
+  </script>
+
+  <style>
+    .topic.dropdown, .subject.dropdown {
+      vertical-align: top;
+    }
+  </style>
+{% endblock content %}

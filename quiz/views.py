@@ -38,7 +38,7 @@ def question(request):
 
             # Hvis player ikke har spesifisert topics, ta et tilfeldig sp�rsm�l. M� endres senere n�r alle brukere alltid har en mengde topics/et subject
             if not playerTopics:
-                question = Question.objects.annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
+                return HttpResponseRedirect('/quiz/select-topics')
             else:
                 question = Question.objects.filter(topic__in=playerTopics).annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
 
@@ -64,6 +64,18 @@ def question(request):
         else:
             return HttpResponseRedirect('/')
 
+
+def selectTopic(request):
+
+    subjects = Subject.objects.all()
+    topics = Topic.objects.all()
+
+    context = {
+        'subjects': subjects,
+        'topics': topics,
+    }
+
+    return render(request, 'quiz/select_topic.html', context)
 
 def playerTopic(request):
 

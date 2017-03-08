@@ -1,4 +1,18 @@
-<div class="ui modal topic">
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "quiz/css/multipleChoiceQuestion.css" %}">
+{% endblock head %}
+
+{% block header %}
+
+  {% include 'eduquiz/header.html' %}
+
+{% endblock header %}
+
+{% block content %}
   <div class="header">
     Select topics
   </div>
@@ -36,33 +50,33 @@
       Go
     </div>
   </div>
-</div>
 
-<script>
-  $(".button.topics.submit").click(function() {
-    $('form.topics').submit();
-  });
-  $(function() {
-    $('.topic.dropdown').dropdown();
-    $('.subject.dropdown').dropdown();
+  <script>
+    $(".button.topics.submit").click(function() {
+      $('form.topics').submit();
+    });
+    $(function() {
+      $('.topic.dropdown').dropdown();
+      $('.subject.dropdown').dropdown();
 
-    $('input[name="subject"]').change(function() {
-      $('.topic.item').each(function() {
-        if ($(this).attr('subject') != $('input[name="subject"]').val()) {
-          $(this).addClass('disabled');
-          $(this).css('display', 'none');
-        } else {
-          $(this).removeClass('disabled');
-          $(this).css('display', 'block');
-        }
-        $('.subject.dropdown').dropdown('clear');
+      $('input[name="subject"]').change(function() {
+        $('.topic.item').each(function() {
+          if ($(this).attr('subject') != $('input[name="subject"]').val()) {
+            $(this).addClass('disabled');
+            $(this).css('display', 'none');
+          } else {
+            $(this).removeClass('disabled');
+            $(this).css('display', 'block');
+          }
+          $('.subject.dropdown').dropdown('clear');
+        });
       });
     });
-  });
-</script>
+  </script>
 
-<style>
-  .topic.dropdown, .subject.dropdown {
-    vertical-align: top;
-  }
-</style>
+  <style>
+    .topic.dropdown, .subject.dropdown {
+      vertical-align: top;
+    }
+  </style>
+{% endblock content %}

@@ -18,7 +18,7 @@
   </div>
   <div class="content">
     <div class="description">
-      <form class="ui form topics" action="/quiz/select-topics/" method="POST">
+      <form class="ui form topics" action="/quiz/playerTopics/" method="POST">
         {% csrf_token %}
 
         <div class="ui selection topic dropdown search scrolling">
@@ -27,7 +27,7 @@
           <div class="default text">Subject</div>
           <div class="menu">
             {% for subject in subjects %}
-              <div class="item" data-value="{{ subject }}">{{ subject }}</div>
+              <div class="item" data-value="{{ subject.title }}">{{ subject }}</div>
             {% endfor %}
           </div>
         </div>

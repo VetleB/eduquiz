@@ -36,7 +36,7 @@ def question(request):
 
             playerTopics = [PT.topic for PT in list(PlayerTopic.objects.filter(player=request.user.player))]
 
-            # Hvis player ikke har spesifisert topics, ta et tilfeldig sp�rsm�l. M� endres senere n�r alle brukere alltid har en mengde topics/et subject
+            # if no specified topics, grab random question. Change later when all player have topics
             if not playerTopics:
                 return HttpResponseRedirect('/quiz/select-topics')
             else:
@@ -77,8 +77,10 @@ def selectTopic(request):
 
     return render(request, 'quiz/select_topic.html', context)
 
+
 def playerTopic(request):
 
+    # deletes all previously selected topics
     PlayerTopic.objects.filter(player=request.user.player).delete()
 
     try:
@@ -92,6 +94,11 @@ def playerTopic(request):
     # list of strings
     topics = topics.split(',')
 
+    # if no specified topics, include all topics that belong to subject
+    if topics[0] == '':
+        topics = [T.title for T in Topic.objects.filter(subject=Subject.objects.get(title=subject))]
+
+    # make new player-topic-links in database
     for topic in topics:
         try:
             PlayerTopic.objects.create(
@@ -100,6 +107,7 @@ def playerTopic(request):
             )
         except Topic.DoesNotExist:
             pass
+
     return HttpResponseRedirect('/quiz')
 
 

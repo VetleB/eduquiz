@@ -70,9 +70,9 @@ def playerTopic(request):
     PlayerTopic.objects.filter(player=request.user.player).delete()
 
     try:
-        #string
+        # string
         subject = request.POST['subject']
-        #string of topics separated by comma
+        # string of topics separated by comma
         topics = request.POST['topics']
     except ValueError:
         return HttpResponseRedirect('/')
@@ -80,11 +80,14 @@ def playerTopic(request):
     # list of strings
     topics = topics.split(',')
 
-    for ts in topics:
-        PlayerTopic.objects.create(
-            player = request.user.player,
-            topic = Topic.objects.filter(title=ts),
-        )
+    for topic in topics:
+        try:
+            PlayerTopic.objects.create(
+                player = request.user.player,
+                topic = Topic.objects.get(title=topic),
+            )
+        except Topic.DoesNotExist:
+            pass
     return HttpResponseRedirect('/quiz')
 
 

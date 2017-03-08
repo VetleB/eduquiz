@@ -38,7 +38,7 @@
           <div class="default text">Topics</div>
           <div class="menu">
             {% for topic in topics %}
-              <div class="item topic" subject="{{ topic.subject }}" data-value="{{ topic }}">{{ topic }}</div>
+              <div class="item topic" subject="{{ topic.subject.title }}" data-value="{{ topic }}">{{ topic }}</div>
             {% endfor %}
           </div>
         </div>

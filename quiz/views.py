@@ -151,7 +151,7 @@ def numberQuestion(request, question):
     return render(request, 'quiz/numberQuestion.html', context)
 
 
-def newTextanswer(request):
+def newQuestion(request):
 
     context = {
 

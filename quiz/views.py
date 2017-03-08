@@ -82,8 +82,8 @@ def playerTopic(request):
 
     for ts in topics:
         PlayerTopic.objects.create(
-            player = request.user.player,
-            topic = Topic.objects.filter(title=ts),
+            player=request.user.player,
+            topic=Topic.objects.filter(title=ts),
         )
     return HttpResponseRedirect('/quiz')
 

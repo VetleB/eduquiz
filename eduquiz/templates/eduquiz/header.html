@@ -7,13 +7,18 @@
           <img class="logo" src="{% static "eduquiz/img/logo.png" %}">
       </div>
     </a>
-    <a class="item" href="/quiz">
-      Play
+    {% if user.is_authenticated %}
+      <a class="item play button" href="/quiz">
+        Play
+      </a>
+    {% endif %}
+    <a class="item" href="/quiz/new/">
+      Suggest Questions
     </a>
 
     {% if user.is_authenticated %}
       <div class="ui dropdown item">
-        <div class="text">{{ user }}</div>
+        <div class="text">{{ user }} - {{ user.player.rating|floatformat:"0" }}</div>
         <i class="dropdown icon"></i>
         <div class="menu">
           <a class="item" href="#">My account</a>
@@ -22,10 +27,10 @@
         </div>
       </div>
     {% else %}
-      <a class="item login">
+      <a class="item login button">
         Sign in
       </a>
-       <a class="item register">
+       <a class="item register button">
         Register
        </a>
     {% endif %}
@@ -46,6 +51,7 @@
     <a class="item" href="/quiz">
       Play
     </a>
+
     {% if user.is_authenticated %}
       <a class="item" href="/account">
         My Account
@@ -54,6 +60,7 @@
       <a class="item login">
         Sign in
       </a>
+
     {% endif %}
   </div>
 </div>

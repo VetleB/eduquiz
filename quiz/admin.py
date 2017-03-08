@@ -5,7 +5,6 @@ from quiz.models import *
 class MultipleChoiceAnswerInline(admin.TabularInline):
     model = MultipleChoiceAnswer
 
-
 class MultipleChoiceQuestionInline(admin.TabularInline):
     model = MultipleChoiceQuestion
 
@@ -15,6 +14,8 @@ class TrueFalseQuestionInline(admin.TabularInline):
 class TextQuestionInline(admin.TabularInline):
     model = TextQuestion
 
+class NumberQuestionInline(admin.TabularInline):
+    model = NumberQuestion
 
 class TopicInline(admin.TabularInline):
     model = Topic
@@ -37,7 +38,7 @@ class MultipleChoiceQuestionAdmin(admin.ModelAdmin):
             'fields': (
                 'creator',
                 'creation_date',
-                'difficulty',
+                'rating',
             ),
         }),
     )
@@ -64,10 +65,33 @@ class TextQuestionAdmin(admin.ModelAdmin):
             'fields': (
                 'creator',
                 'creation_date',
-                'difficulty',
+                'rating',
             ),
         }),
     )
+
+    @admin.register(NumberQuestion)
+    class NumberQuestionAdmin(admin.ModelAdmin):
+        fieldsets = (
+            (None, {
+                'fields': (
+                    'question_text',
+                    'answer',
+                    'topic',
+                )
+            }),
+            ('Advanced options', {
+                'classes': (
+                    'collapse',
+                    'closed',
+                ),
+                'fields': (
+                    'creator',
+                    'creation_date',
+                    'rating',
+                ),
+            }),
+        )
 
 
 @admin.register(TrueFalseQuestion)
@@ -88,7 +112,7 @@ class TrueFalseQuestionAdmin(admin.ModelAdmin):
             'fields': (
                 'creator',
                 'creation_date',
-                'difficulty',
+                'rating',
             ),
         }),
     )
@@ -150,6 +174,10 @@ class PlayerInline(admin.TabularInline):
     model = Player
 
 
+class PlayerTopicInline(admin.TabularInline):
+    model = PlayerTopic
+
+
 class TitleUnlockInline(admin.TabularInline):
     model = TitleUnlock
 
@@ -183,6 +211,19 @@ class PlayerAdmin(admin.ModelAdmin):
     )
     inlines = (
         TitleUnlockInline,
+    )
+
+@admin.register(PlayerAnswer)
+class PlayerAnswerAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': (
+                'player',
+                'question',
+                'result',
+                'answer_date'
+            )
+        }),
     )
 
 

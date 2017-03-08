@@ -22,8 +22,22 @@ class Title(models.Model):
 
 class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
-    skill_lvl = models.DecimalField(max_digits=3, decimal_places=3, default=0, verbose_name='Skill Lvl')
-    user = models.ForeignKey(User)
+    rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
+    user = models.OneToOneField(User)
+
+    def update(self, question, win):
+            win = int(win)
+            QUESTION_K = 8
+            PLAYER_K = 16
+
+            rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
+            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
+            question.save()
+            self.rating = rating
+            self.save()
+
+    def exp(self, a, b):
+            return 1/(1+pow(10,(b-a)/400))
 
     def __str__(self):
         return self.user.username
@@ -71,49 +85,89 @@ class Topic(models.Model):
         return self.title
 
 
+class PlayerTopic(models.Model):
+    player = models.ForeignKey(Player)
+    topic = models.ForeignKey(Topic)
+
+    def __str__(self):
+        return "%s - %s" % (self.player, self.topic)
+
+
 class Question(models.Model):
     question_text = models.TextField(max_length=200, verbose_name='Question')
-    creator = models.ForeignKey(Player)
+    creator = models.ForeignKey(Player, blank=True, null=True)
     creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
-    difficulty = models.DecimalField(max_digits=3, decimal_places=3, verbose_name='Difficulty')
+    rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     topic = models.ForeignKey(Topic, null=True, blank=True)
 
     def __str__(self):
         return self.question_text
 
 
-
 class TextQuestion(Question):
+    answer = models.CharField(max_length=50, verbose_name='Answer')
+
+    def validate(self, inAnswer):
+        userAnswer = inAnswer.strip().casefold()
+        correctAnswer = self.answer.strip().casefold()
+
+        # Fjerner alt som ikke er alfanumerisk
+        userAnswer = ''.join([c for c in userAnswer if c.isalnum()])
+        correctAnswer = ''.join([c for c in correctAnswer if c.isalnum()])
+
+        return userAnswer == correctAnswer
+
+    def answerFeedbackRaw(self, answer):
+        return self.answerFeedback(answer)
+
+    def answerFeedback(self, answer):
+        answeredCorrect = self.validate(answer)
+        return {
+            'answer': answer,
+            'correct': self.answer,
+            'answeredCorrect': answeredCorrect,
+        }
+
+
+class NumberQuestion(Question):
     answer = models.CharField(max_length=50, verbose_name='Answer')
     def __str__(self):
         return super().question_text
 
-    #Antar at self.answer er numerisk med tre desimaler
-    def validate(self, userAnswer):
-        userAnswer = userAnswer.strip().casefold().replace(',', '.')
+    # Antar at self.answer er numerisk
+    def validate(self, inAnswer):
+
+        userAnswer = inAnswer.casefold().strip().replace(',', '.')
+        correctAnswer = self.answer.casefold().strip().replace(',', '.')
 
         # Fjerner ledende nuller
-        while userAnswer[0] == '0' and len(userAnswer) > 1:
+        while len(userAnswer) > 1 and userAnswer[0] == '0':
             userAnswer = userAnswer[1:]
 
-        correctNumOfDecimals = len(self.answer.split('.')[1])
+        # Gjør om heltallsdelen til '0' hvis den er ingenting
+        if userAnswer[0] == '.':
+            userAnswer = '0' + userAnswer
 
-        # sjekker om det er '.' i strengen
+        if '.' not in correctAnswer:
+            if '.' in userAnswer:
+                spl = userAnswer.split('.')
+                if match(r'^0*$', spl[1]):
+                    return spl[0] == correctAnswer
+                return False
+            return userAnswer == correctAnswer
+
+        correctNumOfDecimals = len(correctAnswer.split('.')[1])
+
+        # Sjekker om det er '.' i strengen
         if '.' in userAnswer:
             userAnswer = userAnswer.split('.')
-
-            # gjør om heltallsdelen til '0' hvis den er ingenting
-            if userAnswer[0] == "":
-                userAnswer[0] = '0'
-
-
             numOfDecimals = len(userAnswer[1])
 
-            # legger på nuller til det er korrekt antall desimaler
+            # Legger på nuller til det er korrekt antall desimaler
             if numOfDecimals < correctNumOfDecimals:
                 userAnswer[1] += ''.join(['0']*(correctNumOfDecimals-numOfDecimals))
 
-            #Fjerner ekstra nuller fra desimaldelen
+            # Fjerner ekstra nuller fra desimaldelen
             if numOfDecimals > correctNumOfDecimals:
                 extra = userAnswer[1][correctNumOfDecimals:]
                 zeroMatch = match(r'^0*$', extra)
@@ -124,15 +178,18 @@ class TextQuestion(Question):
         else:
             userAnswer += '.' + ''.join(['0']*correctNumOfDecimals)
 
-        # matcher et heksadesimalt tall med desimaler
+        # Matcher et heksadesimalt tall med desimaler
         patternMatch = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]*$', userAnswer))
-        return (userAnswer == self.answer.casefold()) and patternMatch
+        return (userAnswer == correctAnswer) and patternMatch
+
+    def answerFeedbackRaw(self, answer):
+        return self.answerFeedback(answer)
 
     def answerFeedback(self, answer):
         answeredCorrect = self.validate(answer)
         return {
-            'answer': str(answer),
-            'correct': str(self.answer),
+            'answer': answer,
+            'correct': self.answer,
             'answeredCorrect': answeredCorrect,
         }
 
@@ -143,11 +200,14 @@ class TrueFalseQuestion(Question):
     def __str__(self):
         return super().question_text
 
+    def answerFeedbackRaw(self, answer):
+        return self.answerFeedback(answer.capitalize() == 'True')
+
     def answerFeedback(self, answer):
         answeredCorrect = answer == self.answer
         return {
-            'answer': str(answer),
-            'correct': str(self.answer),
+            'answer': answer,
+            'correct': self.answer,
             'answeredCorrect': answeredCorrect,
         }
 
@@ -156,6 +216,12 @@ class MultipleChoiceQuestion(Question):
 
     def __str__(self):
         return super().question_text
+
+    def answerFeedbackRaw(self, answer):
+        try:
+            return self.answerFeedback(int(answer))
+        except ValueError:
+            return self.answerFeedback(1)
 
     def answerFeedback(self, answerID):
         answer = MultipleChoiceAnswer.objects.get(id=answerID)
@@ -185,4 +251,4 @@ class PlayerAnswer(models.Model):
     answer_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
 
     def __str__(self):
-        return '%b - %s - %s' % (self.result, self.player, self.question)
+        return '%r - %s - %s' % (self.result, self.player, self.question)

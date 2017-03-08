@@ -5,7 +5,7 @@
   </div>
   <div class="content">
     <div class="description">
-      <form class="ui form" action="/authentication/login/" method="POST">
+      <form class="ui form login" action="/authentication/login/" method="POST">
         {% csrf_token %}
 
         <div class="field">
@@ -26,8 +26,8 @@
         </div>
         {% if form.errors.password %}
           <div class="ui negative message loginerror">
-            <div class="header">
-              <!--Invalid-->
+            <div class="header ui form">
+
             </div>
             <p>{{ form.errors.password.0 }}</p>
           </div>
@@ -37,22 +37,19 @@
     </div>
   </div>
   <div class="actions">
-    <div class="ui positive right icon button submit">
+    <div class="ui positive right icon button submit login">
       Login
     </div>
   </div>
 </div>
 
 <script>
-  $(".login").click(function() {
+  $(".login.button").click(function() {
     $('.ui.modal.login').modal('show');
   });
 
-
-
-
-  $(".submit").click(function() {
-    $('form').submit();
+  $(".login.button.submit").click(function() {
+    $('form.login').submit();
   });
   $("#id_username").keypress(function(event) {
     if (event.which == 13) {
@@ -63,15 +60,15 @@
   $("#id_password").keypress(function(event) {
     if (event.which == 13) {
       event.preventDefault();
-      $('form').submit();
+      $('form.login').submit();
     }
   });
   $(function() {
     if ($(".loginerror").length) {
-      $('.ui.modal').modal({
+      $('.login.modal').modal({
         autofocus: false,
-      })
-      $('.ui.modal').modal('show');
+      });
+      $('.login.modal').modal('show');
       setTimeout(function() {$("#id_password").focus();}, 600);
     }
   });

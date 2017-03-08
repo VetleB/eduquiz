@@ -177,8 +177,8 @@ class TrueFalseTestCase(TestCase):
         question = TrueFalseQuestion.objects.get(question_text='TEST_QUESTION')
         response = question.answerFeedback(True)
         json = {
-            'answer': 'True',
-            'correct': 'True',
+            'answer': True,
+            'correct': True,
             'answeredCorrect': True,
         }
         self.assertEqual(response, json)
@@ -187,8 +187,8 @@ class TrueFalseTestCase(TestCase):
         question = TrueFalseQuestion.objects.get(question_text='TEST_QUESTION')
         response = question.answerFeedback(False)
         json = {
-            'answer': 'False',
-            'correct': 'True',
+            'answer': False,
+            'correct': True,
             'answeredCorrect': False,
         }
         self.assertEqual(response, json)

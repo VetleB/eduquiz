@@ -39,6 +39,14 @@ class Player(models.Model):
     def exp(self, a, b):
             return 1/(1+pow(10,(b-a)/400))
 
+    def virtualRating(self, topics):
+        VIRTUAL_K = 10
+        VIRTUAL_C = 5
+
+        answers = PlayerAnswer.objects.filter(player=self, question__topic__in=topics).order_by('-answer_date')[:VIRTUAL_C]
+        virtual = sum([VIRTUAL_K if answer.result else -VIRTUAL_K for answer in answers])
+        return self.rating + virtual
+
     def __str__(self):
         return self.user.username
 

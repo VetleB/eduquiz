@@ -3,11 +3,11 @@ import quiz.views as views
 
 urlpatterns = [
     url(r'^$', views.question, name='question'),
-    url(r'^select-topics/', views.selectTopic, name='question'),
-    url(r'^playerTopics/', views.playerTopic, name='question'),
-    #url(r'^new/multiplechoice', views.newMultiplechoice, name='question'),
-    #url(r'^new/trueorfalse', views.newTrueorfalse, name='question'),
-    #url(r'^new/textanswer', views.newTextanswer, name='question'),
-    #url(r'^new/numberanswer', views.newNumberanswer, name='question'),
-    url(r'^new/', views.newQuestion, name='question'),
+    url(r'^select-topics/', views.selectTopic, name='selectTopic'),
+    url(r'^playerTopics/', views.playerTopic, name='playerTopic'),
+    url(r'^new/multiplechoice', views.newMultiplechoiceQuestion, name='newMultiplechoiceQuestion'),
+    url(r'^new/truefalse', views.newTrueFalseQuestion, name='newTrueFalseQuestion'),
+    url(r'^new/text', views.newTextQuestion, name='newTextQuestion'),
+    url(r'^new/number', views.newNumberQuestion, name='newNumberQuestion'),
+    url(r'^new/', views.newQuestion, name='newQuestion'),
 ]

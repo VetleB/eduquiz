@@ -22,66 +22,86 @@
       <a class="item" data-tab="fourth">NumberAnswer</a>
     </div>
 
+
     <div class="ui bottom attached active tab segment" data-tab="first">
-      <div class="ui form">
-        <div class="field">
-          <label class="truefalse question label" >Question</label>
-          <input type="text">
-        </div>
-      </div>
-    </div>
-    <div class="ui bottom attached tab segment" data-tab="second">
-      <form actions="/quiz/new/multipleChoiceQuestion">
+      <form actions="/quiz/new/multiplechoice">
         <div class="ui form">
+
           <div class="field">
             <label class="truefalse question label" >Question</label>
             <input type="text">
           </div>
-        </div>
 
-        <div class="ui radio checkbox">
-          <input type="radio" name="frequency" checked="checked">
-          <label>True</label>
         </div>
-
-        <div class="ui radio checkbox">
-          <input type="radio" name="frequency">
-          <label>False</label>
-        </div>
-
-        <div class="actions">
-        <div class="ui positive right icon button submit">
-            Submit
-        </div>
-    </div>
-
       </form>
-
-
     </div>
+
+
+    <div class="ui bottom attached tab segment" data-tab="second">
+      <form actions="/quiz/new/truefalse">
+        <div class="ui form">
+
+          <div class="field">
+            <label class="truefalse question label" >Question</label>
+            <input type="text">
+          </div>
+
+          <div class="ui radio checkbox">
+            <input type="radio" name="frequency" checked="checked">
+            <label>True</label>
+          </div>
+
+          <div class="ui radio checkbox">
+            <input type="radio" name="frequency">
+            <label>False</label>
+          </div>
+
+          <div class="actions">
+            <div class="ui positive right icon button submit">
+                Submit
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+
     <div class="ui bottom attached tab segment" data-tab="third">
-      <div class="ui form">
-        <div class="field">
-          <label>Question</label>
-          <input type="text">
+      <form actions="/quiz/new/text">
+        <div class="ui form">
+
+          <div class="field">
+            <label>Question</label>
+            <input type="text">
+          </div>
+
+          <div class="field">
+            <label>Answer</label>
+            <input type="text">
+          </div>
+
         </div>
-        <div class="field">
-          <label>Answer</label>
-          <input type="text">
-        </div>
-      </div>
+      </form>
     </div>
+
+
     <div class="ui bottom attached tab segment" data-tab="fourth">
-      <div class="ui form">
-        <div class="field">
-          <label>Question</label>
-          <input type="text">
+      <form actions="/quiz/new/number">
+        <div class="ui form">
+
+          <div class="field">
+            <label>Question</label>
+            <input type="text">
+          </div>
+
+          <div class="field">
+            <label>Answer</label>
+            <input type="text">
+          </div>
+
         </div>
-        <div class="field">
-          <label>Answer</label>
-          <input type="text">
-        </div>
-      </div>
+      </form>
     </div>
   </div>
 </div>

@@ -7,29 +7,68 @@
   <div class="content">
     <div class="description">
         <form class="ui form register" action="/authentication/register/" method = "POST">
-        {% csrf_token %}
 
+        {% csrf_token %}
           <div class="two fields">
               <div class="field">
                 <label for="id_firstName">First name</label>
-                  <input id="id_firstName" placeholder ="First name " maxlength="15" name="firstName" type="text" required="">
+                  <input id="id_firstName" placeholder ="First name " maxlength="15" name="firstName" type="text" required="" value="{{ regForm.firstName.value }}">
               </div>
+
+              {%  if regForm.errors.firstName %}
+                <div class="ui pointing red label registererror">
+                    <div class="header">
+                        <!--Invalid-->
+                    </div>
+                    <p>{{ regForm.errors.firstName.0 }}</p>
+                </div>
+            {% endif %}
 
               <div class="field">
                 <label for="id_lastName">Last name</label>
-                  <input id="id_lastName" maxlength="15" placeholder ="Last name" name="lastName" type="text" required="">
+                  <input id="id_lastName" maxlength="15" placeholder ="Last name" name="lastName" type="text" required="" value="{{ regForm.lastName.value }}">
               </div>
           </div>
 
-          <div class="field">
-            <label for="id_email">Email</label>
-            <input id="id_email" maxlength="50" placeholder ="E-mail" name="email" type="email" required="">
-          </div>
+            {%  if regForm.errors.lastName %}
+                <div class="ui pointing red label registererror">
+                    <div class="header">
+                        <!--Invalid-->
+                    </div>
+                    <p>{{ regForm.errors.lastName.0 }}</p>
+                </div>
+            {% endif %}
 
-          <div class="field">
-            <label for="id_username">Username</label>
-            <input id="id_username" maxlength="15" name="username" placeholder ="Username" type="text" required="">
-          </div>
+
+
+            <div class="field">
+                <label for="id_email">Email</label>
+                <input id="id_email" maxlength="50" placeholder ="E-mail" name="email" type="email" required="" value="{{ regForm.email.value }}">
+
+            </div>
+            {% if regForm.errors.email %}
+                <div class="ui pointing red label registererror">
+                    <div class="header">
+                        <!--Invalid-->
+                    </div>
+                    <p>{{ regForm.errors.email.0 }}</p>
+                </div>
+            {% endif %}
+
+            <div class="field">
+                <label for="id_username">Username</label>
+                <input id="id_username" maxlength="15" name="username" placeholder ="Username" type="text" required="" value="{{ regForm.username.value }}">
+            </div>
+
+            {%  if regForm.errors.username %}
+                <div class="ui pointing red label registererror">
+                    <div class="header">
+                        <!--Invalid-->
+                    </div>
+                    <p>{{ regForm.errors.username.0 }}</p>
+                </div>
+            {% endif %}
+
 
           <div class="two fields">
             <div class="field">
@@ -41,15 +80,16 @@
               <label for="id_passwordConfirm">Confirm password</label>
               <input id="id_passwordConfirm" maxlength="30" name="passwordConfirm" placeholder ="Confirm password" type="password" required="">
             </div>
-              {% if form.errors.passwordConfirm %}
-          <div class="ui negative message registererror">
-            <div class="header">
-              <!--Invalid-->
-            </div>
-            <p>{{ form.errors.passwordConfirm.0 }}</p>
-          </div>
-        {% endif %}
 
+          {% if regForm.errors.passwordConfirm %}
+            <div class="ui pointing red label registererror">
+                <div class="header">
+                    <!--Invalid-->
+            </div>
+            <p>{{ regForm.errors.passwordConfirm.0 }}</p>
+          </div>
+
+            {% endif %}
           </div>
         </form>
     </div>
@@ -61,6 +101,17 @@
     </div>
 </div>
 
+<style>
+    .registererror{
+        margin-top: -10px !important;
+        
+    }
+
+
+
+
+</style>
+
 <script>
     $(".register.button").click(function() {
         $('.modal.register').modal('show');
@@ -68,6 +119,7 @@
 
     $(".button.submit.register").click(function() {
         $('form.register').submit();
+
     });
 
     $(function() {
@@ -78,6 +130,14 @@
       $('.register.modal').modal('show');
     }
   });
+
+    $("#id_passwordConfirm").keypress(function(event) {
+    if (event.which == 13) {
+      event.preventDefault();
+      $('form.register').submit();
+    }
+  });
+
 
 </script>
 

@@ -52,11 +52,20 @@ def register(request):
                 email=userDict['email'],
             )
             user.save()
+            new_user=authenticate(username=form.cleaned_data["username"],
+                                  password=form.cleaned_data["password"])
+            login(request)
+
     else:
-        form = RegistrationForm()
+        form = RegistrationForm(initial={
+            'username': '',
+            'firstName': '',
+            'email': '',
+            'lastName': '',
+        })
 
     context = {
-        'form': form,
+        'regForm': form,
     }
 
     return render(request, 'eduquiz/index.html', context)

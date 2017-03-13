@@ -33,21 +33,23 @@ class RegistrationForm(forms.Form):
 
     def clean(self):
         form_data = self.cleaned_data
-
         try:
             try:
-                User.objects.get(username="username")
-                raise forms.ValidationError({'username': 'Username taken. Choose another one.'}, code='invalid')
-            except User.DoesNotExist:
-                pass
-            if form_data["password"] != form_data["passwordConfirm"]:
-                raise forms.ValidationError({'passwordConfirm': 'Confirmed password does not match password'}, code='invalid')
-
-            try:
-                User.objects.get(email="email")
+                User.objects.get(email=form_data["email"])
                 raise forms.ValidationError({'email': 'E-mail already in use.'}, code='invalid')
             except User.DoesNotExist:
                 pass
+
+            try:
+                User.objects.get(username=form_data["username"])
+                raise forms.ValidationError({'username': 'Username taken. Please choose another one.'}, code='invalid')
+            except User.DoesNotExist:
+                pass
+
+            if form_data["password"] != form_data["passwordConfirm"]:
+                raise forms.ValidationError({'passwordConfirm': 'Passwords did not match. Try again.'}, code='invalid')
+
+
 
         except KeyError:
             pass

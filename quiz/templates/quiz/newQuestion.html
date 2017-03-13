@@ -13,41 +13,180 @@
 
 {% block content %}
 
-<div class="header">
-  Select topics
-</div>
-<div class="content">
-  <div class="description">
-    <form class="ui form topics" action="/quiz/playerTopics/" method="POST">
-      {% csrf_token %}
+<div class="ui middle aligned center aligned grid">
+  <div class="column">
+    <div class="ui card back">
 
-      <div class="ui selection topic dropdown search scrolling">
-        <input name="subject" type="hidden">
-        <i class="dropdown icon"></i>
-        <div class="default text">Subject</div>
-        <div class="menu">
-          {% for subject in subjects %}
-            <div class="item" data-value="{{ subject.title }}">{{ subject }}</div>
-          {% endfor %}
-        </div>
+      <div class="content">
+        <div class="header">Create new question</div>
       </div>
 
-      <div class="ui multiple search subject selection dropdown scrolling">
-        <input name="topics" type="hidden">
-        <i class="dropdown icon"></i>
-        <div class="default text">Topics</div>
-        <div class="menu">
-          {% for topic in topics %}
-            <div class="item topic" subject="{{ topic.subject.title }}" data-value="{{ topic }}">{{ topic }}</div>
-          {% endfor %}
+      <div class="content main">
+        <div class="selection container">
+          <div class="ui selection topic dropdown search scrolling">
+            <input name="subject" type="hidden">
+            <i class="dropdown icon"></i>
+            <div class="default text">Subject</div>
+            <div class="menu">
+              {% for subject in subjects %}
+                <div class="item" data-value="{{ subject.title }}">{{ subject }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="ui multiple search subject selection dropdown scrolling">
+            <input name="topics" type="hidden">
+            <i class="dropdown icon"></i>
+            <div class="default text">Topics</div>
+            <div class="menu">
+              {% for topic in topics %}
+                <div class="item topic" subject="{{ topic.subject.title }}" data-value="{{ topic }}">{{ topic }}</div>
+              {% endfor %}
+            </div>
+          </div>
         </div>
+
+        <div class="ui top attached tabular menu">
+          <a class="active item" data-tab="first">MultipleChoice</a>
+          <a class="item" data-tab="second">TrueorFalse</a>
+          <a class="item" data-tab="third">WrittenAnswer</a>
+        </div>
+
+
+        <div class="ui bottom attached active tab segment" data-tab="first">
+          <form actions="/quiz/new/multiplechoice">
+            <div class="ui form">
+
+              <input name="subject" type="hidden">
+              <input name="topics" type="hidden">
+
+              <div class="field">
+                <label class="truefalse question label">Question</label>
+                <input type="text">
+              </div>
+
+              <div class="actions">
+                <div class="ui positive right icon button submit">
+                    Submit
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+
+        <div class="ui bottom attached tab segment" data-tab="second">
+          <form actions="/quiz/new/truefalse">
+            <div class="ui form">
+
+              <input name="subject" type="hidden">
+              <input name="topics" type="hidden">
+
+              <div class="field">
+                <label class="truefalse question label" >Question</label>
+                <input type="text">
+              </div>
+
+              <div class="ui radio checkbox">
+                <input type="radio" name="frequency" checked="checked">
+                <label>True</label>
+              </div>
+
+              <div class="ui radio checkbox">
+                <input type="radio" name="frequency">
+                <label>False</label>
+              </div>
+
+              <div class="actions">
+                <div class="ui positive right icon button submit">
+                    Submit
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+
+        <div class="ui bottom attached tab segment" data-tab="third">
+          <form actions="/quiz/new/text">
+            <div class="ui form">
+
+              <input name="subject" type="hidden">
+              <input name="topics" type="hidden">
+
+              <div class="field">
+                <label>Question</label>
+                <input type="text">
+              </div>
+
+              <div class="field">
+                <label>Answer</label>
+                <input type="text">
+              </div>
+
+              <div class="actions">
+                <div class="ui positive right icon button submit">
+                    Submit
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
       </div>
-    </form>
+
+    </div>
   </div>
 </div>
 
 
+<style>
+  .topic.dropdown, .subject.dropdown {
+    vertical-align: top;
+  }
+
+  .radio.checkbox {
+    margin: 10px;
+  }
+
+  .column {
+    width: 90%;
+    max-width: 900px;
+    margin-top: 50px;
+  }
+  .tabular.menu .item {
+    font-size: 16px !important;
+  }
+
+  .content.main {
+    width: 100%;
+    padding: 50px;
+  }
+
+  .card.back {
+    width: 100%;
+  }
+
+  .selection.container {
+    margin-bottom: 20px;
+  }
+
+</style>
+
 <script>
+  $(function() {
+    $('.menu .item').tab();
+  });
+
+  $(document).keypress(function(event) {
+    if (event.which == 13) {
+      event.preventDefault();
+    }
+  });
+
   $(".button.topics.submit").click(function() {
     $('form.topics').submit();
   });
@@ -69,116 +208,6 @@
     });
   });
 </script>
-
-<style>
-  .topic.dropdown, .subject.dropdown {
-    vertical-align: top;
-  }
-</style>
-
-<div class="ui middle aligned center aligned grid">
-  <div class="column">
-    <div class="ui top attached tabular menu">
-      <a class="active item" data-tab="first">MultipleChoice</a>
-      <a class="item" data-tab="second">TrueorFalse</a>
-      <a class="item" data-tab="third">WrittenAnswer</a>
-    </div>
-
-
-    <div class="ui bottom attached active tab segment" data-tab="first">
-      <form actions="/quiz/new/multiplechoice">
-        <div class="ui form">
-
-          <div class="field">
-            <label class="truefalse question label" >Question</label>
-            <input type="text">
-          </div>
-
-        </div>
-      </form>
-    </div>
-
-
-    <div class="ui bottom attached tab segment" data-tab="second">
-      <form actions="/quiz/new/truefalse">
-        <div class="ui form">
-
-          <div class="field">
-            <label class="truefalse question label" >Question</label>
-            <input type="text">
-          </div>
-
-          <div class="ui radio checkbox">
-            <input type="radio" name="frequency" checked="checked">
-            <label>True</label>
-          </div>
-
-          <div class="ui radio checkbox">
-            <input type="radio" name="frequency">
-            <label>False</label>
-          </div>
-
-          <div class="actions">
-            <div class="ui positive right icon button submit">
-                Submit
-            </div>
-          </div>
-
-        </div>
-      </form>
-    </div>
-
-
-    <div class="ui bottom attached tab segment" data-tab="third">
-      <form actions="/quiz/new/text">
-        <div class="ui form">
-
-          <div class="field">
-            <label>Question</label>
-            <input type="text">
-          </div>
-
-          <div class="field">
-            <label>Answer</label>
-            <input type="text">
-          </div>
-
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-
-<script>
-  $(function() {
-    $('.menu .item').tab();
-  });
-
-  $(document).keypress(function(event) {
-    if (event.which == 13) {
-      event.preventDefault();
-    }
-  });
-</script>
-
-<style>
-  .radio.checkbox {
-    margin: 10px;
-  }
-
-  .page {
-    background-color: #f0f0f0;
-  }
-  .column {
-    width: 90%;
-    max-width: 900px;
-    margin-top: 50px;
-  }
-  .tabular.menu .item {
-    font-size: 16px !important;
-  }
-</style>
 
 
 {% endblock content %}

@@ -13,13 +13,75 @@
 
 {% block content %}
 
+<div class="header">
+  Select topics
+</div>
+<div class="content">
+  <div class="description">
+    <form class="ui form topics" action="/quiz/playerTopics/" method="POST">
+      {% csrf_token %}
+
+      <div class="ui selection topic dropdown search scrolling">
+        <input name="subject" type="hidden">
+        <i class="dropdown icon"></i>
+        <div class="default text">Subject</div>
+        <div class="menu">
+          {% for subject in subjects %}
+            <div class="item" data-value="{{ subject.title }}">{{ subject }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="ui multiple search subject selection dropdown scrolling">
+        <input name="topics" type="hidden">
+        <i class="dropdown icon"></i>
+        <div class="default text">Topics</div>
+        <div class="menu">
+          {% for topic in topics %}
+            <div class="item topic" subject="{{ topic.subject.title }}" data-value="{{ topic }}">{{ topic }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+  $(".button.topics.submit").click(function() {
+    $('form.topics').submit();
+  });
+  $(function() {
+    $('.topic.dropdown').dropdown();
+    $('.subject.dropdown').dropdown();
+
+    $('input[name="subject"]').change(function() {
+      $('.topic.item').each(function() {
+        if ($(this).attr('subject') != $('input[name="subject"]').val()) {
+          $(this).addClass('disabled');
+          $(this).css('display', 'none');
+        } else {
+          $(this).removeClass('disabled');
+          $(this).css('display', 'block');
+        }
+        $('.subject.dropdown').dropdown('clear');
+      });
+    });
+  });
+</script>
+
+<style>
+  .topic.dropdown, .subject.dropdown {
+    vertical-align: top;
+  }
+</style>
+
 <div class="ui middle aligned center aligned grid">
   <div class="column">
     <div class="ui top attached tabular menu">
       <a class="active item" data-tab="first">MultipleChoice</a>
       <a class="item" data-tab="second">TrueorFalse</a>
-      <a class="item" data-tab="third">TextAnswer</a>
-      <a class="item" data-tab="fourth">NumberAnswer</a>
+      <a class="item" data-tab="third">WrittenAnswer</a>
     </div>
 
 

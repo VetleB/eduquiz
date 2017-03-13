@@ -162,8 +162,12 @@ def numberQuestion(request, question):
 
 def newQuestion(request):
 
-    context = {
+    subjects = Subject.objects.all()
+    topics = Topic.objects.all()
 
+    context = {
+        'subjects': subjects,
+        'topics': topics,
     }
 
     return render(request, 'quiz/newQuestion.html', context)
@@ -178,54 +182,37 @@ def newTextQuestion(request):
             else:
                 creator = None
 
-            topic = Topic.objects.get(subject=form.cleaned_data['subject'], title=form.cleaned_data['topic'])
+            subject = Subject.objects.get(title=form.cleaned_data['subject'])
+            topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
 
-            question = TextQuestion(
-                question_text = form.cleaned_data['question'],
-                creator = creator,
-                rating = 700 + 100 * int(form.cleaned_data['rating']),
-                topic = topic,
-                answer = form.cleaned_data['answer'],
-            )
+            if form.cleaned_data['text']:
+                question = TextQuestion(
+                    question_text = form.cleaned_data['question'],
+                    creator = creator,
+                    rating = 700 + 100 * int(form.cleaned_data['rating']),
+                    topic = topic,
+                    answer = form.cleaned_data['answer'],
+                )
+            else:
+                question = NumberQuestion(
+                    question_text = form.cleaned_data['question'],
+                    creator = creator,
+                    rating = 700 + 100 * int(form.cleaned_data['rating']),
+                    topic = topic,
+                    answer = form.cleaned_data['answer'],
+                )
             question.save()
             messages.success(request, 'Question successfully created')
     else:
         form = TextQuestionForm()
 
+    subjects = Subject.objects.all()
+    topics = Topic.objects.all()
 
     context = {
-        'textQuestionForm': form
-    }
-
-    return render(request, 'quiz/newQuestion.html', context)
-
-
-def newNumberQuestion(request):
-    if request.method == 'POST':
-        form = NumberQuestionForm(request.POST)
-        if form.is_valid():
-            if hasattr(request, 'user') and hasattr(request.user, 'player'):
-                creator = request.user.player
-            else:
-                creator = None
-
-            topic = Topic.objects.get(subject=form.cleaned_data['subject'], title=form.cleaned_data['topic'])
-
-            question = NumberQuestion(
-                question_text = form.cleaned_data['question'],
-                creator = creator,
-                rating = 700 + 100 * int(form.cleaned_data['rating']),
-                topic = topic,
-                answer = float(form.cleaned_data['answer']),
-            )
-            question.save()
-            messages.success(request, 'Question successfully created')
-    else:
-        form = NumberQuestionForm()
-
-
-    context = {
-        'numberQuestionForm': form
+        'tForm': form,
+        'subjects': subjects,
+        'topics': topics,
     }
 
     return render(request, 'quiz/newQuestion.html', context)
@@ -240,23 +227,28 @@ def newTrueFalseQuestion(request):
             else:
                 creator = None
 
-            topic = Topic.objects.get(subject=form.cleaned_data['subject'], title=form.cleaned_data['topic'])
+            subject = Subject.objects.get(title=form.cleaned_data['subject'])
+            topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
 
             question = TrueFalseQuestion(
                 question_text = form.cleaned_data['question'],
                 creator = creator,
                 rating = 700 + 100 * int(form.cleaned_data['rating']),
                 topic = topic,
-                answer = bool(form.cleaned_data['answer']),
+                answer = bool(form.cleaned_data['correct']),
             )
             question.save()
             messages.success(request, 'Question successfully created')
     else:
         form = TrueFalseQuestionForm()
 
+    subjects = Subject.objects.all()
+    topics = Topic.objects.all()
 
     context = {
-        'trueFalseQuestionForm': form
+        'tfForm': form,
+        'subjects': subjects,
+        'topics': topics,
     }
 
     return render(request, 'quiz/newQuestion.html', context)
@@ -265,13 +257,15 @@ def newTrueFalseQuestion(request):
 def newMultiplechoiceQuestion(request):
     if request.method == 'POST':
         form = MultipleChoiceQuestionForm(request.POST)
+
         if form.is_valid():
             if hasattr(request, 'user') and hasattr(request.user, 'player'):
                 creator = request.user.player
             else:
                 creator = None
 
-            topic = Topic.objects.get(subject=form.cleaned_data['subject'], title=form.cleaned_data['topic'])
+            subject = Subject.objects.get(title=form.cleaned_data['subject'])
+            topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
 
             question = MultipleChoiceQuestion(
                 question_text = form.cleaned_data['question'],
@@ -279,6 +273,7 @@ def newMultiplechoiceQuestion(request):
                 rating = 700 + 100 * int(form.cleaned_data['rating']),
                 topic = topic,
             )
+            question.save()
 
             alternative1 = MultipleChoiceAnswer(
                 question = question,
@@ -304,7 +299,6 @@ def newMultiplechoiceQuestion(request):
                 correct = bool(form.cleaned_data['correct2']),
             )
 
-            question.save()
             alternative1.save()
             alternative2.save()
             alternative3.save()
@@ -313,9 +307,13 @@ def newMultiplechoiceQuestion(request):
     else:
         form = MultipleChoiceQuestionForm()
 
+    subjects = Subject.objects.all()
+    topics = Topic.objects.all()
 
     context = {
-        'multipleChoiceQuestionForm': form
+        'mcForm': form,
+        'subjects': subjects,
+        'topics': topics,
     }
 
     return render(request, 'quiz/newQuestion.html', context)

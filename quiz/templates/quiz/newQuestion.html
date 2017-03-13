@@ -23,19 +23,27 @@
 
       <div class="content main">
         <div class="selection container">
-          <div class="ui selection topic dropdown search scrolling">
-            <input name="subject" type="hidden">
+
+          {{ mcForm.errors }}
+
+          <div class="ui selection subject dropdown search scrolling">
+            <input class="dummy" name="subject" type="hidden">
             <i class="dropdown icon"></i>
             <div class="default text">Subject</div>
             <div class="menu">
               {% for subject in subjects %}
-                <div class="item" data-value="{{ subject.title }}">{{ subject }}</div>
+                <div class="item" data-value="{{ subject.title }}">{{ subject.title }}</div>
               {% endfor %}
             </div>
           </div>
+          {% if mcForm.errors.subject or tfForm.errors.subject or tForm.errors.subject %}
+            <div class="ui pointing red label">
+              <p>{{ mcForm.errors.subject.0 }}{{ tfForm.errors.subject.0 }}{{ tForm.errors.subject.0 }}</p>
+            </div>
+          {% endif %}
 
-          <div class="ui multiple search subject selection dropdown scrolling">
-            <input name="topics" type="hidden">
+          <div class="ui search topics selection dropdown scrolling">
+            <input class="dummy" name="topics" type="hidden">
             <i class="dropdown icon"></i>
             <div class="default text">Topics</div>
             <div class="menu">
@@ -44,6 +52,11 @@
               {% endfor %}
             </div>
           </div>
+          {% if mcForm.errors.topics or tfForm.errors.topics or tForm.errors.topics %}
+            <div class="ui pointing red label">
+              <p>{{ mcForm.errors.topics.0 }}{{ tfForm.errors.topics.0 }}{{ tForm.errors.topics.0 }}</p>
+            </div>
+          {% endif %}
         </div>
 
         <div class="ui pointing secondary menu">
@@ -54,97 +67,155 @@
 
 
         <div class="ui bottom attached active tab segment" data-tab="first">
-          <form actions="/quiz/new/multiplechoice">
+          <form action="/quiz/new/multiplechoice" method="POST">
             <div class="ui form">
 
-              <input name="subject" type="hidden">
-              <input name="topics" type="hidden">
+              {% csrf_token %}
+
+              <input class="real" name="subject" type="hidden" value="{{ mcForm.subject.value }}">
+              <input class="real" name="topics" type="hidden" value="{{ mcForm.topics.value }}">
 
               <div class="field">
-                <input type="text" placeholder="Question">
+                <input type="text" name="question" placeholder="Question" value="{{ mcForm.question.value }}">
               </div>
+              {% if mcForm.errors.question %}
+                <div class="ui pointing red label">
+                  <p>{{ mcForm.errors.question.0 }}</p>
+                </div>
+              {% endif %}
+
               <div class="field">
                 <div class="two fields">
                   <div class="field">
-                    <input type="text" name="shipping[first-name]" placeholder="Alternative 1">
+                    <input type="text" name="answer1" placeholder="Alternative 1" value="{{ mcForm.answer1.value }}">
                     <div class="ui radio checkbox">
-                      <input type="radio" name="frequency">
+                      <input type="radio" name="correct1" val="{{ mcForm.correct1.value }}">
                       <label>True</label>
                     </div>
                   </div>
+                  {% if mcForm.errors.answer1 %}
+                    <div class="ui pointing red label">
+                      <p>{{ mcForm.errors.answer1.0 }}</p>
+                    </div>
+                  {% endif %}
+
                   <div class="field">
-                    <input type="text" name="shipping[last-name]" placeholder="Alternative 2">
+                    <input type="text" name="answer2" placeholder="Alternative 2" value="{{ mcForm.answer2.value }}">
                     <div class="ui radio checkbox">
-                      <input type="radio" name="frequency">
+                      <input type="radio" name="correct2" val="{{ mcForm.correct2.value }}">
+                      <label>True</label>
+                    </div>
+                  </div>
+                  {% if mcForm.errors.answer2 %}
+                    <div class="ui pointing red label">
+                      <p>{{ mcForm.errors.answer2.0 }}</p>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="two fields">
+                  <div class="field">
+                    <input type="text" name="answer3" placeholder="Alternative 3" value="{{ mcForm.answer3.value }}">
+                    <div class="ui radio checkbox">
+                      <input type="radio" name="correct3" val="{{ mcForm.correct3.value }}">
+                      <label>True</label>
+                    </div>
+                  </div>
+                  {% if mcForm.errors.answer3 %}
+                    <div class="ui pointing red label">
+                      <p>{{ mcForm.errors.answer3.0 }}</p>
+                    </div>
+                  {% endif %}
+
+                  <div class="field">
+                    <input type="text" name="answer4" placeholder="Alternative 4" value="{{ mcForm.answer4.value }}">
+                    <div class="ui radio checkbox">
+                      <input type="radio" name="correct4" val="{{ mcForm.correct4.value }}">
                       <label>True</label>
                     </div>
                   </div>
                 </div>
+                {% if mcForm.errors.answer4 %}
+                  <div class="ui pointing red label">
+                    <p>{{ mcForm.errors.answer4.0 }}</p>
+                  </div>
+                {% endif %}
               </div>
-              <div class="field">
-                <div class="two fields">
-                  <div class="field">
-                    <input type="text" name="shipping[first-name]" placeholder="Alternative 3">
-                    <div class="ui radio checkbox">
-                      <input type="radio" name="frequency">
-                      <label>True</label>
-                    </div>
-                  </div>
-                  <div class="field">
-                    <input type="text" name="shipping[last-name]" placeholder="Alternative 4">
-                    <div class="ui radio checkbox">
-                      <input type="radio" name="frequency">
-                      <label>True</label>
-                    </div>
-                  </div>
+
+              {% if mcForm.errors.correct4 %}
+                <div class="ui pointing red label">
+                  <p>{{ mcForm.errors.correct4.0 }}</p>
                 </div>
-              </div>
+              {% endif %}
+
               <div class="field">
                 <div class="ui selection dropdown rating">
-                    <input type="hidden" name="gender">
-                    <i class="dropdown icon"></i>
-                    <div class="default text">Difficulty</div>
-                    <div class="menu">
-                        <div class="item" data-value="0">1</div>
-                        <div class="item" data-value="1">2</div>
-                        <div class="item" data-value="2">3</div>
-                        <div class="item" data-value="3">4</div>
-                        <div class="item" data-value="4">5</div>
-                        <div class="item" data-value="5">6</div>
-                        <div class="item" data-value="6">7</div>
-                        <div class="item" data-value="7">8</div>
-                        <div class="item" data-value="8">9</div>
-                        <div class="item" data-value="9">10</div>
-                    </div>
+                  <input type="hidden" name="rating" value="{{ mcForm.rating.value }}">
+                  <i class="dropdown icon"></i>
+                  <div class="default text">Difficulty</div>
+                  <div class="menu">
+                    <div class="item" data-value="0">1</div>
+                    <div class="item" data-value="1">2</div>
+                    <div class="item" data-value="2">3</div>
+                    <div class="item" data-value="3">4</div>
+                    <div class="item" data-value="4">5</div>
+                    <div class="item" data-value="5">6</div>
+                    <div class="item" data-value="6">7</div>
+                    <div class="item" data-value="7">8</div>
+                    <div class="item" data-value="8">9</div>
+                    <div class="item" data-value="9">10</div>
+                  </div>
                 </div>
-            </div>
+              </div>
 
             </div>
-
-
           </form>
         </div>
 
 
         <div class="ui bottom attached tab segment" data-tab="second">
-          <form actions="/quiz/new/truefalse">
+          <form action="/quiz/new/truefalse" method="POST">
             <div class="ui form">
 
-              <input name="subject" type="hidden">
-              <input name="topics" type="hidden">
+              {% csrf_token %}
+
+              <input class="real" name="subject" type="hidden" value="{{ tfForm.subject.value }}">
+              <input class="real" name="topics" type="hidden" value="{{ tfForm.topics.value }}">
 
               <div class="field">
-                <input type="text" placeholder="Question">
+                <input type="text" name="question" placeholder="Question" value="{{ tfForm.question.value }}">
               </div>
 
               <div class="ui radio checkbox">
-                <input type="radio" name="frequency" checked="checked">
+                <input type="radio" name="correct" checked="checked" val="{{ tfForm.correct.value }}">
                 <label>True</label>
               </div>
 
               <div class="ui radio checkbox">
-                <input type="radio" name="frequency">
+                <input type="radio">
                 <label>False</label>
+              </div>
+
+              <div class="field">
+                <div class="ui selection dropdown rating">
+                  <input type="hidden" name="rating" value="{{ tfForm.rating.value }}">
+                  <i class="dropdown icon"></i>
+                  <div class="default text">Difficulty</div>
+                  <div class="menu">
+                    <div class="item" data-value="0">1</div>
+                    <div class="item" data-value="1">2</div>
+                    <div class="item" data-value="2">3</div>
+                    <div class="item" data-value="3">4</div>
+                    <div class="item" data-value="4">5</div>
+                    <div class="item" data-value="5">6</div>
+                    <div class="item" data-value="6">7</div>
+                    <div class="item" data-value="7">8</div>
+                    <div class="item" data-value="8">9</div>
+                    <div class="item" data-value="9">10</div>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -153,29 +224,51 @@
 
 
         <div class="ui bottom attached tab segment" data-tab="third">
-          <form actions="/quiz/new/text">
+          <form action="/quiz/new/text" method="POST">
             <div class="ui form">
 
-              <input name="subject" type="hidden">
-              <input name="topics" type="hidden">
+              {% csrf_token %}
+
+              <input class="real" name="subject" type="hidden" value="{{ tForm.subject.value }}">
+              <input class="real" name="topics" type="hidden" value="{{ tForm.topics.value }}">
 
               <div class="field">
-                <input type="text" placeholder="Question">
+                <input type="text" name="question" placeholder="Question" value="{{ tForm.question.value }}">
               </div>
 
               <div class="field">
-                <input type="text" placeholder="Answer">
+                <input type="text" name="answer" placeholder="Answer" value="{{ tForm.answer.value }}">
               </div>
 
               The answer is:
               <div class="ui radio checkbox">
-                <input type="radio" name="frequency" checked="checked">
+                <input type="radio" name="text" checked="checked" val="{{ tForm.text.value }}">
                 <label>Text</label>
               </div>
 
               <div class="ui radio checkbox">
-                <input type="radio" name="frequency">
+                <input type="radio" name="number">
                 <label>Number</label>
+              </div>
+
+              <div class="field">
+                <div class="ui selection dropdown rating">
+                  <input type="hidden" name="rating" val="{{ tForm.rating.value }}">
+                  <i class="dropdown icon"></i>
+                  <div class="default text">Difficulty</div>
+                  <div class="menu">
+                    <div class="item" data-value="0">1</div>
+                    <div class="item" data-value="1">2</div>
+                    <div class="item" data-value="2">3</div>
+                    <div class="item" data-value="3">4</div>
+                    <div class="item" data-value="4">5</div>
+                    <div class="item" data-value="5">6</div>
+                    <div class="item" data-value="6">7</div>
+                    <div class="item" data-value="7">8</div>
+                    <div class="item" data-value="8">9</div>
+                    <div class="item" data-value="9">10</div>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -184,7 +277,7 @@
 
       </div>
       <div class="extra content">
-        <div class="ui positive right icon button submit">
+        <div class="ui positive right icon button create submit">
             Submit
         </div>
       </div>
@@ -249,29 +342,81 @@
     }
   });
 
-  $(".button.topics.submit").click(function() {
-    $('form.topics').submit();
-  });
-  $(function() {
-    $('.topic.dropdown').dropdown();
-    $('.subject.dropdown').dropdown();
+  function filterTopics() {
+    $('.topic.item').each(function() {
+      if ($(this).attr('subject') != $('input[name="subject"]').val()) {
+        $(this).addClass('disabled');
+        $(this).css('display', 'none');
+      } else {
+        $(this).removeClass('disabled');
+        $(this).css('display', 'block');
+      }
+      $('.topics.dropdown').dropdown('clear');
+    });
 
-    $('input[name="subject"]').change(function() {
-      $('.topic.item').each(function() {
-        if ($(this).attr('subject') != $('input[name="subject"]').val()) {
-          $(this).addClass('disabled');
-          $(this).css('display', 'none');
-        } else {
-          $(this).removeClass('disabled');
-          $(this).css('display', 'block');
-        }
-        $('.subject.dropdown').dropdown('clear');
+    $('input[name="subject"].real').each(function() {
+      $(this).val($('input[name="subject"].dummy').val());
+    });
+  };
+
+  $(function() {
+    // init subject dropdown
+    $('.subject.dropdown').dropdown();
+    // if subject is selected, set subject
+    {% if mcForm.subject.value or tfForm.subject.value or tForm.subject.value %}
+      $('.subject.dropdown').dropdown('set exactly', "{{ mcForm.subject.value }}{{ tfForm.subject.value }}{{ tForm.subject.value }}");
+    {% endif %}
+
+    // init topic dropdown
+    $('.topics.dropdown').dropdown();
+    // filter topics based on subject
+    filterTopics();
+
+    // if topic is selected, set topic
+    {% if mcForm.topics.value or tfForm.topics.value or tForm.topics.value %}
+      $('.topics.dropdown').dropdown('set exactly', "{{ mcForm.topics.value }}{{ tfForm.topics.value }}{{ tForm.topics.value }}");
+    {% endif %}
+
+    // init rating dropdowns
+    $('.rating.dropdown').dropdown();
+
+    // filter topics based on subject when subject is changed
+    $('input[name="subject"].dummy').change(function() {
+      filterTopics();
+    });
+
+    // when topic is changed
+    $('input[name="topics"].dummy').change(function() {
+      // set all real topic fields to dummy-topic field
+      $('input[name="topics"].real').each(function() {
+        $(this).val($('input[name="topics"].dummy').val());
       });
     });
 
-    $('.rating.dropdown').dropdown();
-  });
+    // when submit button pressed
+    $(".submit.button.create").click(function() {
+      // submit form in active tab
+      $(".tab.active form").submit();
+    });
 
+    // when radio button changes
+    $('input[type="radio"]').change(function() {
+      // set value equal to visual checkmark
+      $(this).val($(this).prop("checked"));
+    });
+
+    // init radio buttons, set value and visual checkmark equal
+    // to value from backend (stored in "val" attribute)
+    $('input[type="radio"]').each(function() {
+      if ($(this).attr("val") == "True") {
+        $(this).val(true);
+        $(this).prop("checked", true);
+      } else {
+        $(this).val(false);
+        $(this).prop("checked", false);
+      }
+    });
+  });
 </script>
 
 

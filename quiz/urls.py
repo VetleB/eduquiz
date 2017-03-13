@@ -8,6 +8,5 @@ urlpatterns = [
     url(r'^new/multiplechoice', views.newMultiplechoiceQuestion, name='newMultiplechoiceQuestion'),
     url(r'^new/truefalse', views.newTrueFalseQuestion, name='newTrueFalseQuestion'),
     url(r'^new/text', views.newTextQuestion, name='newTextQuestion'),
-    url(r'^new/number', views.newNumberQuestion, name='newNumberQuestion'),
     url(r'^new/', views.newQuestion, name='newQuestion'),
 ]

@@ -5,92 +5,63 @@
    </div>
 
   <div class="content">
-    <div class="description">
-        <form class="ui form register" action="/authentication/register/" method = "POST">
+      <div class="description">
+          <form class="ui form register" action="/authentication/register/" method = "POST">
+              {% csrf_token %}
+              <div class="two fields">
+                  <div class="field {% if regForm.errors.firstName %} error registererror {% endif %}">
+                      <label for="id_firstName">First name</label>
+                      <input id="id_firstName" placeholder ="First name " maxlength="15" name="firstName" type="text" required="" value="{{ regForm.firstName.value }}">
+                  </div>
 
-        {% csrf_token %}
-          <div class="two fields">
-              <div class="field">
-                <label for="id_firstName">First name</label>
-                  <input id="id_firstName" placeholder ="First name " maxlength="15" name="firstName" type="text" required="" value="{{ regForm.firstName.value }}">
-              </div>
-
-              {%  if regForm.errors.firstName %}
-                <div class="ui pointing red label registererror">
-                    <div class="header">
-                        <!--Invalid-->
-                    </div>
-                    <p>{{ regForm.errors.firstName.0 }}</p>
-                </div>
-            {% endif %}
-
-              <div class="field">
+              <div class="field {% if regForm.errors.lastName %} error registererror {% endif %}">
                 <label for="id_lastName">Last name</label>
                   <input id="id_lastName" maxlength="15" placeholder ="Last name" name="lastName" type="text" required="" value="{{ regForm.lastName.value }}">
               </div>
           </div>
+          <div class="field {% if regForm.errors.email %} error registererror{% endif %}">
+              <label for="id_email">Email</label>
+              <input id="id_email" maxlength="50" placeholder ="E-mail" name="email" type="email" required="" value="{{ regForm.email.value }}">
+          </div>
 
-            {%  if regForm.errors.lastName %}
-                <div class="ui pointing red label registererror">
-                    <div class="header">
+          {%  if regForm.errors.email and regForm.errors.email.0 != "This field is required." %}
+              <div class="ui pointing red label registererror">
+                  <div class="header">
                         <!--Invalid-->
-                    </div>
-                    <p>{{ regForm.errors.lastName.0 }}</p>
-                </div>
-            {% endif %}
+                  </div>
+                  <p>{{ regForm.errors.email.0 }}</p>
+              </div>
+          {% endif %}
 
+          <div class="field {% if regForm.errors.username %} error registererror {% endif %}">
+            <label for="id_username">Username</label>
+            <input id="id_username" maxlength="15" name="username" placeholder ="Username" type="text" required="" value="{{ regForm.username.value }}">
+          </div>
 
-
-            <div class="field">
-                <label for="id_email">Email</label>
-                <input id="id_email" maxlength="50" placeholder ="E-mail" name="email" type="email" required="" value="{{ regForm.email.value }}">
-
-            </div>
-            {% if regForm.errors.email %}
-                <div class="ui pointing red label registererror">
-                    <div class="header">
+          {%  if regForm.errors.username and regForm.errors.username.0 != "This field is required." %}
+              <div class="ui pointing red label registererror">
+                  <div class="header">
                         <!--Invalid-->
-                    </div>
-                    <p>{{ regForm.errors.email.0 }}</p>
-                </div>
-            {% endif %}
-
-            <div class="field">
-                <label for="id_username">Username</label>
-                <input id="id_username" maxlength="15" name="username" placeholder ="Username" type="text" required="" value="{{ regForm.username.value }}">
-            </div>
-
-            {%  if regForm.errors.username %}
-                <div class="ui pointing red label registererror">
-                    <div class="header">
-                        <!--Invalid-->
-                    </div>
-                    <p>{{ regForm.errors.username.0 }}</p>
-                </div>
-            {% endif %}
+                  </div>
+                  <p>{{ regForm.errors.username.0 }}</p>
+              </div>
+          {% endif %}
 
 
           <div class="two fields">
-            <div class="field">
+            <div class="field {% if regForm.errors.password or regForm.error.passwordConfirm %} error registererror {% endif %}">
               <label for="id_password">Password</label>
               <input id="id_password" maxlength="30" name="password" placeholder ="Password" type="password" required="">
             </div>
 
-            <div class="field">
+            <div class="field {% if regForm.errors.passwordConfirm or regForm.errors.password %} error registererror {% endif %}">
               <label for="id_passwordConfirm">Confirm password</label>
               <input id="id_passwordConfirm" maxlength="30" name="passwordConfirm" placeholder ="Confirm password" type="password" required="">
             </div>
 
-          {% if regForm.errors.passwordConfirm %}
-            <div class="ui pointing red label registererror">
-                <div class="header">
-                    <!--Invalid-->
-            </div>
-            <p>{{ regForm.errors.passwordConfirm.0 }}</p>
-          </div>
 
-            {% endif %}
           </div>
+        {{ form.errors }}
         </form>
     </div>
   </div>
@@ -102,35 +73,46 @@
 </div>
 
 <style>
-    .registererror{
+    .registererror.pointing{
         margin-top: -10px !important;
-        
     }
-
-
 
 
 </style>
 
+
 <script>
+
+    //Open register modal when "Register" in header is clicked
     $(".register.button").click(function() {
         $('.modal.register').modal('show');
     });
 
+    //Submit the registration form. This sends the user to the view, which also logs in the user.
     $(".button.submit.register").click(function() {
         $('form.register').submit();
 
     });
 
+    //Reopen modal and auto focus the field that had an error
     $(function() {
     if ($(".registererror").length) {
       $('.register.modal').modal({
         autofocus: false,
       })
       $('.register.modal').modal('show');
-    }
-  });
+        }
+    });
 
+     //remove error when field changes
+    $('.field.error').change(function() {
+      $(this).removeClass('error');
+    });
+    $('.field.error').keydown(function() {
+      $(this).removeClass('error');
+    });
+
+    //Submit registration form
     $("#id_passwordConfirm").keypress(function(event) {
     if (event.which == 13) {
       event.preventDefault();

@@ -24,9 +24,7 @@
       <div class="content main">
         <div class="selection container">
 
-          {{ mcForm.errors }}
-
-          <div class="ui selection subject dropdown search scrolling">
+          <div class="ui selection subject dropdown search scrolling {% if mcForm.errors.subject or tfForm.errors.subject or tForm.errors.subject %}error{% endif %}">
             <input class="dummy" name="subject" type="hidden">
             <i class="dropdown icon"></i>
             <div class="default text">Subject</div>
@@ -36,13 +34,8 @@
               {% endfor %}
             </div>
           </div>
-          {% if mcForm.errors.subject or tfForm.errors.subject or tForm.errors.subject %}
-            <div class="ui pointing red label">
-              <p>{{ mcForm.errors.subject.0 }}{{ tfForm.errors.subject.0 }}{{ tForm.errors.subject.0 }}</p>
-            </div>
-          {% endif %}
 
-          <div class="ui search topics selection dropdown scrolling">
+          <div class="ui search topics selection dropdown scrolling {% if mcForm.errors.topics or tfForm.errors.topics or tForm.errors.topics %}error{% endif %}">
             <input class="dummy" name="topics" type="hidden">
             <i class="dropdown icon"></i>
             <div class="default text">Topics</div>
@@ -52,11 +45,6 @@
               {% endfor %}
             </div>
           </div>
-          {% if mcForm.errors.topics or tfForm.errors.topics or tForm.errors.topics %}
-            <div class="ui pointing red label">
-              <p>{{ mcForm.errors.topics.0 }}{{ tfForm.errors.topics.0 }}{{ tForm.errors.topics.0 }}</p>
-            </div>
-          {% endif %}
         </div>
 
         <div class="ui pointing secondary menu">
@@ -75,82 +63,65 @@
               <input class="real" name="subject" type="hidden" value="{{ mcForm.subject.value }}">
               <input class="real" name="topics" type="hidden" value="{{ mcForm.topics.value }}">
 
-              <div class="field">
+              <div class="field {% if mcForm.errors.question %}error{% endif %}">
                 <input type="text" name="question" placeholder="Question" value="{{ mcForm.question.value }}">
               </div>
-              {% if mcForm.errors.question %}
-                <div class="ui pointing red label">
-                  <p>{{ mcForm.errors.question.0 }}</p>
-                </div>
-              {% endif %}
 
               <div class="field">
                 <div class="two fields">
                   <div class="field">
-                    <input type="text" name="answer1" placeholder="Alternative 1" value="{{ mcForm.answer1.value }}">
+                    <div class="field {% if mcForm.errors.answer1 %}error{% endif %}">
+                      <input type="text" name="answer1" placeholder="Alternative 1" value="{{ mcForm.answer1.value }}">
+                    </div>
                     <div class="ui radio checkbox">
                       <input type="radio" name="correct1" val="{{ mcForm.correct1.value }}">
                       <label>True</label>
                     </div>
                   </div>
-                  {% if mcForm.errors.answer1 %}
-                    <div class="ui pointing red label">
-                      <p>{{ mcForm.errors.answer1.0 }}</p>
-                    </div>
-                  {% endif %}
 
                   <div class="field">
-                    <input type="text" name="answer2" placeholder="Alternative 2" value="{{ mcForm.answer2.value }}">
+                    <div class="field {% if mcForm.errors.answer2 %}error{% endif %}">
+                      <input type="text" name="answer2" placeholder="Alternative 2" value="{{ mcForm.answer2.value }}">
+                    </div>
                     <div class="ui radio checkbox">
                       <input type="radio" name="correct2" val="{{ mcForm.correct2.value }}">
                       <label>True</label>
                     </div>
                   </div>
-                  {% if mcForm.errors.answer2 %}
-                    <div class="ui pointing red label">
-                      <p>{{ mcForm.errors.answer2.0 }}</p>
-                    </div>
-                  {% endif %}
                 </div>
               </div>
 
               <div class="field">
                 <div class="two fields">
                   <div class="field">
-                    <input type="text" name="answer3" placeholder="Alternative 3" value="{{ mcForm.answer3.value }}">
+                    <div class="field {% if mcForm.errors.answer3 %}error{% endif %}">
+                      <input type="text" name="answer3" placeholder="Alternative 3" value="{{ mcForm.answer3.value }}">
+                    </div>
                     <div class="ui radio checkbox">
                       <input type="radio" name="correct3" val="{{ mcForm.correct3.value }}">
                       <label>True</label>
                     </div>
                   </div>
-                  {% if mcForm.errors.answer3 %}
-                    <div class="ui pointing red label">
-                      <p>{{ mcForm.errors.answer3.0 }}</p>
-                    </div>
-                  {% endif %}
 
                   <div class="field">
-                    <input type="text" name="answer4" placeholder="Alternative 4" value="{{ mcForm.answer4.value }}">
+                    <div class="field {% if mcForm.errors.answer4 %}error{% endif %}">
+                      <input type="text" name="answer4" placeholder="Alternative 4" value="{{ mcForm.answer4.value }}">
+                    </div>
                     <div class="ui radio checkbox">
                       <input type="radio" name="correct4" val="{{ mcForm.correct4.value }}">
                       <label>True</label>
                     </div>
                   </div>
                 </div>
-                {% if mcForm.errors.answer4 %}
-                  <div class="ui pointing red label">
-                    <p>{{ mcForm.errors.answer4.0 }}</p>
-                  </div>
-                {% endif %}
               </div>
 
               {% if mcForm.errors.correct4 %}
-                <div class="ui pointing red label">
+                <div class="ui negative message">
                   <p>{{ mcForm.errors.correct4.0 }}</p>
                 </div>
               {% endif %}
 
-              <div class="field">
+              <div class="field {% if mcForm.errors.rating %}error{% endif %}">
                 <div class="ui selection dropdown rating">
                   <input type="hidden" name="rating" value="{{ mcForm.rating.value }}">
                   <i class="dropdown icon"></i>
@@ -415,6 +386,14 @@
         $(this).val(false);
         $(this).prop("checked", false);
       }
+    });
+
+    //remove error when field changes
+    $('.field.error').change(function() {
+      $(this).removeClass('error');
+    });
+    $('.field.error').keydown(function() {
+      $(this).removeClass('error');
     });
   });
 </script>

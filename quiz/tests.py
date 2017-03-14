@@ -87,7 +87,7 @@ class NumberQuestionTestCase(TestCase):
         self.assertTrue(question.validate('1.'))
 
     def test_validation_of_answer_without_decimal_part2(self):
-        question = TextQuestion.objects.get()
+        question = NumberQuestion.objects.get()
         question.answer = '133769'
         self.assertTrue(question.validate('133769'))
         self.assertTrue(question.validate('133769.'))
@@ -208,3 +208,40 @@ class TrueFalseTestCase(TestCase):
             'answeredCorrect': False,
         }
         self.assertEqual(response, json)
+
+
+class RatingTestCase(TestCase):
+
+    def setUp(self):
+        user = User.objects.create(
+
+        )
+        player = Player.objects.create(
+            rating=1000,
+            user=user,
+        )
+        question = Question.objects.create(
+            rating=1000,
+        )
+
+    def test_rating_change_on_correct(self):
+        player = Player.objects.get()
+        question = Question.objects.get()
+        player.update(question, 1)
+        self.assertTrue(question.rating < 1000)
+        self.assertTrue(player.rating > 1000)
+
+    def test_rating_change_on_incorrect(self):
+        player = Player.objects.get()
+        question = Question.objects.get()
+        player.update(question, 0)
+        self.assertTrue(question.rating > 1000)
+        self.assertTrue(player.rating < 1000)
+
+    def test_no_change_above_cap(self):
+        player = Player.objects.get()
+        player.rating = 1150
+        question = Question.objects.get()
+        player.update(question, 0)
+        self.assertTrue(question.rating == 1000)
+        self.assertTrue(player.rating == 1150)

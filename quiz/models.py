@@ -29,12 +29,14 @@ class Player(models.Model):
             win = int(win)
             QUESTION_K = 8
             PLAYER_K = 16
+            RATING_CAP = 150
 
-            rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
-            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
-            question.save()
-            self.rating = rating
-            self.save()
+            if self.rating - question.rating < RATING_CAP:
+                rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
+                question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
+                question.save()
+                self.rating = rating
+                self.save()
 
     def exp(self, a, b):
             return 1/(1+pow(10,(b-a)/400))

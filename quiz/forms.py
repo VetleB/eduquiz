@@ -30,12 +30,25 @@ class MultipleChoiceQuestionForm(forms.Form):
 
 class TrueFalseQuestionForm(forms.Form):
     question = forms.CharField(max_length=100, label="Question")
-    correct = forms.BooleanField(label="Correct", required=False)
+    correct = forms.BooleanField(label="True", required=False)
+    wrong = forms.BooleanField(label="False", required=False)
 
     rating = forms.IntegerField(label="Rating")
 
     subject = forms.CharField(max_length=100, label="Subject")
     topics = forms.CharField(max_length=100, label="Topic")
+
+    def clean(self):
+        form_data = self.cleaned_data
+
+        try:
+            if not form_data['correct'] and not form_data['wrong']:
+                raise ValidationError({'correct': 'Is it true or false?'}, code='invalid')
+        except KeyError:
+            pass
+
+        return form_data
+
 
 class TextQuestionForm(forms.Form):
     question = forms.CharField(max_length=100, label="Question")
@@ -43,8 +56,19 @@ class TextQuestionForm(forms.Form):
 
     rating = forms.IntegerField(label="Rating")
 
-    # True: text  False: number
     text = forms.BooleanField(label="Text", required=False)
+    number = forms.BooleanField(label="Number", required=False)
 
     subject = forms.CharField(max_length=100, label="Subject")
     topics = forms.CharField(max_length=100, label="Topic")
+
+    def clean(self):
+        form_data = self.cleaned_data
+
+        try:
+            if not form_data['text'] and not form_data['number']:
+                raise ValidationError({'text': 'Is the answer text or a number?'}, code='invalid')
+        except KeyError:
+            pass
+
+        return form_data

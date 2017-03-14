@@ -6,6 +6,7 @@ from django.contrib.auth import login as djangologin
 from authentication.forms import LoginForm, RegistrationForm
 from django.contrib.auth import logout as djangologout
 from django.core.exceptions import ValidationError
+from quiz.models import Player
 
 
 def login(request):
@@ -52,11 +53,23 @@ def register(request):
                 email=userDict['email'],
             )
             user.save()
+            new_user=authenticate(username=form.cleaned_data["username"],
+                                  password=form.cleaned_data["password"])
+            player=Player(user=user)
+            player.save()
+            login(request)
+
+
     else:
-        form = RegistrationForm()
+        form = RegistrationForm(initial={
+            'username': '',
+            'firstName': '',
+            'email': '',
+            'lastName': '',
+        })
 
     context = {
-        'form': form,
+        'regForm': form,
     }
 
     return render(request, 'eduquiz/index.html', context)

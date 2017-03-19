@@ -7,6 +7,9 @@
     <div class="description">
       <form class="ui form report" action="/quiz/report/" method="POST">
         {% csrf_token %}
+
+        <!-- TODO: send correct values with the form, add all necessary fields -->
+
         <div class="ui form">
           <input name="question" id="question" value="{%  %}">
         </div>

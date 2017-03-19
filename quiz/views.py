@@ -320,6 +320,7 @@ def newMultiplechoiceQuestion(request):
 
 
 def report(request):
+    # TODO: make it work
     if request.method == 'POST':
         form = ReportForm(request.POST)
         print(form['green_wrong'])

@@ -320,4 +320,15 @@ def newMultiplechoiceQuestion(request):
 
 
 def report(request):
-    pass
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        print(form['green_wrong'])
+        if form.is_valid():
+            userDict = form.cleaned_data
+            QR = QuestionReport.objects.create_questionreport(
+                question = Question.objects.get(question_text=userDict['question_text']),
+                green_wrong = userDict['green_wrong'],
+                ambiguous = userDict['ambiguous']
+            )
+            QR.save()
+    return HttpResponseRedirect('/quiz')

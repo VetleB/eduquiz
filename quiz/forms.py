@@ -72,3 +72,13 @@ class TextQuestionForm(forms.Form):
             pass
 
         return form_data
+
+
+class ReportForm(forms.Form):
+    question_text = forms.CharField(max_length=200)
+    ambiguous = forms.BooleanField(label="Ambiguous", required=False)
+    green_wrong = forms.BooleanField(label="Green_wrong", required=False)
+
+    def clean(self):
+        form_data = self.cleaned_data
+        return form_data

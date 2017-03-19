@@ -317,3 +317,7 @@ def newMultiplechoiceQuestion(request):
     }
 
     return render(request, 'quiz/newQuestion.html', context)
+
+
+def report(request):
+    pass

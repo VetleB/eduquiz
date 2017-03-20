@@ -206,6 +206,7 @@ class PlayerAdmin(admin.ModelAdmin):
                 'title',
                 'rating',
                 'user',
+                'questionsAnswered',
             )
         }),
     )

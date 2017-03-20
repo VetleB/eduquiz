@@ -24,6 +24,7 @@ class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
     rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     user = models.OneToOneField(User)
+    questionsAnswered=models.DecimalField(default=0, max_digits=4, decimal_places=0, verbose_name="Questions Answered")
 
     def update(self, question, win):
             win = int(win)
@@ -42,6 +43,10 @@ class Player(models.Model):
     def __str__(self):
         return self.user.username
 
+    #Function primarily used as a counter of answered questions for achievements
+    def questionAnswered(self):
+        self.questionsAnswered=self.questionsAnswered + 1
+        self.save()
 
 class AchievementUnlock(models.Model):
     player = models.ForeignKey(Player)

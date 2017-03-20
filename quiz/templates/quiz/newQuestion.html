@@ -48,13 +48,13 @@
         </div>
 
         <div class="ui pointing secondary menu">
-          <a class="active item" data-tab="first">MultipleChoice</a>
-          <a class="item" data-tab="second">TrueorFalse</a>
-          <a class="item" data-tab="third">WrittenAnswer</a>
+          <a class="{% if active == "multiplechoice" %} active {% endif %} item" data-tab="first">Multiple Choice</a>
+          <a class="{% if active == "truefalse" %} active {% endif %} item" data-tab="second">True or False</a>
+          <a class="{% if active == "text" %} active {% endif %} item" data-tab="third">Written Answer</a>
         </div>
 
 
-        <div class="ui bottom attached active tab segment" data-tab="first">
+        <div class="ui bottom attached tab segment {% if active == "multiplechoice" %} active {% endif %}" data-tab="first">
           <form action="/quiz/new/multiplechoice" method="POST">
             <div class="ui form">
 
@@ -146,7 +146,7 @@
         </div>
 
 
-        <div class="ui bottom attached tab segment" data-tab="second">
+        <div class="ui bottom attached tab segment {% if active == "truefalse" %} active {% endif %}" data-tab="second">
           <form action="/quiz/new/truefalse" method="POST">
             <div class="ui form">
 
@@ -202,7 +202,7 @@
         </div>
 
 
-        <div class="ui bottom attached tab segment" data-tab="third">
+        <div class="ui bottom attached tab segment {% if active == "text" %} active {% endif %}" data-tab="third">
           <form action="/quiz/new/text" method="POST">
             <div class="ui form">
 

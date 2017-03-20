@@ -213,6 +213,7 @@ def newTextQuestion(request):
         'tForm': form,
         'subjects': subjects,
         'topics': topics,
+        'active': 'text',
     }
 
     return render(request, 'quiz/newQuestion.html', context)
@@ -249,6 +250,7 @@ def newTrueFalseQuestion(request):
         'tfForm': form,
         'subjects': subjects,
         'topics': topics,
+        'active': 'truefalse',
     }
 
     return render(request, 'quiz/newQuestion.html', context)
@@ -314,6 +316,7 @@ def newMultiplechoiceQuestion(request):
         'mcForm': form,
         'subjects': subjects,
         'topics': topics,
+        'active': 'multiplechoice',
     }
 
     return render(request, 'quiz/newQuestion.html', context)

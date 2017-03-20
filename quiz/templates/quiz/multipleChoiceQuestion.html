@@ -18,13 +18,12 @@
     <div class="ui piled segment question" question="{{ question.id }}">
         <h4 class="info stuff">
           {{ question.topic }} - {{ question.topic.subject.code }}<br>
-          <!--{{ question.rating|floatformat:"0" }}-->
         </h4>
-
 
         <div style="height: 70px;"></div>
 
         <div style="position: relative;">
+
           <div class="ui questionText">
             {{ question }}
           </div>
@@ -38,7 +37,6 @@
           {% endfor %}
         </div>
     </div>
-  <div>
 
   <script>
     var answered = false;

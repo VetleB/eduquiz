@@ -14,56 +14,68 @@
 
 {% block content %}
 
-  <div class="quiz">
-    <div class="ui card question" question="{{ question.id }}">
-      <div class="content">
-        <h4 class="ui sub header">
-          {{ question.topic }} - {{ question.topic.subject.code }}<br>
-          {{ question.rating|floatformat:"0" }}
-        </h4>
+<div class="quiz">
+  <div class="ui piled segment question" question="{{ question.id }}">
+    <div class="content">
+      <h4 class="info stuff">
+        {{ question.topic }} - {{ question.topic.subject.code }}<br>
+      </h4>
+
+      <div style="height: 70px;"></div>
+
+      <div style="position: relative;">
+
         <div class="ui questionText">
-          {{ question }}
+        {{ question }}
         </div>
       </div>
     </div>
 
-    <form class="ui form segment">
-        <div class="field">
-          <input type="text" class="inputfield" name="field1">
-        </div>
-    <div class="ui primary button">Submit</div>
+    <form class="ui form">
+      <div class="field">
+        <input type="text" class="inputfield" name="field1">
+      </div>
+      <div class="ui primary button">Submit</div>
     </form>
-
-    <div class="ui positive message">
-      <div class="header">
-        Correct
-      </div>
-      <p>You are <b>very</b> talented</p>
-    </div>
-
-    <div class="ui negative message">
-      <div class="header">
-        Wrong
-      </div>
-      <p>You suck!</p>
-    </div>
   </div>
+</div>
+
+
+<div class="ui positive message">
+    <div class="header">
+      Correct
+    </div>
+    <p>You are <b>very</b> talented</p>
+</div>
+
+<div class="ui negative message">
+    <div class="header">
+      Wrong
+    </div>
+    <p>You suck!</p>
+</div>
 
 
 
-  <style>
-    .message {
-      display: none;
-    }
-    .card {
-        margin: 1% !important;
-        width: 100% !important;
-    }
-    .card {
-        margin: 0px 0px 0px 0px !important;
-        background-color: blue;
-    }
-  </style>
+
+<style>
+  .ui.form.segment {
+    padding: 0px;
+    border: 0px;
+  }
+
+  .message {
+    display: none;
+  }
+  .card {
+      margin: 1% !important;
+      width: 100% !important;
+  }
+  .card {
+      margin: 0px 0px 0px 0px !important;
+      background-color: blue;
+  }
+</style>
 
   <script>
     var answered = false;

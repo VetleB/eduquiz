@@ -137,6 +137,9 @@ class NumberQuestion(Question):
     # Antar at self.answer er numerisk
     def validate(self, inAnswer):
 
+        if inAnswer == '':
+            return False
+
         userAnswer = inAnswer.casefold().strip().replace(',', '.')
         correctAnswer = self.answer.casefold().strip().replace(',', '.')
 

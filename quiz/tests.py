@@ -66,14 +66,6 @@ class NumberQuestionTestCase(TestCase):
         question.answer = 'AB'
         self.assertTrue(question.validate('AB.0'))
 
-    def test_validation_of_answer_without_decimal_part2(self):
-        question = NumberQuestion.objects.get()
-        question.answer = '133769'
-        self.assertTrue(question.validate('133769'))
-        self.assertTrue(question.validate('133769.'))
-        self.assertFalse(question.validate('1.33769'))
-        self.assertFalse(question.validate('1.3376.9'))
-
     def test_validation_of_comma_as_decimal_mark(self):
         question = NumberQuestion.objects.get()
         self.assertTrue(question.validate('1.000'))
@@ -88,6 +80,15 @@ class NumberQuestionTestCase(TestCase):
     def test_validation_of_answer_without_decimal_part(self):
         question = NumberQuestion.objects.get()
         self.assertTrue(question.validate('1'))
+        self.assertTrue(question.validate('1.'))
+
+    def test_validation_of_answer_without_decimal_part_2(self):
+        question = NumberQuestion.objects.get()
+        question.answer = '133769'
+        self.assertTrue(question.validate('133769'))
+        self.assertTrue(question.validate('133769.'))
+        self.assertFalse(question.validate('1.33769'))
+        self.assertFalse(question.validate('1.3376.9'))
 
     def test_validation_of_answer_without_integer_part(self):
         question = NumberQuestion.objects.get()
@@ -203,3 +204,88 @@ class TrueFalseTestCase(TestCase):
             'answeredCorrect': False,
         }
         self.assertEqual(response, json)
+
+
+class RatingTestCase(TestCase):
+
+    def setUp(self):
+        user = User.objects.create(
+
+        )
+        player = Player.objects.create(
+            rating=1000,
+            user=user,
+        )
+        category = Category.objects.create(
+            title="test_category",
+        )
+        subject = Subject.objects.create(
+            title="test_subject",
+            category=category,
+        )
+        topic = Topic.objects.create(
+            title="test_topic",
+            subject=subject,
+        )
+        question = Question.objects.create(
+            rating=1000,
+            topic=topic,
+        )
+
+    def test_rating_change_on_correct(self):
+        player = Player.objects.get()
+        question = Question.objects.get()
+        player.update(question, 1)
+        self.assertTrue(question.rating < 1000)
+        self.assertTrue(player.rating > 1000)
+
+    def test_rating_change_on_incorrect(self):
+        player = Player.objects.get()
+        question = Question.objects.get()
+        player.update(question, 0)
+        self.assertTrue(question.rating > 1000)
+        self.assertTrue(player.rating < 1000)
+
+    def test_no_rating_change_above_cap(self):
+        player = Player.objects.get()
+        player.rating = 1500
+        question = Question.objects.get()
+        player.update(question, 0)
+        self.assertTrue(question.rating == 1000)
+        self.assertTrue(player.rating == 1500)
+
+    def test_virtual_rating_increase(self):
+        player = Player.objects.get()
+        question = Question.objects.get()
+        PlayerAnswer.objects.create(
+            player=player,
+            question=question,
+            result=True,
+        )
+        self.assertTrue(player.rating < player.virtualRating([question.topic]))
+
+    def test_virtual_rating_decrease(self):
+        player = Player.objects.get()
+        question = Question.objects.get()
+        PlayerAnswer.objects.create(
+            player=player,
+            question=question,
+            result=False,
+        )
+        self.assertTrue(player.rating > player.virtualRating([question.topic]))
+
+    def test_virtual_rating_increase_and_decrease(self):
+        player = Player.objects.get()
+        question = Question.objects.get()
+        PlayerAnswer.objects.create(
+            player=player,
+            question=question,
+            result=True,
+        )
+        PlayerAnswer.objects.create(
+            player=player,
+            question=question,
+            result=False,
+        )
+        self.assertTrue(player.rating == player.virtualRating([question.topic]))
+

@@ -35,13 +35,25 @@ def question(request):
     else:
         if hasattr(request, 'user') and hasattr(request.user, 'player'):
 
-            playerTopics = [PT.topic for PT in list(PlayerTopic.objects.filter(player=request.user.player))]
+            topics = [PT.topic for PT in list(PlayerTopic.objects.filter(player=request.user.player))]
 
-            # if no specified topics, grab random question. Change later when all player have topics
-            if not playerTopics:
+            if not topics:
                 return HttpResponseRedirect('/quiz/select-topics')
-            else:
-                question = Question.objects.filter(topic__in=playerTopics).annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
+
+            virtualRating = request.user.player.virtualRating(topics)
+            questions = Question.objects.filter(topic__in=topics).annotate(dist=Func(F('rating') - virtualRating, function='ABS')).order_by('dist')
+
+            REPEAT = 5
+
+            questionReturn = None
+
+            for question in questions:
+                if question not in [pa.question for pa in list(PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[:REPEAT])]:
+                    questionReturn = question
+                    break
+
+            if not questionReturn:
+                question = PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[len(questions)-1].question
 
             question = (list(TrueFalseQuestion.objects.filter(id=question.id))
                 + list(MultipleChoiceQuestion.objects.filter(id=question.id))
@@ -60,57 +72,53 @@ def question(request):
             elif isinstance(question, NumberQuestion):
                 return numberQuestion(request, question)
 
-            else:
-                return HttpResponseRedirect('/')
+            return HttpResponseRedirect('/')
         else:
             return HttpResponseRedirect('/')
 
 
 def selectTopic(request):
 
-    subjects = Subject.objects.all()
-    topics = Topic.objects.all()
+    if request.method == 'POST':
+        # deletes all previously selected topics
+        PlayerTopic.objects.filter(player=request.user.player).delete()
 
-    context = {
-        'subjects': subjects,
-        'topics': topics,
-    }
-
-    return render(request, 'quiz/select_topic.html', context)
-
-
-def playerTopic(request):
-
-    # deletes all previously selected topics
-    PlayerTopic.objects.filter(player=request.user.player).delete()
-
-    try:
-        # string
-        subject = request.POST['subject']
-        # string of topics separated by comma
-        topics = request.POST['topics']
-    except ValueError:
-        return HttpResponseRedirect('/')
-
-    # list of strings
-    topics = topics.split(',')
-
-    # if no specified topics, include all topics that belong to subject
-    if topics[0] == '':
-        topics = [T.title for T in Topic.objects.filter(subject=Subject.objects.get(title=subject))]
-
-    # make new player-topic-links in database
-    for topic in topics:
         try:
-            PlayerTopic.objects.create(
-                player = request.user.player,
-                topic = Topic.objects.get(title=topic),
-            )
-        except Topic.DoesNotExist:
-            pass
+            # string
+            subject = request.POST['subject']
+            # string of topics separated by comma
+            topics = request.POST['topics']
+        except ValueError:
+            return HttpResponseRedirect('/')
 
-    return HttpResponseRedirect('/quiz')
+        # list of strings
+        topics = topics.split(',')
 
+        # if no specified topics, include all topics that belong to subject
+        if topics[0] == '':
+            topics = [topic.title for topic in Topic.objects.filter(subject=Subject.objects.get(title=subject))]
+
+        # make new player-topic-links in database
+        for topic in topics:
+            try:
+                PlayerTopic.objects.create(
+                    player = request.user.player,
+                    topic = Topic.objects.get(title=topic),
+                )
+            except Topic.DoesNotExist:
+                pass
+
+        return HttpResponseRedirect('/quiz')
+    else:
+        subjects = Subject.objects.all()
+        topics = Topic.objects.all()
+
+        context = {
+            'subjects': subjects,
+            'topics': topics,
+        }
+
+        return render(request, 'quiz/select_topic.html', context)
 
 def multipleChoiceQuestion(request, question):
 

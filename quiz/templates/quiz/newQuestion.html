@@ -74,7 +74,7 @@
                       <input type="text" name="answer1" placeholder="Alternative 1" value="{{ mcForm.answer1.value }}">
                     </div>
                     <div class="ui radio checkbox">
-                      <input class="mcCorrectToggle" type="radio" name="correct1" val="{{ mcForm.correct1.value }}">
+                      <input class="mcCorrectToggle" type="radio" name="correct" value="Alt1" {% if mcForm.correct.value == "Alt1" %} checked="" {% endif %}>
                       <label>True</label>
                     </div>
                   </div>
@@ -84,7 +84,7 @@
                       <input type="text" name="answer2" placeholder="Alternative 2" value="{{ mcForm.answer2.value }}">
                     </div>
                     <div class="ui radio checkbox">
-                      <input class="mcCorrectToggle" type="radio" name="correct2" val="{{ mcForm.correct2.value }}">
+                      <input class="mcCorrectToggle" type="radio" name="correct" value="Alt2" {% if mcForm.correct.value == "Alt2" %} checked="" {% endif %}>
                       <label>True</label>
                     </div>
                   </div>
@@ -98,7 +98,7 @@
                       <input type="text" name="answer3" placeholder="Alternative 3" value="{{ mcForm.answer3.value }}">
                     </div>
                     <div class="ui radio checkbox">
-                      <input class="mcCorrectToggle" type="radio" name="correct3" val="{{ mcForm.correct3.value }}">
+                      <input class="mcCorrectToggle" type="radio" name="correct" value="Alt3" {% if mcForm.correct.value == "Alt3" %} checked="" {% endif %}>
                       <label>True</label>
                     </div>
                   </div>
@@ -108,16 +108,16 @@
                       <input type="text" name="answer4" placeholder="Alternative 4" value="{{ mcForm.answer4.value }}">
                     </div>
                     <div class="ui radio checkbox">
-                      <input class="mcCorrectToggle" type="radio" name="correct4" val="{{ mcForm.correct4.value }}">
+                      <input class="mcCorrectToggle" type="radio" name="correct" value="Alt4" {% if mcForm.correct.value == "Alt4" %} checked="" {% endif %}>
                       <label>True</label>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {% if mcForm.errors.correct4 %}
+              {% if mcForm.errors.correct %}
                 <div class="ui negative message mcCorrectError">
-                  <p>{{ mcForm.errors.correct4.0 }}</p>
+                  <p>{{ mcForm.errors.correct.0 }}</p>
                 </div>
               {% endif %}
 
@@ -161,12 +161,12 @@
 
               <div class="field">
                 <div class="ui radio checkbox">
-                  <input type="radio" class="tfCorrectToggle" name="correct" checked="checked" val="{{ tfForm.correct.value }}">
+                  <input type="radio" class="tfCorrectToggle" name="correct" value="True" {% if tfForm.correct.value == "True" %} checked="" {% endif %}>
                   <label>True</label>
                 </div>
 
                 <div class="ui radio checkbox">
-                  <input type="radio" class="tfCorrectToggle" name="wrong" val="{{ tfForm.wrong.value }}">
+                  <input type="radio" class="tfCorrectToggle" name="correct" value="False" {% if tfForm.correct.value == "False" %} checked="" {% endif %}>
                   <label>False</label>
                 </div>
               </div>
@@ -219,15 +219,23 @@
                 <input type="text" name="answer" placeholder="Answer" value="{{ tForm.answer.value }}">
               </div>
 
-              The answer is:
-              <div class="ui radio checkbox">
-                <input type="radio" class="textnumberToggle" name="text" checked="checked" val="{{ tForm.text.value }}">
-                <label>Text</label>
-              </div>
 
-              <div class="ui radio checkbox">
-                <input type="radio" class="textnumberToggle" name="number" val="{{ tForm.number.value }}">
-                <label>Number</label>
+              <div class="inline fields">
+                The answer is:
+                <div class="field"></div>
+                <div class="field">
+                  <div class="ui radio checkbox">
+                    <input type="radio" class="textnumberToggle" name="text" value="True" {% if tForm.text.value == "True" %} checked="" {% endif %}>
+                    <label>Text</label>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="ui radio checkbox">
+                    <input type="radio" class="textnumberToggle" name="text" value="False" {% if tForm.text.value == "False" %} checked="" {% endif %}>
+                    <label>Number</label>
+                  </div>
+                </div>
               </div>
 
               {% if tForm.errors.text %}
@@ -317,9 +325,6 @@
 </style>
 
 <script>
-  $(function() {
-    $('.menu .item').tab();
-  });
 
   $(document).keypress(function(event) {
     if (event.which == 13) {
@@ -345,6 +350,9 @@
   };
 
   $(function() {
+
+    $('.menu .item').tab();
+
     // init subject dropdown
     $('.subject.dropdown').dropdown();
     // if subject is selected, set subject
@@ -384,24 +392,6 @@
       $(".tab.active form").submit();
     });
 
-    // when radio button changes
-    $('input[type="radio"]').change(function() {
-      // set value equal to visual checkmark
-      $(this).val($(this).prop("checked"));
-    });
-
-    // init radio buttons, set value and visual checkmark equal
-    // to value from backend (stored in "val" attribute)
-    $('input[type="radio"]').each(function() {
-      if ($(this).attr("val") == "True") {
-        $(this).val(true);
-        $(this).prop("checked", true);
-      } else {
-        $(this).val(false);
-        $(this).prop("checked", false);
-      }
-    });
-
     //remove error when field changes
     $('.field.error').change(function() {
       $(this).removeClass('error');
@@ -420,6 +410,8 @@
     $('.textnumberToggle').change(function() {
       $('.tTypeError').remove();
     });
+
+    $('.ui.radio.checkbox').checkbox();
   });
 </script>
 

@@ -244,3 +244,15 @@ class AchievementAdmin(admin.ModelAdmin):
     inlines = (
         TitleInline,
     )
+
+@admin.register(Property)
+class PropertyAdmin(admin.ModelAdmin):
+    fieldsets=(
+        (None, {
+            'fields' : (
+                'name',
+                'activationValue',
+                'activation',
+            )
+        }),
+    )

@@ -6,10 +6,79 @@ from django.http import JsonResponse
 
 
 class Achievement(models.Model):
+
     name = models.CharField(max_length=50, verbose_name='Title')
+    #properties=models.ManyToManyField(Property, through="Property")
+    unlocked=False
+
+
+    #Add properties that need to be furfilled to unlock achievement
+    def addProperties(self, properties):
+        self.properties.extend(properties)
+
 
     def __str__(self):
         return self.name
+
+class Property(models.Model):
+
+    name=models.CharField(max_length=50, verbose_name = "Name", default="")
+    activationValue=models.IntegerField(default = 0)
+    activation=models.CharField(max_length=2, choices=(
+        ("<", "Less than"),
+        (">", "Greater than"),
+        ("==", "Equals to")), default = "")
+
+
+
+
+
+    def __str__(self):
+        return self.name
+
+    def isActive(self):
+        if self.activation==Achieve.ACTIVE_IF_GRATER_THAN:
+            return self.value > self.activationValue
+        elif self.activation==Achieve.ACTIVE_IF_LESS_THAN:
+            return self.value < self.activationValue
+        elif self.activation==Achieve.ACTIVE_IF_EQUALS:
+            return self.value==self.activationValue
+        else:
+            return False
+
+
+#Achieve class that takes in property updates and tells when an achievement is unlocked
+class Achieve(models.Model):
+    ACTIVE_IF_GRATER_THAN = ">"
+    ACTIVE_IF_LESS_THAN = "<"
+    ACTIVE_IF_EQUALS = "=="
+    properties={}
+    achievements={}
+
+
+    def defineProperty(self, name, initialValue, activationMode, value):
+        self.properties[name]=Property(name, value, activationMode, initialValue)
+
+    def defineAchievement(self, name, relatedProperties):
+        self.achievements[name] = Achievement
+
+    def getValue(self, property):
+        return self.properties[property].value
+
+    def setValue(self, property, value):
+        self.properties[property].value=value
+
+    def checkAchiements(self):
+        for achievement in self.achievements:
+            if achievement.unlocked == False:
+                activeProps=0
+                for prop in self.properties:
+                    if prop.isActive():
+                        activeProps+=1
+                if activeProps == len(achievement.properties):
+                    achievement.unlocked=True
+                    print("Achievement unlocked!")
+                    #Kall en funksjon her for aa aktivere achievement
 
 
 class Title(models.Model):

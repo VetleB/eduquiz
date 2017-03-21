@@ -18,6 +18,10 @@
 .questionText {
   font-size: 25px;
   margin-top: 10px;
+  position: absolute;
+  left: 1.5%;
+  top: -80px;
+  line-height: 30px;
 }
 
 .answer {
@@ -28,4 +32,16 @@
 
 .answer {
   font-size: 20px;
+}
+
+.piled.segment {
+  z-index: 1 !important;
+  padding: 40px !important;
+}
+
+.info.stuff {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  color: #2196F3;
 }

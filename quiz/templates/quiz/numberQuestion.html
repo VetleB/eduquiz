@@ -15,43 +15,36 @@
 {% block content %}
 
   <div class="quiz">
-    <div class="ui card question" question="{{ question.id }}">
+    <div class="ui piled segment question" question="{{ question.id }}">
       <div class="content">
-        <h4 class="ui sub header">
+        <h4 class="info stuff">
           {{ question.topic }} - {{ question.topic.subject.code }}<br>
-          {{ question.rating|floatformat:"0" }}
         </h4>
-        <div class="ui questionText">
+
+        <div style="height: 70px;"></div>
+
+        <div style="position: relative;">
+
+          <div class="ui questionText">
           {{ question }}
+          </div>
         </div>
       </div>
-    </div>
 
-    <form class="ui form segment">
+      <form class="ui form">
         <div class="field">
-          <input type="text" class="inputfield" name="field1">
+          <input type="text" class="inputfield">
         </div>
-    <div class="ui primary button">Submit</div>
-    </form>
-
-    <div class="ui positive message">
-      <div class="header">
-        Correct
-      </div>
-      <p>You are <b>very</b> talented</p>
-    </div>
-
-    <div class="ui negative message">
-      <div class="header">
-        Wrong
-      </div>
-      <p>You suck!</p>
+        <div class="ui primary button">Submit</div>
+      </form>
     </div>
   </div>
 
-
-
   <style>
+    .ui.form.segment {
+      padding: 0px;
+      border: 0px;
+    }
     .message {
       display: none;
     }
@@ -62,6 +55,11 @@
     .card {
         margin: 0px 0px 0px 0px !important;
         background-color: blue;
+    }
+    .correct {
+      color: #2c662d !important;
+      border-color: #2c662d !important;
+      background-color: #a3c293 !important;
     }
   </style>
 
@@ -92,9 +90,9 @@
             var answeredCorrect = data['answeredCorrect'];
 
             if (answeredCorrect) {
-              $('.positive').css('display', 'block');
+              $('.inputfield').addClass('correct');
             } else {
-              $('.negative').css('display', 'block');
+              $('.inputfield').parent().addClass('error');
             }
 
             setTimeout(function() {

@@ -11,8 +11,22 @@
         <!-- TODO: send correct values with the form, add all necessary fields -->
 
         <div class="ui form">
-          <input name="question" id="question" value="{%  %}">
+          <div class="inline field">
+            <label>Questions</label>
+            <div class="ui dropdown questions selection">
+              <input type="hidden" name="question">
+              <i class="dropdown icon"></i>
+              <div class="default text">Choose</div>
+              <div class="menu">
+                <a class="item" data-value="1">{{ question.question_text }}</a>
+                <a class="item" data-value="0">Female</a>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <br>
+
         <div class="ui form">
           <div class="inline field">
             <div class="ui checkbox">
@@ -21,6 +35,7 @@
             </div>
           </div>
         </div>
+
         <div class="ui form">
           <div class="inline field">
             <div class="ui checkbox">
@@ -29,6 +44,7 @@
             </div>
           </div>
         </div>
+
       </form>
     </div>
   </div>
@@ -39,17 +55,18 @@
   </div>
 </div>
 
-<script>
-  $(".report.button").click(function() {
-    $('.ui.modal.report').modal('show');
-  });
+<script >
+  $(function() {
+    $(".report.button").click(function() {
+      $('.ui.modal.report').modal('show');
+    });
 
-  $(".report.button.submit").click(function() {
-    $('form.report').submit();
-  });
+    $(".report.button.submit").click(function() {
+      $('form.report').submit();
+    });
 
-  $('.ui.checkbox')
-    .checkbox()
-  ;
+    $('.ui.checkbox').checkbox();
+    $('.ui.questions').dropdown();
+  });
 </script>
 

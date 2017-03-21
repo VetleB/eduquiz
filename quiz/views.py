@@ -2,8 +2,9 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.db.models import Func, F
 from django.shortcuts import render
 from quiz.models import *
+from quiz.forms import *
 import random
-
+from django.contrib import messages
 
 def question(request):
     if request.method == 'POST':
@@ -169,8 +170,161 @@ def numberQuestion(request, question):
 
 def newQuestion(request):
 
-    context = {
+    subjects = Subject.objects.all()
+    topics = Topic.objects.all()
 
+    context = {
+        'subjects': subjects,
+        'topics': topics,
+    }
+
+    return render(request, 'quiz/newQuestion.html', context)
+
+
+def newTextQuestion(request):
+    if request.method == 'POST':
+        form = TextQuestionForm(request.POST)
+        if form.is_valid():
+            if hasattr(request, 'user') and hasattr(request.user, 'player'):
+                creator = request.user.player
+            else:
+                creator = None
+
+            subject = Subject.objects.get(title=form.cleaned_data['subject'])
+            topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
+
+            if form.cleaned_data['text']:
+                question = TextQuestion(
+                    question_text = form.cleaned_data['question'],
+                    creator = creator,
+                    rating = 700 + 100 * int(form.cleaned_data['rating']),
+                    topic = topic,
+                    answer = form.cleaned_data['answer'],
+                )
+            else:
+                question = NumberQuestion(
+                    question_text = form.cleaned_data['question'],
+                    creator = creator,
+                    rating = 700 + 100 * int(form.cleaned_data['rating']),
+                    topic = topic,
+                    answer = form.cleaned_data['answer'],
+                )
+            question.save()
+            messages.success(request, 'Question successfully created')
+    else:
+        form = TextQuestionForm()
+
+    subjects = Subject.objects.all()
+    topics = Topic.objects.all()
+
+    context = {
+        'tForm': form,
+        'subjects': subjects,
+        'topics': topics,
+        'active': 'text',
+    }
+
+    return render(request, 'quiz/newQuestion.html', context)
+
+
+def newTrueFalseQuestion(request):
+    if request.method == 'POST':
+        form = TrueFalseQuestionForm(request.POST)
+        if form.is_valid():
+            if hasattr(request, 'user') and hasattr(request.user, 'player'):
+                creator = request.user.player
+            else:
+                creator = None
+
+            subject = Subject.objects.get(title=form.cleaned_data['subject'])
+            topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
+
+            question = TrueFalseQuestion(
+                question_text = form.cleaned_data['question'],
+                creator = creator,
+                rating = 700 + 100 * int(form.cleaned_data['rating']),
+                topic = topic,
+                answer = bool(form.cleaned_data['correct']),
+            )
+            question.save()
+            messages.success(request, 'Question successfully created')
+    else:
+        form = TrueFalseQuestionForm()
+
+    subjects = Subject.objects.all()
+    topics = Topic.objects.all()
+
+    context = {
+        'tfForm': form,
+        'subjects': subjects,
+        'topics': topics,
+        'active': 'truefalse',
+    }
+
+    return render(request, 'quiz/newQuestion.html', context)
+
+
+def newMultiplechoiceQuestion(request):
+    if request.method == 'POST':
+        form = MultipleChoiceQuestionForm(request.POST)
+
+        if form.is_valid():
+            if hasattr(request, 'user') and hasattr(request.user, 'player'):
+                creator = request.user.player
+            else:
+                creator = None
+
+            subject = Subject.objects.get(title=form.cleaned_data['subject'])
+            topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
+
+            question = MultipleChoiceQuestion(
+                question_text = form.cleaned_data['question'],
+                creator = creator,
+                rating = 700 + 100 * int(form.cleaned_data['rating']),
+                topic = topic,
+            )
+            question.save()
+
+            alternative1 = MultipleChoiceAnswer(
+                question = question,
+                answer = form.cleaned_data['answer1'],
+                correct = bool(form.cleaned_data['correct1']),
+            )
+
+            alternative2 = MultipleChoiceAnswer(
+                question = question,
+                answer = form.cleaned_data['answer2'],
+                correct = bool(form.cleaned_data['correct2']),
+            )
+
+            alternative3 = MultipleChoiceAnswer(
+                question = question,
+                answer = form.cleaned_data['answer2'],
+                correct = bool(form.cleaned_data['correct2']),
+            )
+
+            alternative4 = MultipleChoiceAnswer(
+                question = question,
+                answer = form.cleaned_data['answer2'],
+                correct = bool(form.cleaned_data['correct2']),
+            )
+
+            alternative1.save()
+            alternative2.save()
+            alternative3.save()
+            alternative4.save()
+            messages.success(request, 'Question successfully created')
+    else:
+        form = MultipleChoiceQuestionForm()
+
+    subjects = Subject.objects.all()
+    topics = Topic.objects.all()
+
+    context = {
+        'mcForm': form,
+        'subjects': subjects,
+        'topics': topics,
+        'active': 'multiplechoice',
     }
 
     return render(request, 'quiz/newQuestion.html', context)

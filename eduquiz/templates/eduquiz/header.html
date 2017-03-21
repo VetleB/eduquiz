@@ -8,14 +8,18 @@
       </div>
     </a>
     {% if user.is_authenticated %}
-      <a class="item play button" href="/quiz">
-        Play
-      </a>
+      <div class="ui dropdown item">
+        <div class="text">Play</div>
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <a class="item" href="/quiz">Continue</a>
+          <a class="item" href="/quiz/select-topics">Select topics</a>
+        </div>
+      </div>
     {% endif %}
     <a class="item" href="/quiz/new/">
-      Suggest Questions
+      Suggest Question
     </a>
-
     {% if user.is_authenticated %}
       <div class="ui dropdown item">
         <div class="text">{{ user }} - {{ user.player.rating|floatformat:"0" }}</div>
@@ -23,16 +27,16 @@
         <div class="menu">
           <a class="item" href="#">My account</a>
           <a class="item" href="#">Change password</a>
-          <a class="item signOut" href="/authentication/logout">Sign out</a>
+          <a class="item" href="/authentication/logout/">Sign out</a>
         </div>
       </div>
     {% else %}
       <a class="item login button">
         Sign in
       </a>
-       <a class="item register button">
+        <a class="item register button">
         Register
-       </a>
+      </a>
     {% endif %}
   </div>
 </div>

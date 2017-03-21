@@ -49,6 +49,10 @@ class NumberQuestionTestCase(TestCase):
             answer = '1.000',
         )
 
+    def test_empty_returns_false(self):
+        question = NumberQuestion.objects.get()
+        self.assertFalse(question.validate(''))
+
     def test_validation_of_correct_answer(self):
         question = NumberQuestion.objects.get()
         question.answer = '1231231.45'

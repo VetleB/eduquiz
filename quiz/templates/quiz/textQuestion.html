@@ -33,37 +33,18 @@
 
       <form class="ui form">
         <div class="field">
-          <input type="text" class="inputfield" name="field1">
+          <input type="text" class="inputfield">
         </div>
         <div class="ui primary button">Submit</div>
       </form>
     </div>
   </div>
 
-
-  <div class="ui positive message">
-      <div class="header">
-        Correct
-      </div>
-      <p>You are <b>very</b> talented</p>
-  </div>
-
-  <div class="ui negative message">
-      <div class="header">
-        Wrong
-      </div>
-      <p>You suck!</p>
-  </div>
-
-
-
-
   <style>
     .ui.form.segment {
       padding: 0px;
       border: 0px;
     }
-
     .message {
       display: none;
     }
@@ -74,6 +55,11 @@
     .card {
         margin: 0px 0px 0px 0px !important;
         background-color: blue;
+    }
+    .correct {
+      color: #4C7D4C !important;
+      border-color: #A3C293 !important;
+      background-color: #FCFFF5 !important;
     }
   </style>
 
@@ -104,9 +90,9 @@
             var answeredCorrect = data['answeredCorrect'];
 
             if (answeredCorrect) {
-              $('.positive').css('display', 'block');
+              $('.inputfield').addClass('correct');
             } else {
-              $('.negative').css('display', 'block');
+              $('.inputfield').parent().addClass('error');
             }
 
             setTimeout(function() {

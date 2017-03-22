@@ -48,8 +48,21 @@ def question(request):
                 + list(TextQuestion.objects.filter(id=question.id))
                 + list(NumberQuestion.objects.filter(id=question.id)))[0]
 
+            # In order to have recently answered questions from current topics in list over reportable questions in report_modal
+            # How far back the list goes is defined by REPORTABLE_AMOUNT
+            REPORTABLE_AMOUNT = 2
+            recent_questions = [PlAns.question for PlAns in PlayerAnswer.objects.order_by('-answer_date') if PlAns.question.topic in playerTopics]
+            text_list = [question.question_text]
+            return_list = []
+            for q in recent_questions:
+                if q.question_text in text_list:
+                    pass
+                else:
+                    text_list.append(q.question_text)
+                    return_list.append(q)
+            recent_questions = return_list[0:REPORTABLE_AMOUNT]
             context = {
-                'recent_questions': [q.question for q in PlayerAnswer.objects.order_by('-answer_date') if q.question.topic in playerTopics][0:2],
+                'recent_questions': recent_questions,
             }
 
             if isinstance(question, MultipleChoiceQuestion):

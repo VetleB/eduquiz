@@ -63,7 +63,7 @@ def question(request):
             # In order to have recently answered questions from current topics in list over reportable questions in report_modal
             # How far back the list goes is defined by REPORTABLE_AMOUNT
             REPORTABLE_AMOUNT = 2
-            recent_questions = [PlAns.question for PlAns in PlayerAnswer.objects.order_by('-answer_date') if PlAns.question.topic in topics]
+            recent_questions = [pa.question for pa in PlayerAnswer.objects.order_by('-answer_date') if (pa.question.topic in topics and not pa.report_skip)]
             text_list = [question.question_text]
             return_list = []
             for q in recent_questions:
@@ -351,7 +351,6 @@ def newMultiplechoiceQuestion(request):
 
 
 def report(request):
-    # TODO: implement rest of report types
     if request.method == 'POST':
         form = ReportForm(request.POST)
         if form.is_valid():
@@ -366,5 +365,11 @@ def report(request):
                 inappropriate = userDict['inappropriate'],
                 other = userDict['other'],
                 comment = userDict['comment'],
+            )
+            PlayerAnswer.objects.create(
+                player=request.user.player,
+                question=Question.objects.get(question_text=userDict['question_text']),
+                result=True,
+                report_skip=True,
             )
     return HttpResponseRedirect('/quiz')

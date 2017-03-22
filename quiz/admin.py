@@ -252,8 +252,11 @@ class QuestionReportAdmin(admin.ModelAdmin):
             'fields': (
                 'player',
                 'question',
+                'red_right',
                 'green_wrong',
                 'unclear',
+                'other',
+                'comment',
             )
         }),
     )

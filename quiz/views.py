@@ -328,7 +328,10 @@ def report(request):
             QuestionReport.objects.create(
                 player = request.user.player,
                 question = Question.objects.get(question_text=userDict['question_text']),
+                red_right = userDict['red_right'],
                 green_wrong = userDict['green_wrong'],
-                unclear = userDict['unclear']
+                unclear = userDict['unclear'],
+                other = userDict['other'],
+                comment = userDict['comment'],
             )
     return HttpResponseRedirect('/quiz')

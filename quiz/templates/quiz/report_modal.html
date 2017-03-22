@@ -27,10 +27,29 @@
 
         <br>
 
+
         <div class="ui form">
           <div class="inline field">
             <div class="ui checkbox">
-              <input type="checkbox" name="unclear" tabindex="1" class="hidden" value="1">
+              <input type="checkbox" name="red_right" tabindex="1" class="hidden">
+              <label>Red answer is right</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui form">
+          <div class="inline field">
+            <div class="ui checkbox">
+              <input type="checkbox" name="green_wrong" tabindex="2" class="hidden">
+              <label>Green answer is wrong</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui form">
+          <div class="inline field">
+            <div class="ui checkbox">
+              <input type="checkbox" name="unclear" tabindex="3" class="hidden">
               <label>Ambiguous/unclear question</label>
             </div>
           </div>
@@ -39,12 +58,18 @@
         <div class="ui form">
           <div class="inline field">
             <div class="ui checkbox">
-              <input type="checkbox" name="green_wrong" tabindex="2" class="hidden" value="2">
-              <label>Green answer is wrong</label>
+              <input type="checkbox" name="other" tabindex="4" class="hidden">
+              <label>Other</label>
             </div>
           </div>
         </div>
 
+        <div class="ui form">
+          <div class="field">
+            <label>User Input</label>
+            <input type="text" name="comment">
+          </div>
+        </div>
       </form>
     </div>
   </div>

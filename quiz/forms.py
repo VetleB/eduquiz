@@ -79,6 +79,9 @@ class ReportForm(forms.Form):
     question_text = forms.CharField(max_length=200, label="Question text")
     unclear = forms.BooleanField(label="Unclear", required=False)
     green_wrong = forms.BooleanField(label="Green_wrong", required=False)
+    red_right = forms.BooleanField(label="Red_right", required=False)
+    other = forms.BooleanField(label="Other", required=False)
+    comment = forms.CharField(label="Comment", required=False)
 
     def clean(self):
         form_data = self.cleaned_data

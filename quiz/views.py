@@ -60,34 +60,17 @@ def question(request):
                 + list(TextQuestion.objects.filter(id=question.id))
                 + list(NumberQuestion.objects.filter(id=question.id)))[0]
 
-            # In order to have recently answered questions from current topics in list over reportable questions in report_modal
-            # How far back the list goes is defined by REPORTABLE_AMOUNT
-            REPORTABLE_AMOUNT = 2
-            recent_questions = [PlAns.question for PlAns in PlayerAnswer.objects.order_by('-answer_date') if PlAns.question.topic in playerTopics]
-            text_list = [question.question_text]
-            return_list = []
-            for q in recent_questions:
-                if q.question_text in text_list:
-                    pass
-                else:
-                    text_list.append(q.question_text)
-                    return_list.append(q)
-            recent_questions = return_list[0:REPORTABLE_AMOUNT]
-            context = {
-                'recent_questions': recent_questions,
-            }
-
             if isinstance(question, MultipleChoiceQuestion):
-                return multipleChoiceQuestion(request, question, context)
+                return multipleChoiceQuestion(request, question)
 
             elif isinstance(question, TrueFalseQuestion):
-                return trueFalseQuestion(request, question, context)
+                return trueFalseQuestion(request, question)
 
             elif isinstance(question, TextQuestion):
-                return textQuestion(request, question, context)
+                return textQuestion(request, question)
 
             elif isinstance(question, NumberQuestion):
-                return numberQuestion(request, question, context)
+                return numberQuestion(request, question)
 
             return HttpResponseRedirect('/')
         else:
@@ -137,50 +120,50 @@ def selectTopic(request):
 
         return render(request, 'quiz/select_topic.html', context)
 
-def multipleChoiceQuestion(request, question, context):
+def multipleChoiceQuestion(request, question):
 
     answers = MultipleChoiceAnswer.objects.filter(question=question)
 
-    context.update({
+    context = {
         'question': question,
         'answers': answers,
-    })
+    }
 
     return render(request, 'quiz/multipleChoiceQuestion.html', context)
 
 
-def trueFalseQuestion(request, question, context):
+def trueFalseQuestion(request, question):
 
     answers = (('true', 'True'), ('false', 'False'))
 
-    context.update({
+    context = {
         'question': question,
         'answers': answers,
-    })
+    }
 
     return render(request, 'quiz/trueFalseQuestion.html', context)
 
 
-def textQuestion(request, question, context):
+def textQuestion(request, question):
 
     answers = question.answer
 
-    context.update({
+    context = {
         'question': question,
         'answer': answers,
-    })
+    }
 
     return render(request, 'quiz/textQuestion.html', context)
 
 
-def numberQuestion(request, question, context):
+def numberQuestion(request, question):
 
     answers = question.answer
 
-    context.update({
+    context = {
         'question': question,
         'answer': answers,
-    })
+    }
 
     return render(request, 'quiz/numberQuestion.html', context)
 
@@ -348,23 +331,3 @@ def newMultiplechoiceQuestion(request):
     }
 
     return render(request, 'quiz/newQuestion.html', context)
-
-
-def report(request):
-    # TODO: implement rest of report types
-    if request.method == 'POST':
-        form = ReportForm(request.POST)
-        if form.is_valid():
-            userDict = form.cleaned_data
-            QuestionReport.objects.create(
-                player = request.user.player,
-                question = Question.objects.get(question_text=userDict['question_text']),
-                red_right = userDict['red_right'],
-                green_wrong = userDict['green_wrong'],
-                unclear = userDict['unclear'],
-                off_topic = userDict['off_topic'],
-                inappropriate = userDict['inappropriate'],
-                other = userDict['other'],
-                comment = userDict['comment'],
-            )
-    return HttpResponseRedirect('/quiz')

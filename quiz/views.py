@@ -35,13 +35,25 @@ def question(request):
     else:
         if hasattr(request, 'user') and hasattr(request.user, 'player'):
 
-            playerTopics = [PT.topic for PT in list(PlayerTopic.objects.filter(player=request.user.player))]
+            topics = [PT.topic for PT in list(PlayerTopic.objects.filter(player=request.user.player))]
 
-            # if no specified topics, grab random question. Change later when all player have topics
-            if not playerTopics:
+            if not topics:
                 return HttpResponseRedirect('/quiz/select-topics')
-            else:
-                question = Question.objects.filter(topic__in=playerTopics).annotate(dist=Func(F('rating') - request.user.player.rating, function='ABS')).order_by('dist').first()
+
+            virtualRating = request.user.player.virtualRating(topics)
+            questions = Question.objects.filter(topic__in=topics).annotate(dist=Func(F('rating') - virtualRating, function='ABS')).order_by('dist')
+
+            REPEAT = 5
+
+            questionReturn = None
+
+            for question in questions:
+                if question not in [pa.question for pa in list(PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[:REPEAT])]:
+                    questionReturn = question
+                    break
+
+            if not questionReturn:
+                question = PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[len(questions)-1].question
 
             question = (list(TrueFalseQuestion.objects.filter(id=question.id))
                 + list(MultipleChoiceQuestion.objects.filter(id=question.id))
@@ -77,57 +89,53 @@ def question(request):
             elif isinstance(question, NumberQuestion):
                 return numberQuestion(request, question, context)
 
-            else:
-                return HttpResponseRedirect('/')
+            return HttpResponseRedirect('/')
         else:
             return HttpResponseRedirect('/')
 
 
 def selectTopic(request):
 
-    subjects = Subject.objects.all()
-    topics = Topic.objects.all()
+    if request.method == 'POST':
+        # deletes all previously selected topics
+        PlayerTopic.objects.filter(player=request.user.player).delete()
 
-    context = {
-        'subjects': subjects,
-        'topics': topics,
-    }
-
-    return render(request, 'quiz/select_topic.html', context)
-
-
-def playerTopic(request):
-
-    # deletes all previously selected topics
-    PlayerTopic.objects.filter(player=request.user.player).delete()
-
-    try:
-        # string
-        subject = request.POST['subject']
-        # string of topics separated by comma
-        topics = request.POST['topics']
-    except ValueError:
-        return HttpResponseRedirect('/')
-
-    # list of strings
-    topics = topics.split(',')
-
-    # if no specified topics, include all topics that belong to subject
-    if topics[0] == '':
-        topics = [T.title for T in Topic.objects.filter(subject=Subject.objects.get(title=subject))]
-
-    # make new player-topic-links in database
-    for topic in topics:
         try:
-            PlayerTopic.objects.create(
-                player = request.user.player,
-                topic = Topic.objects.get(title=topic),
-            )
-        except Topic.DoesNotExist:
-            pass
+            # string
+            subject = request.POST['subject']
+            # string of topics separated by comma
+            topics = request.POST['topics']
+        except ValueError:
+            return HttpResponseRedirect('/')
 
-    return HttpResponseRedirect('/quiz')
+        # list of strings
+        topics = topics.split(',')
 
+        # if no specified topics, include all topics that belong to subject
+        if topics[0] == '':
+            topics = [topic.title for topic in Topic.objects.filter(subject=Subject.objects.get(title=subject))]
+
+        # make new player-topic-links in database
+        for topic in topics:
+            try:
+                PlayerTopic.objects.create(
+                    player = request.user.player,
+                    topic = Topic.objects.get(title=topic),
+                )
+            except Topic.DoesNotExist:
+                pass
+
+        return HttpResponseRedirect('/quiz')
+    else:
+        subjects = Subject.objects.all()
+        topics = Topic.objects.all()
+
+        context = {
+            'subjects': subjects,
+            'topics': topics,
+        }
+
+        return render(request, 'quiz/select_topic.html', context)
 
 def multipleChoiceQuestion(request, question, context):
 
@@ -202,24 +210,25 @@ def newTextQuestion(request):
             subject = Subject.objects.get(title=form.cleaned_data['subject'])
             topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
 
-            if form.cleaned_data['text']:
+            if form.cleaned_data['text'] == 'True':
                 question = TextQuestion(
                     question_text = form.cleaned_data['question'],
                     creator = creator,
-                    rating = 700 + 100 * int(form.cleaned_data['rating']),
+                    rating = 800 + 100 * int(form.cleaned_data['rating']),
                     topic = topic,
                     answer = form.cleaned_data['answer'],
                 )
-            else:
+            elif form.cleaned_data['text'] == 'False':
                 question = NumberQuestion(
                     question_text = form.cleaned_data['question'],
                     creator = creator,
-                    rating = 700 + 100 * int(form.cleaned_data['rating']),
+                    rating = 800 + 100 * int(form.cleaned_data['rating']),
                     topic = topic,
                     answer = form.cleaned_data['answer'],
                 )
             question.save()
             messages.success(request, 'Question successfully created')
+            return HttpResponseRedirect('/quiz/new/')
     else:
         form = TextQuestionForm()
 
@@ -230,6 +239,7 @@ def newTextQuestion(request):
         'tForm': form,
         'subjects': subjects,
         'topics': topics,
+        'active': 'text',
     }
 
     return render(request, 'quiz/newQuestion.html', context)
@@ -250,12 +260,13 @@ def newTrueFalseQuestion(request):
             question = TrueFalseQuestion(
                 question_text = form.cleaned_data['question'],
                 creator = creator,
-                rating = 700 + 100 * int(form.cleaned_data['rating']),
+                rating = 800 + 100 * int(form.cleaned_data['rating']),
                 topic = topic,
-                answer = bool(form.cleaned_data['correct']),
+                answer = form.cleaned_data['correct'] == 'True',
             )
             question.save()
             messages.success(request, 'Question successfully created')
+            return HttpResponseRedirect('/quiz/new/')
     else:
         form = TrueFalseQuestionForm()
 
@@ -266,6 +277,7 @@ def newTrueFalseQuestion(request):
         'tfForm': form,
         'subjects': subjects,
         'topics': topics,
+        'active': 'truefalse',
     }
 
     return render(request, 'quiz/newQuestion.html', context)
@@ -287,7 +299,7 @@ def newMultiplechoiceQuestion(request):
             question = MultipleChoiceQuestion(
                 question_text = form.cleaned_data['question'],
                 creator = creator,
-                rating = 700 + 100 * int(form.cleaned_data['rating']),
+                rating = 800 + 100 * int(form.cleaned_data['rating']),
                 topic = topic,
             )
             question.save()
@@ -295,25 +307,25 @@ def newMultiplechoiceQuestion(request):
             alternative1 = MultipleChoiceAnswer(
                 question = question,
                 answer = form.cleaned_data['answer1'],
-                correct = bool(form.cleaned_data['correct1']),
+                correct = form.cleaned_data['correct'] == 'Alt1',
             )
 
             alternative2 = MultipleChoiceAnswer(
                 question = question,
                 answer = form.cleaned_data['answer2'],
-                correct = bool(form.cleaned_data['correct2']),
+                correct = form.cleaned_data['correct'] == 'Alt2',
             )
 
             alternative3 = MultipleChoiceAnswer(
                 question = question,
-                answer = form.cleaned_data['answer2'],
-                correct = bool(form.cleaned_data['correct2']),
+                answer = form.cleaned_data['answer3'],
+                correct = form.cleaned_data['correct'] == 'Alt3',
             )
 
             alternative4 = MultipleChoiceAnswer(
                 question = question,
-                answer = form.cleaned_data['answer2'],
-                correct = bool(form.cleaned_data['correct2']),
+                answer = form.cleaned_data['answer4'],
+                correct = form.cleaned_data['correct'] == 'Alt4',
             )
 
             alternative1.save()
@@ -321,6 +333,7 @@ def newMultiplechoiceQuestion(request):
             alternative3.save()
             alternative4.save()
             messages.success(request, 'Question successfully created')
+            return HttpResponseRedirect('/quiz/new/')
     else:
         form = MultipleChoiceQuestionForm()
 
@@ -331,6 +344,7 @@ def newMultiplechoiceQuestion(request):
         'mcForm': form,
         'subjects': subjects,
         'topics': topics,
+        'active': 'multiplechoice',
     }
 
     return render(request, 'quiz/newQuestion.html', context)

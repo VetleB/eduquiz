@@ -8,6 +8,8 @@
 
     <link rel="shortcut icon" type="image/png" href="{% static "eduquiz/img/favicon.ico" %}">
     <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/semantic.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/alertify.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/alertify.semantic.min.css" %}">
 
     <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/style.css" %}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -17,6 +19,7 @@
 
     <script src="{% static "eduquiz/js/jquery-3.1.1.min.js" %}"></script>
     <script src="{% static "eduquiz/js/semantic.min.js" %}"></script>
+    <script src="{% static "eduquiz/js/alertify.min.js" %}"></script>
   </head>
 
   <body>
@@ -36,6 +39,16 @@
     </div>
 
   </body>
+
+  {% if messages %}
+    <script>
+      $(function() {
+        {% for message in messages %}
+          alertify.message("{{ message }}");
+        {% endfor %}
+      });
+    </script>
+  {% endif %}
 
   {% block footer %}
   {% endblock footer %}

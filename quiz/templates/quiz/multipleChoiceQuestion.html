@@ -15,27 +15,30 @@
 {% block content %}
 
   <div class="quiz">
-    <div class="ui card question" question="{{ question.id }}">
-      <div class="content">
+    <div class="ui piled segment question" question="{{ question.id }}">
         <i class="flag icon report button" id="report-flag"></i>
-        <h4 class="ui sub header">
-          {{ question.topic }} - {{ question.topic.subject.code }}<br>
-          {{ question.rating|floatformat:"0" }}
-        </h4>
-        <div class="ui questionText">
-          {{ question }}
-        </div>
-      </div>
-    </div>
+        <h4 class="info stuff">
 
-    {% for answer in answers %}
-      <div class="ui card answer" answer="{{ answer.id }}">
-        <div class="content">
-            {{ answer.answer }}
+          {{ question.topic }} - {{ question.topic.subject.code }}<br>
+        </h4>
+
+        <div style="height: 70px;"></div>
+
+        <div style="position: relative;">
+
+          <div class="ui questionText">
+            {{ question }}
+          </div>
+
+          {% for answer in answers %}
+            <div class="ui secondary segment answer" answer="{{ answer.id }}">
+              <div class="content">
+                  {{ answer.answer }}
+              </div>
+            </div>
+          {% endfor %}
         </div>
-      </div>
-    {% endfor %}
-  <div>
+    </div>
 
   <style>
     #report-flag {

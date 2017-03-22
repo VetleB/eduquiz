@@ -253,7 +253,7 @@ class QuestionReportAdmin(admin.ModelAdmin):
                 'player',
                 'question',
                 'green_wrong',
-                'ambiguous',
+                'unclear',
             )
         }),
     )

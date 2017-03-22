@@ -76,8 +76,8 @@ class TextQuestionForm(forms.Form):
 
 class ReportForm(forms.Form):
     # TODO: add all necessary fields
-    question_text = forms.CharField(max_length=200)
-    ambiguous = forms.BooleanField(label="Ambiguous", required=False)
+    question_text = forms.CharField(max_length=200, label="Question text")
+    unclear = forms.BooleanField(label="Unclear", required=False)
     green_wrong = forms.BooleanField(label="Green_wrong", required=False)
 
     def clean(self):

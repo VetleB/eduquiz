@@ -8,17 +8,17 @@
       <form class="ui form report" action="/quiz/report/" method="POST">
         {% csrf_token %}
 
-        <!-- TODO: send correct values with the form, add all necessary fields -->
+        <!-- TODO: add all necessary fields -->
 
         <div class="ui form">
           <div class="inline field">
             <label>Questions</label>
             <div class="ui dropdown questions selection">
-              <input type="hidden" name="question">
+              <input type="hidden" name="question_text">
               <i class="dropdown icon"></i>
               <div class="default text">Choose</div>
               <div class="menu">
-                <a class="item" data-value="1">{{ question.question_text }}</a>
+                <a class="item" data-value="{{ question.question_text }}">{{ question.question_text }}</a>
                 <a class="item" data-value="0">Female</a>
               </div>
             </div>
@@ -30,7 +30,7 @@
         <div class="ui form">
           <div class="inline field">
             <div class="ui checkbox">
-              <input type="checkbox" name="unclear" tabindex="1" class="hidden">
+              <input type="checkbox" name="unclear" tabindex="1" class="hidden" value="1">
               <label>Ambiguous/unclear question</label>
             </div>
           </div>
@@ -39,7 +39,7 @@
         <div class="ui form">
           <div class="inline field">
             <div class="ui checkbox">
-              <input type="checkbox" name="green_wrong" tabindex="2" class="hidden">
+              <input type="checkbox" name="green_wrong" tabindex="2" class="hidden" value="2">
               <label>Green answer is wrong</label>
             </div>
           </div>

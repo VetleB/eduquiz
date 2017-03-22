@@ -257,8 +257,8 @@ class PlayerAnswer(models.Model):
 class QuestionReport(models.Model):
     player = models.ForeignKey(Player)
     question = models.ForeignKey(Question)
-    red_right = models.BooleanField(verbose_name='Red answer right')
+    #red_right = models.BooleanField(verbose_name='Red answer right')
     green_wrong = models.BooleanField(verbose_name='Green answer wrong')
-    ambiguous = models.BooleanField(verbose_name='Ambiguous')
-    other = models.BooleanField(verbose_name='Other')
-    comment = models.CharField(max_length=400, verbose_name='Comment')
+    unclear = models.BooleanField(verbose_name='Ambiguous')
+    #other = models.BooleanField(verbose_name='Other')
+    #comment = models.CharField(max_length=400, verbose_name='Comment')

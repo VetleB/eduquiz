@@ -45,6 +45,7 @@ class Player(models.Model):
         VIRTUAL_K = 10
         VIRTUAL_C = 5
 
+        # Get the VIRTUAL_C latest answers that are not reports (report_skip must equal False) and in/decrease rating thereafter
         answers = [pa for pa in PlayerAnswer.objects.filter(player=self, question__topic__in=topics).order_by('-answer_date') if pa.report_skip!=True][:VIRTUAL_C]
         virtual = sum([VIRTUAL_K if answer.result else -VIRTUAL_K for answer in answers])
         return self.rating + virtual

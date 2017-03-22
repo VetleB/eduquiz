@@ -62,6 +62,7 @@ def question(request):
 
             # In order to have recently answered questions from current topics in list over reportable questions in report_modal
             # How far back the list goes is defined by REPORTABLE_AMOUNT
+            # Only list questions that have been ANSWERED, not REPORTED (report_skip must equal False)
             REPORTABLE_AMOUNT = 2
             recent_questions = [pa.question for pa in PlayerAnswer.objects.order_by('-answer_date') if (pa.question.topic in topics and not pa.report_skip)]
             text_list = [question.question_text]
@@ -366,6 +367,7 @@ def report(request):
                 other = userDict['other'],
                 comment = userDict['comment'],
             )
+            # Make a PA-object so that player doesn't get this question again immediatly (set report_skip to True to mark it as skipped because of a report)
             PlayerAnswer.objects.create(
                 player=request.user.player,
                 question=Question.objects.get(question_text=userDict['question_text']),

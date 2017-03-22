@@ -18,6 +18,8 @@
     <div class="ui piled segment question" question="{{ question.id }}">
       <div class="content">
         <h4 class="info stuff">
+        <i class="flag icon report button" id="report-flag"></i>
+
           {{ question.topic }} - {{ question.topic.subject.code }}<br>
         </h4>
 
@@ -60,6 +62,10 @@
       color: #4C7D4C !important;
       border-color: #A3C293 !important;
       background-color: #FCFFF5 !important;
+    }
+    #report-flag {
+      float: left;
+
     }
   </style>
 

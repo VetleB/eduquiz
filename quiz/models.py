@@ -260,5 +260,7 @@ class QuestionReport(models.Model):
     red_right = models.BooleanField(verbose_name='Red answer right', default=False)
     green_wrong = models.BooleanField(verbose_name='Green answer wrong', default=False)
     unclear = models.BooleanField(verbose_name='Ambiguous', default=False)
+    off_topic = models.BooleanField(verbose_name='Off-topic', default=False)
+    inappropriate = models.BooleanField(verbose_name="inappropriate", default=False)
     other = models.BooleanField(verbose_name='Other', default=False)
     comment = models.CharField(max_length=500, verbose_name='Comment', default="")

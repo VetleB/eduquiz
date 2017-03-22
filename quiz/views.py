@@ -48,17 +48,21 @@ def question(request):
                 + list(TextQuestion.objects.filter(id=question.id))
                 + list(NumberQuestion.objects.filter(id=question.id)))[0]
 
+            context = {
+                'recent_questions': [q.question for q in PlayerAnswer.objects.order_by('-answer_date') if q.question.topic in playerTopics][0:2],
+            }
+
             if isinstance(question, MultipleChoiceQuestion):
-                return multipleChoiceQuestion(request, question)
+                return multipleChoiceQuestion(request, question, context)
 
             elif isinstance(question, TrueFalseQuestion):
-                return trueFalseQuestion(request, question)
+                return trueFalseQuestion(request, question, context)
 
             elif isinstance(question, TextQuestion):
-                return textQuestion(request, question)
+                return textQuestion(request, question, context)
 
             elif isinstance(question, NumberQuestion):
-                return numberQuestion(request, question)
+                return numberQuestion(request, question, context)
 
             else:
                 return HttpResponseRedirect('/')
@@ -112,50 +116,50 @@ def playerTopic(request):
     return HttpResponseRedirect('/quiz')
 
 
-def multipleChoiceQuestion(request, question):
+def multipleChoiceQuestion(request, question, context):
 
     answers = MultipleChoiceAnswer.objects.filter(question=question)
 
-    context = {
+    context.update({
         'question': question,
         'answers': answers,
-    }
+    })
 
     return render(request, 'quiz/multipleChoiceQuestion.html', context)
 
 
-def trueFalseQuestion(request, question):
+def trueFalseQuestion(request, question, context):
 
     answers = (('true', 'True'), ('false', 'False'))
 
-    context = {
+    context.update({
         'question': question,
         'answers': answers,
-    }
+    })
 
     return render(request, 'quiz/trueFalseQuestion.html', context)
 
 
-def textQuestion(request, question):
+def textQuestion(request, question, context):
 
     answers = question.answer
 
-    context = {
+    context.update({
         'question': question,
         'answer': answers,
-    }
+    })
 
     return render(request, 'quiz/textQuestion.html', context)
 
 
-def numberQuestion(request, question):
+def numberQuestion(request, question, context):
 
     answers = question.answer
 
-    context = {
+    context.update({
         'question': question,
         'answer': answers,
-    }
+    })
 
     return render(request, 'quiz/numberQuestion.html', context)
 
@@ -331,6 +335,8 @@ def report(request):
                 red_right = userDict['red_right'],
                 green_wrong = userDict['green_wrong'],
                 unclear = userDict['unclear'],
+                off_topic = userDict['off_topic'],
+                inappropriate = userDict['inappropriate'],
                 other = userDict['other'],
                 comment = userDict['comment'],
             )

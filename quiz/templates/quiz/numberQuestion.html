@@ -17,6 +17,7 @@
   <div class="quiz">
     <div class="ui card question" question="{{ question.id }}">
       <div class="content">
+        <i class="flag icon report button" id="report-flag"></i>
         <h4 class="ui sub header">
           {{ question.topic }} - {{ question.topic.subject.code }}<br>
           {{ question.rating|floatformat:"0" }}
@@ -62,6 +63,9 @@
     .card {
         margin: 0px 0px 0px 0px !important;
         background-color: blue;
+    }
+    #report-flag {
+      float: left;
     }
   </style>
 

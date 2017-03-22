@@ -12,14 +12,18 @@
 
         <div class="ui form">
           <div class="inline field">
-            <label>Questions</label>
+            <label>Question</label>
             <div class="ui dropdown questions selection">
               <input type="hidden" name="question_text">
               <i class="dropdown icon"></i>
               <div class="default text">Choose</div>
               <div class="menu">
                 <a class="item" data-value="{{ question.question_text }}">{{ question.question_text }}</a>
-                <a class="item" data-value="0">Female</a>
+                {% for q in recent_questions %}
+                  {% if q.text != '' %}
+                    <a class="item" data-value="{{ q.text }}">{{ q }}</a>
+                  {% endif %}
+                {% endfor %}
               </div>
             </div>
           </div>
@@ -58,15 +62,35 @@
         <div class="ui form">
           <div class="inline field">
             <div class="ui checkbox">
+              <input type="checkbox" name="off_topic" tabindex="3" class="hidden">
+              <label>Question is off-topic</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui form">
+          <div class="inline field">
+            <div class="ui checkbox">
+              <input type="checkbox" name="inappropriate" tabindex="3" class="hidden">
+              <label>Inappropriate question</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui form">
+          <div class="inline field">
+            <div class="ui checkbox">
               <input type="checkbox" name="other" tabindex="4" class="hidden">
               <label>Other</label>
             </div>
           </div>
         </div>
 
+        <br>
+
         <div class="ui form">
           <div class="field">
-            <label>User Input</label>
+            <label>Comment</label>
             <input type="text" name="comment">
           </div>
         </div>

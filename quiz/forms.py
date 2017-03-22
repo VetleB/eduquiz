@@ -77,9 +77,11 @@ class TextQuestionForm(forms.Form):
 class ReportForm(forms.Form):
     # TODO: add all necessary fields
     question_text = forms.CharField(max_length=200, label="Question text")
+    red_right = forms.BooleanField(label="Red-right", required=False)
+    green_wrong = forms.BooleanField(label="Green-wrong", required=False)
     unclear = forms.BooleanField(label="Unclear", required=False)
-    green_wrong = forms.BooleanField(label="Green_wrong", required=False)
-    red_right = forms.BooleanField(label="Red_right", required=False)
+    off_topic = forms.BooleanField(label="Off-topic", required=False)
+    inappropriate = forms.BooleanField(label="Inappropriate", required=False)
     other = forms.BooleanField(label="Other", required=False)
     comment = forms.CharField(label="Comment", required=False)
 

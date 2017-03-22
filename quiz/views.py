@@ -79,16 +79,16 @@ def question(request):
             }
 
             if isinstance(question, MultipleChoiceQuestion):
-                return multipleChoiceQuestion(request, question, context)
+                return multipleChoiceQuestion(request, question)
 
             elif isinstance(question, TrueFalseQuestion):
-                return trueFalseQuestion(request, question, context)
+                return trueFalseQuestion(request, question)
 
             elif isinstance(question, TextQuestion):
-                return textQuestion(request, question, context)
+                return textQuestion(request, question)
 
             elif isinstance(question, NumberQuestion):
-                return numberQuestion(request, question, context)
+                return numberQuestion(request, question)
 
             return HttpResponseRedirect('/')
         else:
@@ -138,50 +138,50 @@ def selectTopic(request):
 
         return render(request, 'quiz/select_topic.html', context)
 
-def multipleChoiceQuestion(request, question, context):
+def multipleChoiceQuestion(request, question):
 
     answers = MultipleChoiceAnswer.objects.filter(question=question)
 
-    context.update({
+    context = {
         'question': question,
         'answers': answers,
-    })
+    }
 
     return render(request, 'quiz/multipleChoiceQuestion.html', context)
 
 
-def trueFalseQuestion(request, question, context):
+def trueFalseQuestion(request, question):
 
     answers = (('true', 'True'), ('false', 'False'))
 
-    context.update({
+    context = {
         'question': question,
         'answers': answers,
-    })
+    }
 
     return render(request, 'quiz/trueFalseQuestion.html', context)
 
 
-def textQuestion(request, question, context):
+def textQuestion(request, question):
 
     answers = question.answer
 
-    context.update({
+    context = {
         'question': question,
         'answer': answers,
-    })
+    }
 
     return render(request, 'quiz/textQuestion.html', context)
 
 
-def numberQuestion(request, question, context):
+def numberQuestion(request, question):
 
     answers = question.answer
 
-    context.update({
+    context = {
         'question': question,
         'answer': answers,
-    })
+    }
 
     return render(request, 'quiz/numberQuestion.html', context)
 
@@ -350,7 +350,6 @@ def newMultiplechoiceQuestion(request):
 
     return render(request, 'quiz/newQuestion.html', context)
 
-
 def report(request):
     if request.method == 'POST':
         form = ReportForm(request.POST)
@@ -375,3 +374,4 @@ def report(request):
                 report_skip=True,
             )
     return HttpResponseRedirect('/quiz')
+

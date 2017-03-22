@@ -245,7 +245,6 @@ class AchievementAdmin(admin.ModelAdmin):
         TitleInline,
     )
 
-
 @admin.register(QuestionReport)
 class QuestionReportAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -263,3 +262,4 @@ class QuestionReportAdmin(admin.ModelAdmin):
             )
         }),
     )
+

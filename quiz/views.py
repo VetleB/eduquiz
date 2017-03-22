@@ -63,7 +63,7 @@ def question(request):
             # In order to have recently answered questions from current topics in list over reportable questions in report_modal
             # How far back the list goes is defined by REPORTABLE_AMOUNT
             REPORTABLE_AMOUNT = 2
-            recent_questions = [PlAns.question for PlAns in PlayerAnswer.objects.order_by('-answer_date') if PlAns.question.topic in playerTopics]
+            recent_questions = [PlAns.question for PlAns in PlayerAnswer.objects.order_by('-answer_date') if PlAns.question.topic in topics]
             text_list = [question.question_text]
             return_list = []
             for q in recent_questions:

@@ -193,24 +193,25 @@ def newTextQuestion(request):
             subject = Subject.objects.get(title=form.cleaned_data['subject'])
             topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
 
-            if form.cleaned_data['text']:
+            if form.cleaned_data['text'] == 'True':
                 question = TextQuestion(
                     question_text = form.cleaned_data['question'],
                     creator = creator,
-                    rating = 700 + 100 * int(form.cleaned_data['rating']),
+                    rating = 800 + 100 * int(form.cleaned_data['rating']),
                     topic = topic,
                     answer = form.cleaned_data['answer'],
                 )
-            else:
+            elif form.cleaned_data['text'] == 'False':
                 question = NumberQuestion(
                     question_text = form.cleaned_data['question'],
                     creator = creator,
-                    rating = 700 + 100 * int(form.cleaned_data['rating']),
+                    rating = 800 + 100 * int(form.cleaned_data['rating']),
                     topic = topic,
                     answer = form.cleaned_data['answer'],
                 )
             question.save()
             messages.success(request, 'Question successfully created')
+            return HttpResponseRedirect('/quiz/new/')
     else:
         form = TextQuestionForm()
 
@@ -242,12 +243,13 @@ def newTrueFalseQuestion(request):
             question = TrueFalseQuestion(
                 question_text = form.cleaned_data['question'],
                 creator = creator,
-                rating = 700 + 100 * int(form.cleaned_data['rating']),
+                rating = 800 + 100 * int(form.cleaned_data['rating']),
                 topic = topic,
-                answer = bool(form.cleaned_data['correct']),
+                answer = form.cleaned_data['correct'] == 'True',
             )
             question.save()
             messages.success(request, 'Question successfully created')
+            return HttpResponseRedirect('/quiz/new/')
     else:
         form = TrueFalseQuestionForm()
 
@@ -280,7 +282,7 @@ def newMultiplechoiceQuestion(request):
             question = MultipleChoiceQuestion(
                 question_text = form.cleaned_data['question'],
                 creator = creator,
-                rating = 700 + 100 * int(form.cleaned_data['rating']),
+                rating = 800 + 100 * int(form.cleaned_data['rating']),
                 topic = topic,
             )
             question.save()
@@ -288,25 +290,25 @@ def newMultiplechoiceQuestion(request):
             alternative1 = MultipleChoiceAnswer(
                 question = question,
                 answer = form.cleaned_data['answer1'],
-                correct = bool(form.cleaned_data['correct1']),
+                correct = form.cleaned_data['correct'] == 'Alt1',
             )
 
             alternative2 = MultipleChoiceAnswer(
                 question = question,
                 answer = form.cleaned_data['answer2'],
-                correct = bool(form.cleaned_data['correct2']),
+                correct = form.cleaned_data['correct'] == 'Alt2',
             )
 
             alternative3 = MultipleChoiceAnswer(
                 question = question,
-                answer = form.cleaned_data['answer2'],
-                correct = bool(form.cleaned_data['correct2']),
+                answer = form.cleaned_data['answer3'],
+                correct = form.cleaned_data['correct'] == 'Alt3',
             )
 
             alternative4 = MultipleChoiceAnswer(
                 question = question,
-                answer = form.cleaned_data['answer2'],
-                correct = bool(form.cleaned_data['correct2']),
+                answer = form.cleaned_data['answer4'],
+                correct = form.cleaned_data['correct'] == 'Alt4',
             )
 
             alternative1.save()
@@ -314,6 +316,7 @@ def newMultiplechoiceQuestion(request):
             alternative3.save()
             alternative4.save()
             messages.success(request, 'Question successfully created')
+            return HttpResponseRedirect('/quiz/new/')
     else:
         form = MultipleChoiceQuestionForm()
 

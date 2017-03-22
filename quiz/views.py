@@ -61,7 +61,7 @@ def question(request):
                 + list(NumberQuestion.objects.filter(id=question.id)))[0]
 
             # In order to have recently answered questions from current topics in list over reportable questions in report_modal
-            # How far back the list of questions goes is defined by REPORTABLE_AMOUNT
+            # How far back the list goes is defined by REPORTABLE_AMOUNT
             # Only list questions that have been ANSWERED, not REPORTED (report_skip must equal False)
             REPORTABLE_AMOUNT = 2
             recent_questions = [pa.question for pa in PlayerAnswer.objects.order_by('-answer_date') if (pa.question.topic in topics and not pa.report_skip)]

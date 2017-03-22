@@ -60,6 +60,24 @@ def question(request):
                 + list(TextQuestion.objects.filter(id=question.id))
                 + list(NumberQuestion.objects.filter(id=question.id)))[0]
 
+            # In order to have recently answered questions from current topics in list over reportable questions in report_modal
+            # How far back the list goes is defined by REPORTABLE_AMOUNT
+            # Only list questions that have been ANSWERED, not REPORTED (report_skip must equal False)
+            REPORTABLE_AMOUNT = 2
+            recent_questions = [pa.question for pa in PlayerAnswer.objects.order_by('-answer_date') if (pa.question.topic in topics and not pa.report_skip)]
+            text_list = [question.question_text]
+            return_list = []
+            for q in recent_questions:
+                if q.question_text in text_list:
+                    pass
+                else:
+                    text_list.append(q.question_text)
+                    return_list.append(q)
+            recent_questions = return_list[0:REPORTABLE_AMOUNT]
+            context = {
+                'recent_questions': recent_questions,
+            }
+
             if isinstance(question, MultipleChoiceQuestion):
                 return multipleChoiceQuestion(request, question)
 
@@ -331,3 +349,29 @@ def newMultiplechoiceQuestion(request):
     }
 
     return render(request, 'quiz/newQuestion.html', context)
+
+def report(request):
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            userDict = form.cleaned_data
+            QuestionReport.objects.create(
+                player = request.user.player,
+                question = Question.objects.get(question_text=userDict['question_text']),
+                red_right = userDict['red_right'],
+                green_wrong = userDict['green_wrong'],
+                unclear = userDict['unclear'],
+                off_topic = userDict['off_topic'],
+                inappropriate = userDict['inappropriate'],
+                other = userDict['other'],
+                comment = userDict['comment'],
+            )
+            # Make a PA-object so that player doesn't get this question again immediatly (set report_skip to True to mark it as skipped because of a report)
+            PlayerAnswer.objects.create(
+                player=request.user.player,
+                question=Question.objects.get(question_text=userDict['question_text']),
+                result=True,
+                report_skip=True,
+            )
+    return HttpResponseRedirect('/quiz')
+

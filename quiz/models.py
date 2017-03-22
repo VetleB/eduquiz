@@ -45,7 +45,8 @@ class Player(models.Model):
         VIRTUAL_K = 10
         VIRTUAL_C = 5
 
-        answers = PlayerAnswer.objects.filter(player=self, question__topic__in=topics).order_by('-answer_date')[:VIRTUAL_C]
+        # Get the VIRTUAL_C latest answers that are not reports (report_skip must equal False) and in/decrease rating thereafter
+        answers = [pa for pa in PlayerAnswer.objects.filter(player=self, question__topic__in=topics).order_by('-answer_date') if pa.report_skip!=True][:VIRTUAL_C]
         virtual = sum([VIRTUAL_K if answer.result else -VIRTUAL_K for answer in answers])
         return self.rating + virtual
 
@@ -262,6 +263,7 @@ class PlayerAnswer(models.Model):
     question = models.ForeignKey(Question)
     result = models.BooleanField(verbose_name='Result')
     answer_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
+    report_skip = models.BooleanField(verbose_name='Report', default=False)
 
     def __str__(self):
         return '%r - %s - %s' % (self.result, self.player, self.question)

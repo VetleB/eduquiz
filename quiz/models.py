@@ -90,15 +90,27 @@ class Player(models.Model):
         win = int(win)
         QUESTION_K = 8
         PLAYER_K = 16
+        RATING_CAP = 150
 
-        rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
-        question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
-        question.save()
-        self.rating = rating
-        self.save()
+        if self.rating - question.rating < RATING_CAP:
+            rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
+            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
+            question.save()
+            self.rating = rating
+            self.save()
+
 
     def exp(self, a, b):
             return 1/(1+pow(10,(b-a)/400))
+
+    def virtualRating(self, topics):
+        VIRTUAL_K = 10
+        VIRTUAL_C = 5
+
+        # Get the VIRTUAL_C latest answers that are not reports (report_skip must equal False) and in/decrease rating thereafter
+        answers = [pa for pa in PlayerAnswer.objects.filter(player=self, question__topic__in=topics).order_by('-answer_date') if pa.report_skip!=True][:VIRTUAL_C]
+        virtual = sum([VIRTUAL_K if answer.result else -VIRTUAL_K for answer in answers])
+        return self.rating + virtual
 
     def __str__(self):
         return self.user.username
@@ -194,20 +206,23 @@ class NumberQuestion(Question):
     def __str__(self):
         return super().question_text
 
-    # Antar at self.answer er numerisk
     def validate(self, inAnswer):
+
+        if inAnswer == '':
+            return False
 
         userAnswer = inAnswer.casefold().strip().replace(',', '.')
         correctAnswer = self.answer.casefold().strip().replace(',', '.')
 
-        # Fjerner ledende nuller
+        # Removes leading zeros
         while len(userAnswer) > 1 and userAnswer[0] == '0':
             userAnswer = userAnswer[1:]
 
-        # Gjør om heltallsdelen til '0' hvis den er ingenting
+        # If no integer part, set it to '0'
         if userAnswer[0] == '.':
             userAnswer = '0' + userAnswer
 
+        # If answer not a decimal, check if user's answer only has zeros in the decimal part and compare
         if '.' not in correctAnswer:
             if '.' in userAnswer:
                 spl = userAnswer.split('.')
@@ -218,16 +233,15 @@ class NumberQuestion(Question):
 
         correctNumOfDecimals = len(correctAnswer.split('.')[1])
 
-        # Sjekker om det er '.' i strengen
         if '.' in userAnswer:
             userAnswer = userAnswer.split('.')
             numOfDecimals = len(userAnswer[1])
 
-            # Legger på nuller til det er korrekt antall desimaler
+            # Adds zeros to decimal part to get correct length
             if numOfDecimals < correctNumOfDecimals:
                 userAnswer[1] += ''.join(['0']*(correctNumOfDecimals-numOfDecimals))
 
-            # Fjerner ekstra nuller fra desimaldelen
+            # Remove trailing zeros to get correct length
             if numOfDecimals > correctNumOfDecimals:
                 extra = userAnswer[1][correctNumOfDecimals:]
                 zeroMatch = match(r'^0*$', extra)
@@ -238,8 +252,9 @@ class NumberQuestion(Question):
         else:
             userAnswer += '.' + ''.join(['0']*correctNumOfDecimals)
 
-        # Matcher et heksadesimalt tall med desimaler
+        # Make sure user's answer is on right format
         patternMatch = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]*$', userAnswer))
+        # Compare user's answer with the actual answer
         return (userAnswer == correctAnswer) and patternMatch
 
     def answerFeedbackRaw(self, answer):
@@ -309,9 +324,22 @@ class PlayerAnswer(models.Model):
     question = models.ForeignKey(Question)
     result = models.BooleanField(verbose_name='Result')
     answer_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
+    report_skip = models.BooleanField(verbose_name='Report', default=False)
 
     def __str__(self):
         return '%r - %s - %s' % (self.result, self.player, self.question)
+
+
+class QuestionReport(models.Model):
+    player = models.ForeignKey(Player)
+    question = models.ForeignKey(Question)
+    red_right = models.BooleanField(verbose_name='Red answer right', default=False)
+    green_wrong = models.BooleanField(verbose_name='Green answer wrong', default=False)
+    unclear = models.BooleanField(verbose_name='Ambiguous', default=False)
+    off_topic = models.BooleanField(verbose_name='Off-topic', default=False)
+    inappropriate = models.BooleanField(verbose_name="inappropriate", default=False)
+    other = models.BooleanField(verbose_name='Other', default=False)
+    comment = models.CharField(max_length=500, verbose_name='Comment', default="")
 
 
 class PropAnswerdQuestionInSubject(Property):
@@ -323,3 +351,4 @@ class PropAnswerdQuestionInSubject(Property):
 
     def __str__(self):
         return '%r in %s' % (self.number, self.subject.title)
+

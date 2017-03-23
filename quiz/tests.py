@@ -66,6 +66,14 @@ class NumberQuestionTestCase(TestCase):
         question.answer = 'AB'
         self.assertTrue(question.validate('AB.0'))
 
+    def test_validation_of_answer_without_decimal_part2(self):
+        question = NumberQuestion.objects.get()
+        question.answer = '133769'
+        self.assertTrue(question.validate('133769'))
+        self.assertTrue(question.validate('133769.'))
+        self.assertFalse(question.validate('1.33769'))
+        self.assertFalse(question.validate('1.3376.9'))
+
     def test_validation_of_comma_as_decimal_mark(self):
         question = NumberQuestion.objects.get()
         self.assertTrue(question.validate('1.000'))
@@ -81,14 +89,6 @@ class NumberQuestionTestCase(TestCase):
         question = NumberQuestion.objects.get()
         self.assertTrue(question.validate('1'))
         self.assertTrue(question.validate('1.'))
-
-    def test_validation_of_answer_without_decimal_part_2(self):
-        question = NumberQuestion.objects.get()
-        question.answer = '133769'
-        self.assertTrue(question.validate('133769'))
-        self.assertTrue(question.validate('133769.'))
-        self.assertFalse(question.validate('1.33769'))
-        self.assertFalse(question.validate('1.3376.9'))
 
     def test_validation_of_answer_without_integer_part(self):
         question = NumberQuestion.objects.get()
@@ -180,7 +180,7 @@ class MultipleChoiceTestCase(TestCase):
 class TrueFalseTestCase(TestCase):
 
     def setUp(self):
-        question = TrueFalseQuestion.objects.create(
+        TrueFalseQuestion.objects.create(
             question_text = 'TEST_QUESTION',
             answer = True,
         )
@@ -204,6 +204,173 @@ class TrueFalseTestCase(TestCase):
             'answeredCorrect': False,
         }
         self.assertEqual(response, json)
+
+
+class AchievementTestCase(TestCase):
+
+    def setUp(self):
+        achievement = Achievement.objects.create(name='TEST_ACHIEVEMENT')
+        prop = Property.objects.create(name='TEST_PROPERTY')
+        trigger = Trigger.objects.create(name='TEST_TRIGGER')
+        title = Title.objects.create(title='TEST_TITLE')
+        user = User.objects.create(username='TEST_USER')
+        Player.objects.create(user=user)
+
+        trigger.properties.add(prop)
+        prop.achievements.add(achievement)
+        title.achievement = achievement
+
+        trigger.save()
+        prop.save()
+        title.save()
+
+    def testName(self):
+        achievement = Achievement.objects.get()
+        self.assertEqual(str(achievement), 'TEST_ACHIEVEMENT')
+
+    def testTrigger(self):
+        player = Player.objects.get()
+        prop = Property.objects.get(name='TEST_PROPERTY')
+
+        Trigger.objects.get(name='TEST_TRIGGER').trigger(player)
+
+        propertyUnlocks = PropertyUnlock.objects.filter(player=player, prop=prop)
+
+        self.assertEqual(propertyUnlocks.count(), 1)
+
+    def testAchieve(self):
+        player = Player.objects.get()
+        achievement = Achievement.objects.get(name='TEST_ACHIEVEMENT')
+
+        Trigger.objects.get(name='TEST_TRIGGER').trigger(player)
+
+        achievementUnlock = AchievementUnlock.objects.filter(player=player, achievement=achievement)
+
+        self.assertEqual(achievementUnlock.count(), 1)
+
+    def testTitle(self):
+        player = Player.objects.get()
+        title = Title.objects.get(title='TEST_TITLE')
+
+        Trigger.objects.get(name='TEST_TRIGGER').trigger(player)
+
+        titleUnlock = TitleUnlock.objects.filter(player=player, title=title)
+
+        self.assertEqual(titleUnlock.count(), 1)
+
+
+class TitleTestCase(TestCase):
+
+    def setUp(self):
+        achievement = Achievement.objects.create(name='TEST_ACHIEVEMENT')
+        Title.objects.create(
+            title = 'TEST_TITLE',
+            achievement = achievement,
+        )
+
+    def test_str_returns_title(self):
+        title = Title.objects.get()
+        self.assertEqual(str(title), 'TEST_TITLE')
+
+
+class PlayerTestCase(TestCase):
+
+    def setUp(self):
+        user = User.objects.create(username='TEST_USER')
+        Player.objects.create(user=user)
+
+    def test_str_returns_username(self):
+        player =  Player.objects.get()
+        self.assertEqual(str(player), 'TEST_USER')
+
+
+class PropertyTestCase(TestCase):
+
+    def setUp(self):
+        Property.objects.create(name='TEST_PROPERTY')
+
+    def test_str_returns_name(self):
+        prop = Property.objects.get()
+        self.assertEqual(str(prop), 'TEST_PROPERTY')
+
+
+class TriggerTestCase(TestCase):
+
+    def setUp(self):
+        Trigger.objects.create(name='TEST_TRIGGER')
+
+    def test_str_returns_name(self):
+        trigger = Trigger.objects.get()
+        self.assertEqual(str(trigger), 'TEST_TRIGGER')
+
+
+class CategoryTestCase(TestCase):
+
+    def setUp(self):
+        Category.objects.create(title='TEST_CATEGORY')
+
+    def test_str_returns_name(self):
+        cat = Category.objects.get()
+        self.assertEqual(str(cat), 'TEST_CATEGORY')
+
+
+class SubjectTestCase(TestCase):
+
+    def setUp(self):
+        cat = Category.objects.create(title='TEST_CATEGORY')
+        Subject.objects.create(
+            title='TEST_SUBJECT',
+            short='TS',
+            code='TS1234',
+            category=cat,
+        )
+
+    def test_str_returns_code_and_title(self):
+        sub = Subject.objects.get()
+        self.assertEqual(str(sub), 'TS1234 - TEST_SUBJECT')
+
+class TopicTestCase(TestCase):
+
+    def setUp(self):
+        cat = Category.objects.create(title='TEST_CATEGORY')
+        sub = Subject.objects.create(
+            title='TEST_SUBJECT',
+            short='TSUB',
+            code='TS1234',
+            category=cat,
+        )
+        Topic.objects.create(
+            title='TEST_TOPIC',
+            subject=sub,
+        )
+
+    def test_str_returns_name(self):
+        topic = Topic.objects.get()
+        self.assertEqual(str(topic), 'TEST_TOPIC')
+
+
+class QuestionTestCase(TestCase):
+
+    def setUp(self):
+        Question.objects.create(question_text='TEST_QUESTION')
+
+    def test_str_returns_name(self):
+        q = Question.objects.get()
+        self.assertEqual(str(q), 'TEST_QUESTION')
+
+
+class MultipleChoiceAnswerTestCase(TestCase):
+
+    def setUp(self):
+        mc = MultipleChoiceQuestion.objects.create(
+            question_text='TEST_MC'
+
+        )
+        MultipleChoiceAnswer.objects.create(question=mc, answer='TEST_MC_ANS', correct=True)
+
+    def test_str_returns_name(self):
+        mca = MultipleChoiceAnswer.objects.get()
+        self.assertEqual(str(mca), 'TEST_MC_ANS')
 
 
 class RatingTestCase(TestCase):
@@ -288,4 +455,3 @@ class RatingTestCase(TestCase):
             result=False,
         )
         self.assertTrue(player.rating == player.virtualRating([question.topic]))
-

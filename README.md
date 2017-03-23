@@ -1,4 +1,5 @@
 ![Logo](https://eduquiz.win/static/eduquiz/img/logo.png)
+
 [![Build Status](https://travis-ci.org/ecuatox/eduquiz.svg?branch=master)](https://travis-ci.org/ecuatox/eduquiz)
 
 ## Local setup

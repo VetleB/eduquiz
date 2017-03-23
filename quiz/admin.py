@@ -221,7 +221,8 @@ class PlayerAnswerAdmin(admin.ModelAdmin):
                 'player',
                 'question',
                 'result',
-                'answer_date'
+                'answer_date',
+                'report_skip',
             )
         }),
     )
@@ -242,4 +243,22 @@ class AchievementAdmin(admin.ModelAdmin):
     )
     inlines = (
         TitleInline,
+    )
+
+@admin.register(QuestionReport)
+class QuestionReportAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': (
+                'player',
+                'question',
+                'red_right',
+                'green_wrong',
+                'unclear',
+                'off_topic',
+                'inappropriate',
+                'other',
+                'comment',
+            )
+        }),
     )

@@ -45,7 +45,8 @@ class Player(models.Model):
         VIRTUAL_K = 10
         VIRTUAL_C = 5
 
-        answers = PlayerAnswer.objects.filter(player=self, question__topic__in=topics).order_by('-answer_date')[:VIRTUAL_C]
+        # Get the VIRTUAL_C latest answers that are not reports (report_skip must equal False) and in/decrease rating thereafter
+        answers = [pa for pa in PlayerAnswer.objects.filter(player=self, question__topic__in=topics).order_by('-answer_date') if pa.report_skip!=True][:VIRTUAL_C]
         virtual = sum([VIRTUAL_K if answer.result else -VIRTUAL_K for answer in answers])
         return self.rating + virtual
 
@@ -262,6 +263,18 @@ class PlayerAnswer(models.Model):
     question = models.ForeignKey(Question)
     result = models.BooleanField(verbose_name='Result')
     answer_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
+    report_skip = models.BooleanField(verbose_name='Report', default=False)
 
     def __str__(self):
         return '%r - %s - %s' % (self.result, self.player, self.question)
+
+class QuestionReport(models.Model):
+    player = models.ForeignKey(Player)
+    question = models.ForeignKey(Question)
+    red_right = models.BooleanField(verbose_name='Red answer right', default=False)
+    green_wrong = models.BooleanField(verbose_name='Green answer wrong', default=False)
+    unclear = models.BooleanField(verbose_name='Ambiguous', default=False)
+    off_topic = models.BooleanField(verbose_name='Off-topic', default=False)
+    inappropriate = models.BooleanField(verbose_name="inappropriate", default=False)
+    other = models.BooleanField(verbose_name='Other', default=False)
+    comment = models.CharField(max_length=500, verbose_name='Comment', default="")

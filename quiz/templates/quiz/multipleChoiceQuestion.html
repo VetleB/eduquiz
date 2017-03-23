@@ -16,6 +16,7 @@
 
   <div class="quiz">
     <div class="ui piled segment question" question="{{ question.id }}">
+        <i class="flag icon report button" id="report-flag"></i>
         <h4 class="info stuff">
           {{ question.topic }} - {{ question.topic.subject.code }}<br>
         </h4>
@@ -37,6 +38,15 @@
           {% endfor %}
         </div>
     </div>
+  </div>
+
+  <style>
+    .report.button {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+    }
+  </style>
 
   <script>
     var answered = false;

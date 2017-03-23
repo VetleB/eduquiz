@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^new/truefalse', views.newTrueFalseQuestion, name='newTrueFalseQuestion'),
     url(r'^new/text', views.newTextQuestion, name='newTextQuestion'),
     url(r'^new/', views.newQuestion, name='newQuestion'),
+    url(r'^report/', views.report, name='report'),
 ]

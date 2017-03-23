@@ -6,79 +6,71 @@ from django.http import JsonResponse
 
 
 class Achievement(models.Model):
+    name = models.CharField(max_length=50, verbose_name='Title', default='')
+    badge = models.ImageField(verbose_name='Badge', blank=True, null=True)
 
-    name = models.CharField(max_length=50, verbose_name='Title')
-    #properties=models.ManyToManyField(Property, through="Property")
-    unlocked=False
+    def isAchieved(self, player):
+        for prop in self.property_set.all():
+            try:
+                PropertyUnlock.objects.get(player=player, prop=prop)
+            except PropertyUnlock.DoesNotExist:
+                return False
+        return True
 
-
-    #Add properties that need to be furfilled to unlock achievement
-    def addProperties(self, properties):
-        self.properties.extend(properties)
-
+    def update(self, player):
+        if self.isAchieved(player):
+            try:
+                AchievementUnlock.objects.get(player=player, achievement=self)
+            except AchievementUnlock.DoesNotExist:
+                AchievementUnlock(player=player, achievement=self).save()
+                titles = Title.objects.filter(achievement=self)
+                for title in titles:
+                    TitleUnlock(title=title, player=player).save()
 
     def __str__(self):
         return self.name
+
 
 class Property(models.Model):
+    name = models.CharField(max_length=50, verbose_name='Name', default='')
+    achievements = models.ManyToManyField(Achievement, blank=True)
 
-    name=models.CharField(max_length=50, verbose_name = "Name", default="")
-    activationValue=models.IntegerField(default = 0)
-    activation=models.CharField(max_length=2, choices=(
-        ("<", "Less than"),
-        (">", "Greater than"),
-        ("==", "Equals to")), default = "")
+    # return wether the propery is unlocked or not
+    # implemented in subclasses
+    def isUnlocked(self, player):
+        return True
 
-
-
-
+    def update(self, player):
+        if self.isUnlocked(player):
+            try:
+                PropertyUnlock.objects.get(player=player, prop=self)
+            except PropertyUnlock.DoesNotExist:
+                PropertyUnlock(player=player, prop=self).save()
+            for achievement in self.achievements.all():
+                achievement.update(player)
+        else:
+            try:
+                PropertyUnlock.objects.get(player=player, prop=self).delete()
+            except PropertyUnlock.DoesNotExist:
+                pass
 
     def __str__(self):
         return self.name
 
-    def isActive(self):
-        if self.activation==Achieve.ACTIVE_IF_GRATER_THAN:
-            return self.value > self.activationValue
-        elif self.activation==Achieve.ACTIVE_IF_LESS_THAN:
-            return self.value < self.activationValue
-        elif self.activation==Achieve.ACTIVE_IF_EQUALS:
-            return self.value==self.activationValue
-        else:
-            return False
+    class Meta:
+        verbose_name_plural = 'properties'
 
 
-#Achieve class that takes in property updates and tells when an achievement is unlocked
-class Achieve(models.Model):
-    ACTIVE_IF_GRATER_THAN = ">"
-    ACTIVE_IF_LESS_THAN = "<"
-    ACTIVE_IF_EQUALS = "=="
-    properties={}
-    achievements={}
+class Trigger(models.Model):
+    name = models.CharField(max_length=50, verbose_name='Name')
+    properties = models.ManyToManyField(Property, blank=True)
 
+    def trigger(self, player):
+        for prop in self.properties.all():
+            prop.update(player)
 
-    def defineProperty(self, name, initialValue, activationMode, value):
-        self.properties[name]=Property(name, value, activationMode, initialValue)
-
-    def defineAchievement(self, name, relatedProperties):
-        self.achievements[name] = Achievement
-
-    def getValue(self, property):
-        return self.properties[property].value
-
-    def setValue(self, property, value):
-        self.properties[property].value=value
-
-    def checkAchiements(self):
-        for achievement in self.achievements:
-            if achievement.unlocked == False:
-                activeProps=0
-                for prop in self.properties:
-                    if prop.isActive():
-                        activeProps+=1
-                if activeProps == len(achievement.properties):
-                    achievement.unlocked=True
-                    print("Achievement unlocked!")
-                    #Kall en funksjon her for aa aktivere achievement
+    def __str__(self):
+        return self.name
 
 
 class Title(models.Model):
@@ -93,18 +85,17 @@ class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
     rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     user = models.OneToOneField(User)
-    questionsAnswered=models.DecimalField(default=0, max_digits=4, decimal_places=0, verbose_name="Questions Answered")
 
     def update(self, question, win):
-            win = int(win)
-            QUESTION_K = 8
-            PLAYER_K = 16
+        win = int(win)
+        QUESTION_K = 8
+        PLAYER_K = 16
 
-            rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
-            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
-            question.save()
-            self.rating = rating
-            self.save()
+        rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
+        question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
+        question.save()
+        self.rating = rating
+        self.save()
 
     def exp(self, a, b):
             return 1/(1+pow(10,(b-a)/400))
@@ -112,26 +103,21 @@ class Player(models.Model):
     def __str__(self):
         return self.user.username
 
-    #Function primarily used as a counter of answered questions for achievements
-    def questionAnswered(self):
-        self.questionsAnswered=self.questionsAnswered + 1
-        self.save()
+
+class PropertyUnlock(models.Model):
+    player = models.ForeignKey(Player)
+    prop = models.ForeignKey(Property)
+
 
 class AchievementUnlock(models.Model):
     player = models.ForeignKey(Player)
     achievement = models.ForeignKey(Achievement)
     date = models.DateTimeField(default=timezone.now, verbose_name='Date')
 
-    def __str__(self):
-        return '%s - %s' % (self.player, self.achievement)
-
 
 class TitleUnlock(models.Model):
     player = models.ForeignKey(Player)
     title = models.ForeignKey(Title)
-
-    def __str__(self):
-        return '%s - %s' % (self.player, self.title)
 
 
 class Category(models.Model):
@@ -326,3 +312,14 @@ class PlayerAnswer(models.Model):
 
     def __str__(self):
         return '%r - %s - %s' % (self.result, self.player, self.question)
+
+
+class PropAnswerdQuestionInSubject(Property):
+    number = models.IntegerField(default=0, verbose_name="Number of answers")
+    subject = models.ForeignKey(Subject, verbose_name="Subject")
+
+    def isUnlocked(self, player):
+        return len(PlayerAnswer.objects.filter(player=player, question__topic__subject=self.subject)) > self.number
+
+    def __str__(self):
+        return '%r in %s' % (self.number, self.subject.title)

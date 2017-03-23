@@ -208,3 +208,52 @@ class TrueFalseTestCase(TestCase):
             'answeredCorrect': False,
         }
         self.assertEqual(response, json)
+
+
+class AchievementTestCase(TestCase):
+
+    def setUp(self):
+        achievement = Achievement.objects.create(name='TEST_ACHIEVMENT')
+        prop = Property.objects.create(name='TEST_PROPERTY')
+        trigger = Trigger.objects.create(name='TEST_TRIGGER')
+        title = Title.objects.create(title='TEST_TITLE')
+        user = User.objects.create(username='TEST_USER')
+        Player.objects.create(user=user)
+
+        trigger.properties.add(prop)
+        prop.achievements.add(achievement)
+        title.achievement = achievement
+
+        trigger.save()
+        prop.save()
+        title.save()
+
+    def testTrigger(self):
+        player = Player.objects.get()
+        prop = Property.objects.get(name='TEST_PROPERTY')
+
+        Trigger.objects.get(name='TEST_TRIGGER').trigger(player)
+
+        propertyUnlocks = PropertyUnlock.objects.filter(player=player, prop=prop)
+
+        self.assertEqual(propertyUnlocks.count(), 1)
+
+    def testAchieve(self):
+        player = Player.objects.get()
+        achievement = Achievement.objects.get(name='TEST_ACHIEVMENT')
+
+        Trigger.objects.get(name='TEST_TRIGGER').trigger(player)
+
+        achievementUnlock = AchievementUnlock.objects.filter(player=player, achievement=achievement)
+
+        self.assertEqual(achievementUnlock.count(), 1)
+
+    def testTitle(self):
+        player = Player.objects.get()
+        title = Title.objects.get(title='TEST_TITLE')
+
+        Trigger.objects.get(name='TEST_TRIGGER').trigger(player)
+
+        titleUnlock = TitleUnlock.objects.filter(player=player, title=title)
+
+        self.assertEqual(titleUnlock.count(), 1)

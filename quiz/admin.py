@@ -70,28 +70,28 @@ class TextQuestionAdmin(admin.ModelAdmin):
         }),
     )
 
-    @admin.register(NumberQuestion)
-    class NumberQuestionAdmin(admin.ModelAdmin):
-        fieldsets = (
-            (None, {
-                'fields': (
-                    'question_text',
-                    'answer',
-                    'topic',
-                )
-            }),
-            ('Advanced options', {
-                'classes': (
-                    'collapse',
-                    'closed',
-                ),
-                'fields': (
-                    'creator',
-                    'creation_date',
-                    'rating',
-                ),
-            }),
-        )
+@admin.register(NumberQuestion)
+class NumberQuestionAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': (
+                'question_text',
+                'answer',
+                'topic',
+            )
+        }),
+        ('Advanced options', {
+            'classes': (
+                'collapse',
+                'closed',
+            ),
+            'fields': (
+                'creator',
+                'creation_date',
+                'rating',
+            ),
+        }),
+    )
 
 
 @admin.register(TrueFalseQuestion)
@@ -238,6 +238,7 @@ class AchievementAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'name',
+                'badge',
             )
         }),
     )
@@ -245,14 +246,26 @@ class AchievementAdmin(admin.ModelAdmin):
         TitleInline,
     )
 
-@admin.register(Property)
-class PropertyAdmin(admin.ModelAdmin):
+@admin.register(Trigger)
+class TriggerAdmin(admin.ModelAdmin):
     fieldsets=(
         (None, {
             'fields' : (
                 'name',
-                'activationValue',
-                'activation',
+                'properties',
+            )
+        }),
+    )
+
+@admin.register(PropAnswerdQuestionInSubject)
+class PropAnswerdQuestionInSubjectAdmin(admin.ModelAdmin):
+    fieldsets=(
+        (None, {
+            'fields' : (
+                'name',
+                'achievements',
+                'number',
+                'subject',
             )
         }),
     )

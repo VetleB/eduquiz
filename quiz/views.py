@@ -29,8 +29,6 @@ def question(request):
             result = feedback['answeredCorrect']
             PlayerAnswer(player=request.user.player, question=question, result=result).save()
             request.user.player.update(question, result)
-            request.user.player.questionAnswered()
-            Achieve.checkAchiements()
 
         return JsonResponse(feedback, safe=False)
 

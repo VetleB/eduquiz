@@ -70,28 +70,28 @@ class TextQuestionAdmin(admin.ModelAdmin):
         }),
     )
 
-    @admin.register(NumberQuestion)
-    class NumberQuestionAdmin(admin.ModelAdmin):
-        fieldsets = (
-            (None, {
-                'fields': (
-                    'question_text',
-                    'answer',
-                    'topic',
-                )
-            }),
-            ('Advanced options', {
-                'classes': (
-                    'collapse',
-                    'closed',
-                ),
-                'fields': (
-                    'creator',
-                    'creation_date',
-                    'rating',
-                ),
-            }),
-        )
+@admin.register(NumberQuestion)
+class NumberQuestionAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': (
+                'question_text',
+                'answer',
+                'topic',
+            )
+        }),
+        ('Advanced options', {
+            'classes': (
+                'collapse',
+                'closed',
+            ),
+            'fields': (
+                'creator',
+                'creation_date',
+                'rating',
+            ),
+        }),
+    )
 
 
 @admin.register(TrueFalseQuestion)
@@ -206,6 +206,7 @@ class PlayerAdmin(admin.ModelAdmin):
                 'title',
                 'rating',
                 'user',
+                'questionsAnswered',
             )
         }),
     )
@@ -238,12 +239,14 @@ class AchievementAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'name',
+                'badge',
             )
         }),
     )
     inlines = (
         TitleInline,
     )
+
 
 @admin.register(QuestionReport)
 class QuestionReportAdmin(admin.ModelAdmin):
@@ -259,6 +262,32 @@ class QuestionReportAdmin(admin.ModelAdmin):
                 'inappropriate',
                 'other',
                 'comment',
+            )
+        }),
+    )
+
+
+@admin.register(Trigger)
+class TriggerAdmin(admin.ModelAdmin):
+    fieldsets=(
+        (None, {
+            'fields' : (
+                'name',
+                'properties',
+            )
+        }),
+    )
+
+
+@admin.register(PropAnswerdQuestionInSubject)
+class PropAnswerdQuestionInSubjectAdmin(admin.ModelAdmin):
+    fieldsets=(
+        (None, {
+            'fields' : (
+                'name',
+                'achievements',
+                'number',
+                'subject',
             )
         }),
     )

@@ -1,6 +1,7 @@
 ![Logo](https://eduquiz.win/static/eduquiz/img/logo.png)
 
 [![Build Status](https://travis-ci.org/ecuatox/eduquiz.svg?branch=master)](https://travis-ci.org/ecuatox/eduquiz)
+[![codecov](https://codecov.io/gh/ecuatox/eduquiz/branch/master/graph/badge.svg)](https://codecov.io/gh/ecuatox/eduquiz)
 
 ## Local setup
 1. Create a virtual envirement `virtualenv -p python3 env`

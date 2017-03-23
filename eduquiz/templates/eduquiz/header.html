@@ -60,7 +60,6 @@
       Suggest Question
     </a>
     {% if user.is_authenticated %}
-      <div class="text">{{ user }} - {{ user.player.rating|floatformat:"0" }}</div>
       <a class="item" href="#">My account</a>
       <a class="item" href="#">Change password</a>
       <a class="item" href="/authentication/logout/">Sign out</a>

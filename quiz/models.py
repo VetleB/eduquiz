@@ -6,7 +6,68 @@ from django.http import JsonResponse
 
 
 class Achievement(models.Model):
-    name = models.CharField(max_length=50, verbose_name='Title')
+    name = models.CharField(max_length=50, verbose_name='Title', default='')
+    badge = models.ImageField(verbose_name='Badge', blank=True, null=True)
+
+    def isAchieved(self, player):
+        for prop in self.property_set.all():
+            try:
+                PropertyUnlock.objects.get(player=player, prop=prop)
+            except PropertyUnlock.DoesNotExist:
+                return False
+        return True
+
+    def update(self, player):
+        if self.isAchieved(player):
+            try:
+                AchievementUnlock.objects.get(player=player, achievement=self)
+            except AchievementUnlock.DoesNotExist:
+                AchievementUnlock(player=player, achievement=self).save()
+                titles = Title.objects.filter(achievement=self)
+                for title in titles:
+                    TitleUnlock(title=title, player=player).save()
+
+    def __str__(self):
+        return self.name
+
+
+class Property(models.Model):
+    name = models.CharField(max_length=50, verbose_name='Name', default='')
+    achievements = models.ManyToManyField(Achievement, blank=True)
+
+    # return wether the propery is unlocked or not
+    # implemented in subclasses
+    def isUnlocked(self, player):
+        return True
+
+    def update(self, player):
+        if self.isUnlocked(player):
+            try:
+                PropertyUnlock.objects.get(player=player, prop=self)
+            except PropertyUnlock.DoesNotExist:
+                PropertyUnlock(player=player, prop=self).save()
+            for achievement in self.achievements.all():
+                achievement.update(player)
+        else:
+            try:
+                PropertyUnlock.objects.get(player=player, prop=self).delete()
+            except PropertyUnlock.DoesNotExist:
+                pass
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'properties'
+
+
+class Trigger(models.Model):
+    name = models.CharField(max_length=50, verbose_name='Name')
+    properties = models.ManyToManyField(Property, blank=True)
+
+    def trigger(self, player):
+        for prop in self.properties.all():
+            prop.update(player)
 
     def __str__(self):
         return self.name
@@ -26,17 +87,17 @@ class Player(models.Model):
     user = models.OneToOneField(User)
 
     def update(self, question, win):
-            win = int(win)
-            QUESTION_K = 8
-            PLAYER_K = 16
-            RATING_CAP = 150
+        win = int(win)
+        QUESTION_K = 8
+        PLAYER_K = 16
+        RATING_CAP = 150
 
-            if self.rating - question.rating < RATING_CAP:
-                rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
-                question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
-                question.save()
-                self.rating = rating
-                self.save()
+        if self.rating - question.rating < RATING_CAP:
+            rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
+            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
+            question.save()
+            self.rating = rating
+            self.save()
 
     def exp(self, a, b):
             return 1/(1+pow(10,(b-a)/400))
@@ -54,21 +115,20 @@ class Player(models.Model):
         return self.user.username
 
 
+class PropertyUnlock(models.Model):
+    player = models.ForeignKey(Player)
+    prop = models.ForeignKey(Property)
+
+
 class AchievementUnlock(models.Model):
     player = models.ForeignKey(Player)
     achievement = models.ForeignKey(Achievement)
     date = models.DateTimeField(default=timezone.now, verbose_name='Date')
 
-    def __str__(self):
-        return '%s - %s' % (self.player, self.achievement)
-
 
 class TitleUnlock(models.Model):
     player = models.ForeignKey(Player)
     title = models.ForeignKey(Title)
-
-    def __str__(self):
-        return '%s - %s' % (self.player, self.title)
 
 
 class Category(models.Model):
@@ -267,6 +327,18 @@ class PlayerAnswer(models.Model):
 
     def __str__(self):
         return '%r - %s - %s' % (self.result, self.player, self.question)
+
+
+class PropAnswerdQuestionInSubject(Property):
+    number = models.IntegerField(default=0, verbose_name="Number of answers")
+    subject = models.ForeignKey(Subject, verbose_name="Subject")
+
+    def isUnlocked(self, player):
+        return len(PlayerAnswer.objects.filter(player=player, question__topic__subject=self.subject)) > self.number
+
+    def __str__(self):
+        return '%r in %s' % (self.number, self.subject.title)
+
 
 class QuestionReport(models.Model):
     player = models.ForeignKey(Player)

@@ -161,7 +161,7 @@ class MultipleChoiceTestCase(TestCase):
         q = MultipleChoiceQuestion.objects.get()
         self.assertEqual(str(q), 'TEST_QUESTION')
 
-    def test_raw_feedback(self):
+    def test_raw_feedback_valid_id(self):
         mcq = MultipleChoiceQuestion.objects.get()
         correctAnswers = MultipleChoiceAnswer.objects.filter(
             question=mcq,
@@ -169,6 +169,16 @@ class MultipleChoiceTestCase(TestCase):
         )
         correctAnswer = correctAnswers[0]
         self.assertEqual(mcq.answerFeedbackRaw(str(correctAnswer.id)), {'answer': correctAnswer.id, 'correct': [correctAnswer.id for correctAnswer in correctAnswers], 'answeredCorrect': True})
+
+    def test_raw_feedback_invalid_id(self):
+        mcq = MultipleChoiceQuestion.objects.get()
+        correctAnswers = MultipleChoiceAnswer.objects.filter(
+            question=mcq,
+            correct=True,
+        )
+        correctAnswer = correctAnswers[0]
+        answeredCorrect = True if 1 in correctAnswers else False
+        self.assertEqual(mcq.answerFeedbackRaw("fail"), {'answer': 1, 'correct': [correctAnswer.id for correctAnswer in correctAnswers], 'answeredCorrect': answeredCorrect})
 
     def testAnswerCorrect(self):
         question = MultipleChoiceQuestion.objects.get(question_text='TEST_QUESTION')
@@ -380,10 +390,7 @@ class PropAnsweredQuestionInSubjectTestCase(TestCase):
     def test_does_not_exist_not_thrown_on_update(self):
         prop = PropAnswerdQuestionInSubject.objects.get()
         player = Player.objects.get()
-        try:
-            prop.update(player)
-        except PropertyUnlock.DoesNotExist:
-            self.Assert.fail('DoesNotExist error raised unexpectedly')
+        self.assertEqual(prop.update(player), None)
 
 
 class TriggerTestCase(TestCase):

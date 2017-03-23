@@ -12,6 +12,14 @@ class TextQuestionTestCase(TestCase):
             answer = 'Answer',
         )
 
+    def test_str_returns_question_text(self):
+        tq = TextQuestion.objects.get()
+        self.assertEqual(str(tq), 'TEST_QUESTION')
+
+    def test_raw_feedback(self):
+        tq = TextQuestion.objects.get()
+        self.assertEqual(tq.answerFeedbackRaw('fail'), {'answer': 'fail', 'correct': 'Answer', 'answeredCorrect': False})
+
     def test_validation_ignores_capitalization(self):
         question = TextQuestion.objects.get()
         self.assertTrue(question.validate('ansWer'))
@@ -48,6 +56,14 @@ class NumberQuestionTestCase(TestCase):
             question_text = 'TEST_QUESTION',
             answer = '1.000',
         )
+
+    def test_str_returns_question_text(self):
+        q = NumberQuestion.objects.get()
+        self.assertEqual(str(q), 'TEST_QUESTION')
+
+    def test_raw_feedback(self):
+        nq = NumberQuestion.objects.get()
+        self.assertEqual(nq.answerFeedbackRaw('2'), {'answer': '2', 'correct': '1.000', 'answeredCorrect': False})
 
     def test_empty_returns_false(self):
         question = NumberQuestion.objects.get()
@@ -141,6 +157,18 @@ class MultipleChoiceTestCase(TestCase):
         trueAnswer.correct = True
         trueAnswer.save()
 
+    def test_str_returns_question_text(self):
+        q = MultipleChoiceQuestion.objects.get()
+        self.assertEqual(str(q), 'TEST_QUESTION')
+
+    def test_raw_feedback(self):
+        mcq = MultipleChoiceQuestion.objects.get()
+        correctAnswers = MultipleChoiceAnswer.objects.filter(
+            question=mcq,
+            correct=True,
+        )
+        correctAnswer = correctAnswers[0]
+        self.assertEqual(mcq.answerFeedbackRaw(str(correctAnswer.id)), {'answer': correctAnswer.id, 'correct': [correctAnswer.id for correctAnswer in correctAnswers], 'answeredCorrect': True})
 
     def testAnswerCorrect(self):
         question = MultipleChoiceQuestion.objects.get(question_text='TEST_QUESTION')
@@ -185,6 +213,14 @@ class TrueFalseTestCase(TestCase):
             answer = True,
         )
 
+    def test_str_returns_question_text(self):
+        q = TrueFalseQuestion.objects.get()
+        self.assertEqual(str(q), 'TEST_QUESTION')
+
+    def test_raw_feedback(self):
+        tfq = TrueFalseQuestion.objects.get()
+        self.assertEqual(tfq.answerFeedbackRaw('False'), {'answer': False, 'correct': True, 'answeredCorrect': False})
+
     def testAnswerCorrect(self):
         question = TrueFalseQuestion.objects.get(question_text='TEST_QUESTION')
         response = question.answerFeedback(True)
@@ -224,9 +260,14 @@ class AchievementTestCase(TestCase):
         prop.save()
         title.save()
 
-    def testName(self):
+    def test_str_returns_name(self):
         achievement = Achievement.objects.get()
         self.assertEqual(str(achievement), 'TEST_ACHIEVEMENT')
+
+    def test_is_achieved_returns_false_when_not_all_props_checked(self):
+        achievement = Achievement.objects.get()
+        player = Player.objects.get()
+        self.assertFalse(achievement.isAchieved(player))
 
     def testTrigger(self):
         player = Player.objects.get()
@@ -289,9 +330,60 @@ class PropertyTestCase(TestCase):
     def setUp(self):
         Property.objects.create(name='TEST_PROPERTY')
 
+
     def test_str_returns_name(self):
         prop = Property.objects.get()
         self.assertEqual(str(prop), 'TEST_PROPERTY')
+
+
+class PropAnsweredQuestionInSubjectTestCase(TestCase):
+
+    def setUp(self):
+        cat = Category.objects.create(title='TEST_CATEGORY')
+        sub = Subject.objects.create(
+            title='TEST_SUBJECT',
+            short='TS',
+            code='TS1234',
+            category=cat,
+        )
+        topic = Topic.objects.create(
+            title='TEST_TOPIC',
+            subject=sub,
+        )
+        PropAnswerdQuestionInSubject.objects.create(
+            number=1,
+            subject=sub,
+        )
+        user = User.objects.create(username='TEST_USER')
+        player = Player.objects.create(user=user)
+        question = Question.objects.create(
+            question_text='TEST_QUESTION_TEXT',
+            topic=topic,
+        )
+
+    def test_str_returns_number_in_title(self):
+        prop = PropAnswerdQuestionInSubject.objects.get()
+        self.assertEqual(str(prop), '1 in TEST_SUBJECT')
+
+    def test_is_unlocked(self):
+        prop = PropAnswerdQuestionInSubject.objects.get()
+        player = Player.objects.get()
+        self.assertFalse(prop.isUnlocked(player))
+        question = Question.objects.get()
+        PlayerAnswer.objects.create(
+            player=player,
+            question=question,
+            result=True,
+        )
+        self.assertTrue(prop.isUnlocked(player))
+
+    def test_does_not_exist_not_thrown_on_update(self):
+        prop = PropAnswerdQuestionInSubject.objects.get()
+        player = Player.objects.get()
+        try:
+            prop.update(player)
+        except PropertyUnlock.DoesNotExist:
+            self.Assert.fail('DoesNotExist error raised unexpectedly')
 
 
 class TriggerTestCase(TestCase):
@@ -354,7 +446,7 @@ class QuestionTestCase(TestCase):
     def setUp(self):
         Question.objects.create(question_text='TEST_QUESTION')
 
-    def test_str_returns_name(self):
+    def test_str_returns_question_text(self):
         q = Question.objects.get()
         self.assertEqual(str(q), 'TEST_QUESTION')
 

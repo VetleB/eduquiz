@@ -160,9 +160,6 @@ class PlayerTopic(models.Model):
     player = models.ForeignKey(Player)
     topic = models.ForeignKey(Topic)
 
-    def __str__(self):
-        return "%s - %s" % (self.player, self.topic)
-
 
 class Question(models.Model):
     question_text = models.TextField(max_length=200, verbose_name='Question')
@@ -325,16 +322,13 @@ class PlayerAnswer(models.Model):
     answer_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
     report_skip = models.BooleanField(verbose_name='Report', default=False)
 
-    def __str__(self):
-        return '%r - %s - %s' % (self.result, self.player, self.question)
-
 
 class PropAnswerdQuestionInSubject(Property):
     number = models.IntegerField(default=0, verbose_name="Number of answers")
     subject = models.ForeignKey(Subject, verbose_name="Subject")
 
     def isUnlocked(self, player):
-        return len(PlayerAnswer.objects.filter(player=player, question__topic__subject=self.subject)) > self.number
+        return len(PlayerAnswer.objects.filter(player=player, question__topic__subject=self.subject)) >= self.number
 
     def __str__(self):
         return '%r in %s' % (self.number, self.subject.title)

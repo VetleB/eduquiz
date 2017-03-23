@@ -1,5 +1,10 @@
 import os
-from .local_settings import *
+try:
+    from .local_settings import *
+except ImportError:
+    SECRET_KEY = 'SECRET_KEY'
+    DEBUG = True
+    ALLOWED_HOSTS = ['*']
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

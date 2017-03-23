@@ -222,7 +222,8 @@ class PlayerAnswerAdmin(admin.ModelAdmin):
                 'player',
                 'question',
                 'result',
-                'answer_date'
+                'answer_date',
+                'report_skip',
             )
         }),
     )
@@ -246,6 +247,7 @@ class AchievementAdmin(admin.ModelAdmin):
         TitleInline,
     )
 
+
 @admin.register(Trigger)
 class TriggerAdmin(admin.ModelAdmin):
     fieldsets=(
@@ -257,6 +259,7 @@ class TriggerAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(PropAnswerdQuestionInSubject)
 class PropAnswerdQuestionInSubjectAdmin(admin.ModelAdmin):
     fieldsets=(
@@ -266,6 +269,25 @@ class PropAnswerdQuestionInSubjectAdmin(admin.ModelAdmin):
                 'achievements',
                 'number',
                 'subject',
+            )
+        }),
+    )
+
+
+@admin.register(QuestionReport)
+class QuestionReportAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': (
+                'player',
+                'question',
+                'red_right',
+                'green_wrong',
+                'unclear',
+                'off_topic',
+                'inappropriate',
+                'other',
+                'comment',
             )
         }),
     )

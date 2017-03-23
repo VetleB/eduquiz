@@ -9,4 +9,8 @@ install:
 
 # command to run tests
 script:
-  - python manage.py test
+  - coverage run manage.py test
+
+# command to run after success
+after_success:
+  - codecov

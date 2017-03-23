@@ -131,9 +131,14 @@ def selectTopic(request):
         subjects = Subject.objects.all()
         topics = Topic.objects.all()
 
+        showtopics = []
+        for topic in topics:
+            if topic.question_set.count() > 0:
+                showtopics.append(topic)
+
         context = {
             'subjects': subjects,
-            'topics': topics,
+            'topics': showtopics,
         }
 
         return render(request, 'quiz/select_topic.html', context)

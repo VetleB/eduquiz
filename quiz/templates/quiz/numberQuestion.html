@@ -16,16 +16,14 @@
 
   <div class="quiz">
     <div class="ui piled segment question" question="{{ question.id }}">
+
       <div class="content">
-        <i class="flag icon report button" id="report-flag"></i>
         <h4 class="info stuff">
           {{ question.topic }} - {{ question.topic.subject.code }}<br>
         </h4>
-
-        <div style="height: 70px;"></div>
+        <i class="flag icon report" id="report-flag"></i>
 
         <div style="position: relative;">
-
           <div class="ui questionText">
           {{ question }}
           </div>
@@ -38,6 +36,7 @@
         </div>
         <div class="ui primary button">Submit</div>
       </form>
+
     </div>
   </div>
 
@@ -61,11 +60,6 @@
       color: #4C7D4C !important;
       border-color: #A3C293 !important;
       background-color: #FCFFF5 !important;
-    }
-    .report.button {
-        position: absolute;
-        right: 15px;
-        top: 15px;
     }
   </style>
 

@@ -16,15 +16,14 @@
 
   <div class="quiz">
     <div class="ui piled segment question" question="{{ question.id }}">
-        <i class="flag icon report button" id="report-flag"></i>
+
+      <div class="content">
         <h4 class="info stuff">
           {{ question.topic }} - {{ question.topic.subject.code }}<br>
         </h4>
-
-        <div style="height: 70px;"></div>
+        <i class="flag icon report" id="report-flag"></i>
 
         <div style="position: relative;">
-
           <div class="ui questionText">
             {{ question }}
           </div>
@@ -37,16 +36,10 @@
             </div>
           {% endfor %}
         </div>
+      </div>
+
     </div>
   </div>
-
-  <style>
-    .report.button {
-        position: absolute;
-        right: 15px;
-        top: 15px;
-    }
-  </style>
 
   <script>
     var answered = false;

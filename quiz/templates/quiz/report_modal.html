@@ -29,7 +29,6 @@
 
         <br>
 
-
         <div class="ui form">
           <div class="inline field">
             <div class="ui checkbox">
@@ -104,7 +103,11 @@
 
 <script >
   $(function() {
-    $(".report.button").click(function() {
+    $('.ui.modal.report').modal({
+      autofocus: false,
+    });
+
+    $(".report.flag").click(function() {
       $('.ui.modal.report').modal('show');
     });
 
@@ -113,7 +116,6 @@
     });
 
     $('.ui.checkbox').checkbox();
-    $('.ui.questions').dropdown();
+    $('.ui.questions').dropdown('set exactly', '{{ question.question_text }}');
   });
 </script>
-

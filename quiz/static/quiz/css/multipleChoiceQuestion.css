@@ -10,17 +10,20 @@
 }
 
 .question {
-  width: 96% !important;
+  width: 95% !important;
   margin: 3% 2% !important;
   min-height: 200px !important;
 }
 
+.question .content {
+  text-align: left;
+}
+
 .questionText {
   font-size: 25px;
-  margin-top: 10px;
-  position: absolute;
-  left: 1.5%;
-  top: -80px;
+  margin-top: 15px;
+  margin-left: 1.2%;
+  margin-bottom: 8px;
   line-height: 30px;
 }
 
@@ -44,4 +47,15 @@
   right: 15px;
   top: 15px;
   color: #2196F3;
+}
+
+.report.flag {
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  color: #2196F3;
+}
+
+.piled.segment {
+  width: 95%;
 }

@@ -356,11 +356,13 @@ def newMultiplechoiceQuestion(request):
 def report(request):
     if request.method == 'POST':
         form = ReportForm(request.POST)
+        print('>>>>> Good?')
         if form.is_valid():
+            print('>>>>> JA!!!')
             userDict = form.cleaned_data
             QuestionReport.objects.create(
                 player = request.user.player,
-                question = Question.objects.get(question_text=userDict['question_text']),
+                question = Question.objects.get(pk=userDict['question_id']),
                 red_right = userDict['red_right'],
                 green_wrong = userDict['green_wrong'],
                 unclear = userDict['unclear'],
@@ -372,7 +374,7 @@ def report(request):
             # Make a PA-object so that player doesn't get this question again immediatly (set report_skip to True to mark it as skipped because of a report)
             PlayerAnswer.objects.create(
                 player=request.user.player,
-                question=Question.objects.get(question_text=userDict['question_text']),
+                question=Question.objects.get(pk=userDict['question_id']),
                 result=True,
                 report_skip=True,
             )

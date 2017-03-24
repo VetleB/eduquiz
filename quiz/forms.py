@@ -73,7 +73,7 @@ class TextQuestionForm(forms.Form):
         return form_data
 
 class ReportForm(forms.Form):
-    question = forms.IntegerField(label="Question ID")
+    question_id = forms.IntegerField(label="Question ID")
     red_right = forms.BooleanField(label="Red-right", required=False)
     green_wrong = forms.BooleanField(label="Green-wrong", required=False)
     unclear = forms.BooleanField(label="Unclear", required=False)

@@ -12,15 +12,13 @@
           <div class="inline field">
             <label>Question</label>
             <div class="ui dropdown questions selection">
-              <input type="hidden" name="question_text">
+              <input type="hidden" name="question_id">
               <i class="dropdown icon"></i>
               <div class="default text">Choose</div>
               <div class="menu">
                 <a class="item" data-value="{{ question.id }}">{{ question }}</a>
                 {% for q in recent_questions %}
-                  {% if q.text != '' %}
-                    <a class="item" data-value="{{ q.id }}">{{ q }}</a>
-                  {% endif %}
+                  <a class="item" data-value="{{ q.id }}">{{ q }}</a>
                 {% endfor %}
               </div>
             </div>

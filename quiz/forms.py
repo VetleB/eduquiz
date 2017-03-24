@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 class MultipleChoiceQuestionForm(forms.Form):
-    question = forms.CharField(max_length=100, label="Question")
+    question = forms.CharField(max_length=200, label="Question")
 
     answer1 = forms.CharField(max_length=100, label="Alternative 1")
     answer2 = forms.CharField(max_length=100, label="Alternative 2")
@@ -29,7 +29,7 @@ class MultipleChoiceQuestionForm(forms.Form):
         return form_data
 
 class TrueFalseQuestionForm(forms.Form):
-    question = forms.CharField(max_length=100, label="Question")
+    question = forms.CharField(max_length=200, label="Question")
     correct = forms.CharField(label="True", required=False)
 
     rating = forms.IntegerField(label="Rating")
@@ -51,7 +51,7 @@ class TrueFalseQuestionForm(forms.Form):
 
 
 class TextQuestionForm(forms.Form):
-    question = forms.CharField(max_length=100, label="Question")
+    question = forms.CharField(max_length=200, label="Question")
     answer = forms.CharField(max_length=100, label="Answer")
 
     rating = forms.IntegerField(label="Rating")

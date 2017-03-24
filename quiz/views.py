@@ -53,27 +53,25 @@ def question(request):
                     break
 
             if not questionReturn:
-                question = PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[len(questions)-1].question
+                questionReturn = PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[len(questions)-1].question
 
-            question = (list(TrueFalseQuestion.objects.filter(id=question.id))
-                + list(MultipleChoiceQuestion.objects.filter(id=question.id))
-                + list(TextQuestion.objects.filter(id=question.id))
-                + list(NumberQuestion.objects.filter(id=question.id)))[0]
+            question = (list(TrueFalseQuestion.objects.filter(id=questionReturn.id))
+                + list(MultipleChoiceQuestion.objects.filter(id=questionReturn.id))
+                + list(TextQuestion.objects.filter(id=questionReturn.id))
+                + list(NumberQuestion.objects.filter(id=questionReturn.id)))[0]
 
             # In order to have recently answered questions from current topics in list over reportable questions in report_modal
             # How far back the list of questions goes is defined by REPORTABLE_AMOUNT
             # Only list questions that have been ANSWERED, not REPORTED (report_skip must equal False)
             REPORTABLE_AMOUNT = 2
             recent_questions = [pa.question for pa in PlayerAnswer.objects.order_by('-answer_date') if (pa.question.topic in topics and not pa.report_skip)]
-            text_list = [question.question_text]
-            return_list = []
+            q_list = [question]
             for q in recent_questions:
-                if q.question_text in text_list:
+                if q in q_list:
                     pass
                 else:
-                    text_list.append(q.question_text)
-                    return_list.append(q)
-            recent_questions = return_list[0:REPORTABLE_AMOUNT]
+                    q_list.append(q)
+            recent_questions = q_list[1:REPORTABLE_AMOUNT+1]
             context = {
                 'recent_questions': recent_questions,
             }

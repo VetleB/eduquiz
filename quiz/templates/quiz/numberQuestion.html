@@ -34,7 +34,7 @@
         <div class="field">
           <input type="text" class="inputfield answerfield">
         </div>
-        <div class="ui primary button">Submit</div>
+        <div class="ui primary button submit">Submit</div>
       </form>
 
     </div>
@@ -65,17 +65,6 @@
 
   <script>
     var answered = false;
-
-    $('.inputfield.answerfield').keypress(function(event) {
-      if (event.which == 13) {
-        event.preventDefault();
-        answer();
-      }
-    });
-
-    $('.sumbit.primary.button').click(function() {
-      answer();
-    });
 
     function answer() {
       if (!answered) {
@@ -113,6 +102,17 @@
         });
       }
     }
+
+    $('.inputfield.answerfield').keypress(function(event) {
+      if (event.which == 13) {
+        event.preventDefault();
+        answer();
+      }
+    });
+
+    $('.submit.primary.button').click(function() {
+      answer();
+    });
   </script>
 
 {% endblock content %}

@@ -10,9 +10,16 @@
 }
 
 .report {
+  position: relative;
   width: 95% !important;
   margin: 3% 2% !important;
   min-height: 200px !important;
+}
+
+.report > a {
+  position: absolute;
+  top: 0; right: 0;
+  bottom: 0; left: 0;
 }
 
 .report .content {

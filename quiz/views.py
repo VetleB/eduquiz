@@ -389,3 +389,12 @@ def viewReports(request):
     }
 
     return render(request, 'quiz/viewReports.html', context)
+
+
+def handleReport(request, report_id):
+
+    context = {
+        'report': QuestionReport.objects.get(pk=report_id),
+    }
+
+    return render(request, 'quiz/handleReport.html', context)

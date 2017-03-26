@@ -16,7 +16,6 @@
     <div class="reports">
         {% for report in reports %}
             <div class="ui piled segment report" report="{{ report.id }}">
-
                 <div class="content">
                     <h4 class="info stuff">
                          {{ report.question.topic }} - {{ report.question.topic.subject.code }}<br>
@@ -29,7 +28,7 @@
 
                     </div>
                 </div>
-
+                <a href="/quiz/viewreports/handlereport/{{ report.id }}/"></a>
             </div>
         {% endfor %}
     </div>

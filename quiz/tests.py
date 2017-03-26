@@ -177,7 +177,7 @@ class MultipleChoiceTestCase(TestCase):
             correct=True,
         )
         correctAnswer = correctAnswers[0]
-        answeredCorrect = True if 1 in correctAnswers else False
+        answeredCorrect = True if correctAnswer.id == 1 else False
         self.assertEqual(mcq.answerFeedbackRaw("fail"), {'answer': 1, 'correct': [correctAnswer.id for correctAnswer in correctAnswers], 'answeredCorrect': answeredCorrect})
 
     def testAnswerCorrect(self):

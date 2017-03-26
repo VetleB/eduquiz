@@ -18,14 +18,19 @@
             <div class="ui piled segment report" report="{{ report.id }}">
                 <div class="content">
                     <h4 class="info stuff">
-                         {{ report.question.topic }} - {{ report.question.topic.subject.code }}<br>
+                         {{ report.0.topic }} - {{ report.0.topic.subject.code }}<br>
                      </h4>
 
                     <div style="position: relative;">
                         <div class="ui questionText">
-                            {{ report.question }}
+                            {{ report.0 }}
                          </div>
+                    </div>
 
+                    <div style="position: relative;">
+                        <div class="ui reportCount">
+                            {{ report.1 }}
+                         </div>
                     </div>
                 </div>
                 <a href="/quiz/viewreports/handlereport/{{ report.id }}/"></a>

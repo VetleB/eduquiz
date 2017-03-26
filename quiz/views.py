@@ -382,7 +382,14 @@ def report(request):
 
 def viewReports(request):
 
-    reports = QuestionReport.objects.all()
+    reportesQuestionIDs = QuestionReport.objects.all().values_list('question_id', flat=True)
+    questions = Question.objects.filter(id__in=reportesQuestionIDs)
+    reports = []
+
+    for question in questions:
+        reports.append([question, QuestionReport.objects.filter(question_id=question.id).count()])
+
+    reports.sort(key=lambda tup: tup[1], reverse=True)
 
     context = {
         'reports': reports,

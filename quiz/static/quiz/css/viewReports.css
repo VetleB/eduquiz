@@ -34,6 +34,14 @@
   line-height: 30px;
 }
 
+.reportCount {
+  font-size: 25px;
+  margin-top: 15px;
+  margin-left: 1.2%;
+  margin-bottom: 8px;
+  line-height: 30px;
+}
+
 .answer {
   display: inline-block !important;
   width: 47% !important;

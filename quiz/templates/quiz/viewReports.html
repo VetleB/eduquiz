@@ -1,0 +1,37 @@
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "quiz/css/viewReports.css" %}">
+{% endblock head %}
+
+{% block header %}
+
+  {% include 'eduquiz/header.html' %}
+
+{% endblock header %}
+
+{% block content %}
+    <div class="reports">
+        {% for report in reports %}
+            <div class="ui piled segment report" report="{{ report.id }}">
+
+                <div class="content">
+                    <h4 class="info stuff">
+                         {{ report.question.topic }} - {{ report.question.topic.subject.code }}<br>
+                     </h4>
+
+                    <div style="position: relative;">
+                        <div class="ui questionText">
+                            {{ report.question }}
+                         </div>
+
+                    </div>
+                </div>
+
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock content %}

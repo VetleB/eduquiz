@@ -353,23 +353,22 @@ def newMultiplechoiceQuestion(request):
 
     return render(request, 'quiz/newQuestion.html', context)
 
+
 def report(request):
     if request.method == 'POST':
         form = ReportForm(request.POST)
-        print('>>>>> Good?')
         if form.is_valid():
-            print('>>>>> JA!!!')
             userDict = form.cleaned_data
             QuestionReport.objects.create(
-                player = request.user.player,
-                question = Question.objects.get(pk=userDict['question_id']),
-                red_right = userDict['red_right'],
-                green_wrong = userDict['green_wrong'],
-                unclear = userDict['unclear'],
-                off_topic = userDict['off_topic'],
-                inappropriate = userDict['inappropriate'],
-                other = userDict['other'],
-                comment = userDict['comment'],
+                player=request.user.player,
+                question=Question.objects.get(pk=userDict['question_id']),
+                red_right=userDict['red_right'],
+                green_wrong=userDict['green_wrong'],
+                unclear=userDict['unclear'],
+                off_topic=userDict['off_topic'],
+                inappropriate=userDict['inappropriate'],
+                other=userDict['other'],
+                comment=userDict['comment'],
             )
             # Make a PA-object so that player doesn't get this question again immediatly (set report_skip to True to mark it as skipped because of a report)
             PlayerAnswer.objects.create(
@@ -379,3 +378,14 @@ def report(request):
                 report_skip=True,
             )
     return HttpResponseRedirect('/quiz')
+
+
+def viewReports(request):
+
+    reports = QuestionReport.objects.all()
+
+    context = {
+        'reports': reports,
+    }
+
+    return render(request, 'quiz/viewReports.html', context)

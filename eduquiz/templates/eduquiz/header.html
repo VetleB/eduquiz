@@ -20,6 +20,11 @@
     <a class="item" href="/quiz/new/">
       Suggest Question
     </a>
+    {% if user.is_superuser %}
+      <a class="item" href="/quiz/viewreports/">
+        View reports
+      </a>
+    {% endif %}
     {% if user.is_authenticated %}
       <div class="ui dropdown item">
         <div class="text">{{ user }} - {{ user.player.rating|floatformat:"0" }}</div>

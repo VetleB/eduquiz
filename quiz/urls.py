@@ -10,5 +10,5 @@ urlpatterns = [
     url(r'^new/', views.newQuestion, name='newQuestion'),
     url(r'^report/', views.report, name='report'),
     url(r'^viewreports/$', views.viewReports, name='viewReport'),
-    url(r'^viewreports/handlereport/(?P<report_id>[0-9]+)/', views.handleReport, name='handleReport'),
+    url(r'^viewreports/handlereport/(?P<question_id>[0-9]+)/$', views.handleReport, name='handleReport'),
 ]

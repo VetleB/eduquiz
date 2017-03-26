@@ -14,21 +14,31 @@
 
 {% block content %}
     <div class="reports">
-        <div class="ui piled segment report" report="{{ report.id }}">
-
-            <div class="content">
-                <h4 class="info stuff">
-                     {{ report.question.topic }} - {{ report.question.topic.subject.code }}<br>
-                 </h4>
-
-                <div style="position: relative;">
-                    <div class="ui questionText">
-                        {{ report.question }}
-                     </div>
-
+        {% for report in reports %}
+            <div class="ui piled segment report" report="{{ report.id }}">
+                <div class="content">
+                    {% if report.red_right %}
+                        <div class="questionText">Red right</div>
+                    {% endif %}
+                    {% if report.green_wrong %}
+                        <div class="questionText">Green wrong</div>
+                    {% endif %}
+                    {% if report.unclear %}
+                        <div class="questionText">Unclear</div>
+                    {% endif %}
+                    {% if report.off_topic %}
+                        <div class="questionText">Off topic</div>
+                    {% endif %}
+                    {% if report.inappropriate %}
+                        <div class="questionText">Inappropriate</div>
+                    {% endif %}
+                    {% if report.other %}
+                        <div class="questionText">Other</div>
+                    {% endif %}
+                    <div class="questionText">{{ report.comment }}</div>
                 </div>
             </div>
-        </div>
+        {% endfor %}
     </div>
 
 {% endblock content %}

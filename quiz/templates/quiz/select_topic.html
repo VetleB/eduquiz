@@ -83,12 +83,8 @@
   </style>
 
   <script>
-    $('.subject.dropdown').dropdown('set exactly', '{{ subject.title }}');
-
-    //$('.topics.dropdown').dropdown('set exactly', {% for element in playerTopics %} '{{ element }}' {% endfor %} );
 
     function filterTopics() {
-
       $('.topic.item').each(function() {
         if ($(this).attr('subject') != $('input[name="subject"]').val()) {
           $(this).addClass('disabled');
@@ -98,18 +94,8 @@
           $(this).css('display', 'block');
         }
         $('.topics.dropdown').dropdown('clear');
-
       });
     };
-
-
-    $(".button.submit").click(function() {
-      $('form.topics').submit();
-    });
-
-
-
-
 
     $(function() {
       $('.topics.dropdown').dropdown();
@@ -118,13 +104,16 @@
       // filter topics based on subject when subject is changed
       $('input[name="subject"].dummy').change(function() {
         filterTopics();
-
       });
 
+      $('.subject.dropdown').dropdown('set exactly', '{{ subject.title }}');
       filterTopics();
+      $('.topics.dropdown').dropdown('set exactly', [{% for element in playerTopics %}'{{ element }}', {% endfor %}] );
 
+      $(".button.submit").click(function() {
+        $('form.topics').submit();
+      });
     });
-
 
   </script>
 

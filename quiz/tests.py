@@ -479,7 +479,6 @@ class RatingTestCase(TestCase):
 
         )
         player = Player.objects.create(
-            rating=1000,
             user=user,
         )
         category = Category.objects.create(
@@ -494,7 +493,10 @@ class RatingTestCase(TestCase):
             subject=subject,
         )
         question = Question.objects.create(
-            rating=1000,
+            topic=topic,
+        )
+        playerTopic = PlayerTopic.objects.create(
+            player=player,
             topic=topic,
         )
 
@@ -502,23 +504,23 @@ class RatingTestCase(TestCase):
         player = Player.objects.get()
         question = Question.objects.get()
         player.update(question, 1)
-        self.assertTrue(question.rating < 1000)
-        self.assertTrue(player.rating > 1000)
+        self.assertTrue(question.rating < 1200)
+        self.assertTrue(player.rating() > 1200)
 
     def test_rating_change_on_incorrect(self):
         player = Player.objects.get()
         question = Question.objects.get()
         player.update(question, 0)
-        self.assertTrue(question.rating > 1000)
-        self.assertTrue(player.rating < 1000)
+        self.assertTrue(question.rating > 1200)
+        self.assertTrue(player.rating() < 1200)
 
     def test_no_rating_change_above_cap(self):
         player = Player.objects.get()
-        player.rating = 1500
+        PlayerRating.setRating(player, 1700)
         question = Question.objects.get()
         player.update(question, 0)
-        self.assertTrue(question.rating == 1000)
-        self.assertTrue(player.rating == 1500)
+        self.assertTrue(question.rating == 1200)
+        self.assertTrue(player.rating() == 1700)
 
     def test_virtual_rating_increase(self):
         player = Player.objects.get()
@@ -528,7 +530,7 @@ class RatingTestCase(TestCase):
             question=question,
             result=True,
         )
-        self.assertTrue(player.rating < player.virtualRating([question.topic]))
+        self.assertTrue(player.rating() < player.virtualRating([question.topic]))
 
     def test_virtual_rating_decrease(self):
         player = Player.objects.get()
@@ -538,7 +540,7 @@ class RatingTestCase(TestCase):
             question=question,
             result=False,
         )
-        self.assertTrue(player.rating > player.virtualRating([question.topic]))
+        self.assertTrue(player.rating() > player.virtualRating([question.topic]))
 
     def test_virtual_rating_increase_and_decrease(self):
         player = Player.objects.get()
@@ -553,4 +555,4 @@ class RatingTestCase(TestCase):
             question=question,
             result=False,
         )
-        self.assertTrue(player.rating == player.virtualRating([question.topic]))
+        self.assertTrue(player.rating() == player.virtualRating([question.topic]))

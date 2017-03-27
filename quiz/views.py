@@ -407,9 +407,21 @@ def handleReport(request, question_id):
     user = request.user
     if user.is_superuser:
         context = {
+            'question_id': question_id,
             'reports': QuestionReport.objects.filter(question_id=question_id),
         }
 
         return render(request, 'quiz/handleReport.html', context)
 
+    return HttpResponseRedirect('/')
+
+
+def deleteReport(request, question_id):
+
+    # Only site admins are allowed to delete questions
+    user = request.user
+    if user.is_superuser:
+        question = Question.objects.get(pk=question_id)
+        question.delete()
+        return HttpResponseRedirect('/quiz/viewreports')
     return HttpResponseRedirect('/')

@@ -14,6 +14,12 @@
 
 {% block content %}
     <div class="reports">
+        <div class="actions">
+            <div class="ui negative right icon button submit delete">
+                Delete
+                <a href="/quiz/viewreports/deletequestion/{{ question_id }}"></a>
+            </div>
+        </div>
         {% for report in reports %}
             <div class="ui piled segment report" report="{{ report.id }}">
                 <div class="content">

@@ -500,6 +500,11 @@ class RatingTestCase(TestCase):
             topic=topic,
         )
 
+    def test_rating_no_topic(self):
+        Topic.objects.get().delete()
+        player = Player.objects.get()
+        self.assertEqual(PlayerRating.getRatingObject(player), None)
+
     def test_rating_change_on_correct(self):
         player = Player.objects.get()
         question = Question.objects.get()

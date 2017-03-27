@@ -174,7 +174,7 @@ class PlayerRating(models.Model):
         if subject == None:
             try:
                 subject = PlayerTopic.objects.filter(player=player).first().topic.subject
-            except PlayerTopic.DoesNotExist:
+            except AttributeError:
                 return None
         try:
             return PlayerRating.objects.get(player=player, subject=subject)

@@ -6,6 +6,7 @@ from quiz.forms import *
 import random
 from django.contrib import messages
 
+
 def question(request):
     if request.method == 'POST':
         try:
@@ -129,7 +130,6 @@ def selectTopic(request):
         return HttpResponseRedirect('/quiz')
     else:
         subjects = Subject.objects.all()
-        subjects = Subject.objects.all()
         topics = Topic.objects.all()
 
         showtopics = []
@@ -142,7 +142,6 @@ def selectTopic(request):
         topicsInPlayer = PlayerTopic.objects.filter(player=request.user.player)
         playerTopics= [playerTopic.topic for playerTopic in topicsInPlayer]
 
-        print(playerTopics)
         try:
             subject = topicsInPlayer.first().topic.subject
         except AttributeError:

@@ -85,7 +85,12 @@
   </style>
 
   <script>
+    $('.subject.dropdown').dropdown('set exactly', '{{ subject.title }}');
+
+    //$('.topics.dropdown').dropdown('set exactly', {% for element in playerTopics %} '{{ element }}' {% endfor %} );
+
     function filterTopics() {
+
       $('.topic.item').each(function() {
         if ($(this).attr('subject') != $('input[name="subject"]').val()) {
           $(this).addClass('disabled');
@@ -95,6 +100,7 @@
           $(this).css('display', 'block');
         }
         $('.topics.dropdown').dropdown('clear');
+
       });
     };
 
@@ -118,8 +124,7 @@
       });
 
       filterTopics();
-        $('.subject.dropdown').dropdown('set exactly', '{{ subject.title }}');
-        $('.topics.dropdown').dropdown('set exactly', {% for topic in playerTopics %} '{{ topic }}' {% endfor %} );
+
     });
 
 

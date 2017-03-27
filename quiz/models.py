@@ -83,8 +83,10 @@ class Title(models.Model):
 
 class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
-    rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     user = models.OneToOneField(User)
+
+    def rating(self):
+        return PlayerRating.getRating(self)
 
     def update(self, question, win):
         win = int(win)
@@ -92,12 +94,13 @@ class Player(models.Model):
         PLAYER_K = 16
         RATING_CAP = 150
 
-        if self.rating - question.rating < RATING_CAP:
-            rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
-            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
+        rating = self.rating()
+
+        if rating - question.rating < RATING_CAP:
+            newrating = rating + PLAYER_K * (win - self.exp(rating, question.rating))
+            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, rating))
             question.save()
-            self.rating = rating
-            self.save()
+            PlayerRating.setRating(self, newrating)
 
     def exp(self, a, b):
             return 1/(1+pow(10,(b-a)/400))
@@ -109,7 +112,7 @@ class Player(models.Model):
         # Get the VIRTUAL_C latest answers that are not reports (report_skip must equal False) and in/decrease rating thereafter
         answers = [pa for pa in PlayerAnswer.objects.filter(player=self, question__topic__in=topics).order_by('-answer_date') if pa.report_skip!=True][:VIRTUAL_C]
         virtual = sum([VIRTUAL_K if answer.result else -VIRTUAL_K for answer in answers])
-        return self.rating + virtual
+        return PlayerRating.getRating(self) + virtual
 
     def __str__(self):
         return self.user.username
@@ -159,6 +162,34 @@ class Topic(models.Model):
 class PlayerTopic(models.Model):
     player = models.ForeignKey(Player)
     topic = models.ForeignKey(Topic)
+
+
+class PlayerRating(models.Model):
+    player = models.ForeignKey(Player, blank=True)
+    subject = models.ForeignKey(Subject, blank=True)
+    rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
+
+    @staticmethod
+    def getRatingObject(player, subject=None):
+        if subject == None:
+            try:
+                subject = PlayerTopic.objects.filter(player=player).first().topic.subject
+            except PlayerTopic.DoesNotExist:
+                return None
+        try:
+            return PlayerRating.objects.get(player=player, subject=subject)
+        except PlayerRating.DoesNotExist:
+            return PlayerRating.objects.create(player=player, subject=subject)
+
+    @staticmethod
+    def getRating(player, subject=None):
+        return PlayerRating.getRatingObject(player, subject).rating
+
+    @staticmethod
+    def setRating(player, rating, subject=None):
+        playerRating = PlayerRating.getRatingObject(player, subject)
+        playerRating.rating = rating
+        playerRating.save()
 
 
 class Question(models.Model):

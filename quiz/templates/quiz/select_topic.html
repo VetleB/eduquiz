@@ -21,6 +21,8 @@
         <div class="content">
           <div class="header">
             Select topics
+              {{ playerTopics }}
+              {{ subject }}
           </div>
         </div>
 
@@ -96,9 +98,15 @@
       });
     };
 
+
     $(".button.submit").click(function() {
       $('form.topics').submit();
     });
+
+
+    $('.topics.dropdown').dropdown('select exactly', '{% for topic in playerTopics %}{{ topic }}, {% endfor %}' );
+
+
 
     $(function() {
       $('.topics.dropdown').dropdown();

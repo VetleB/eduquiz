@@ -136,9 +136,21 @@ def selectTopic(request):
             if topic.question_set.count() > 0:
                 showtopics.append(topic)
 
+
+
+        playerTopics = PlayerTopic.objects.filter(player=request.user.player)
+        listOfTopics=[playerTopic.topic.title for playerTopic in playerTopics]
+
+        try:
+            subject = PlayerTopic.objects.filter(player=request.user.player).first().topic.subject
+        except AttributeError:
+            subject=None
+
         context = {
             'subjects': subjects,
             'topics': showtopics,
+            'playerTopics': listOfTopics,
+            'subject':subject,
         }
 
         return render(request, 'quiz/select_topic.html', context)

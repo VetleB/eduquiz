@@ -129,6 +129,7 @@ def selectTopic(request):
         return HttpResponseRedirect('/quiz')
     else:
         subjects = Subject.objects.all()
+        subjects = Subject.objects.all()
         topics = Topic.objects.all()
 
         showtopics = []
@@ -138,19 +139,22 @@ def selectTopic(request):
 
 
 
-        playerTopics = PlayerTopic.objects.filter(player=request.user.player)
-        listOfTopics=[playerTopic.topic.title for playerTopic in playerTopics]
+        topicsInPlayer = PlayerTopic.objects.filter(player=request.user.player)
+        playerTopics= [playerTopic.topic for playerTopic in topicsInPlayer]
 
+        print(playerTopics)
         try:
-            subject = PlayerTopic.objects.filter(player=request.user.player).first().topic.subject
+            subject = topicsInPlayer.first().topic.subject
         except AttributeError:
             subject=None
+
 
         context = {
             'subjects': subjects,
             'topics': showtopics,
-            'playerTopics': listOfTopics,
-            'subject':subject,
+            'subject': subject,
+            'playerTopics': playerTopics,
+
         }
 
         return render(request, 'quiz/select_topic.html', context)

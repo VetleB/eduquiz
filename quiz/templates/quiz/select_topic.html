@@ -41,7 +41,7 @@
               </div>
             </div>
 
-            <div class="ui multiple search topics selection dropdown scrolling field">
+            <div class="ui multiple search dropdown topics selection scrolling field">
               <input class="dummy" name="topics" type="hidden">
               <i class="dropdown icon"></i>
               <div class="default text">Topic</div>
@@ -104,7 +104,6 @@
     });
 
 
-    $('.topics.dropdown').dropdown('select exactly', '{% for topic in playerTopics %}{{ topic }}, {% endfor %}' );
 
 
 
@@ -115,10 +114,15 @@
       // filter topics based on subject when subject is changed
       $('input[name="subject"].dummy').change(function() {
         filterTopics();
+
       });
 
       filterTopics();
+        $('.subject.dropdown').dropdown('set exactly', '{{ subject.title }}');
+        $('.topics.dropdown').dropdown('set exactly', {% for topic in playerTopics %} '{{ topic }}' {% endfor %} );
     });
+
+
   </script>
 
 {% endblock content %}

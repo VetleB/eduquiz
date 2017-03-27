@@ -381,27 +381,35 @@ def report(request):
 
 
 def viewReports(request):
+    # Only site admins are allowed to see and handle reports
+    user = request.user
+    if user.is_superuser:
+        reportesQuestionIDs = QuestionReport.objects.all().values_list('question_id', flat=True)
+        questions = Question.objects.filter(id__in=reportesQuestionIDs)
+        reports = []
 
-    reportesQuestionIDs = QuestionReport.objects.all().values_list('question_id', flat=True)
-    questions = Question.objects.filter(id__in=reportesQuestionIDs)
-    reports = []
+        for question in questions:
+            reports.append([question, QuestionReport.objects.filter(question_id=question.id).count()])
 
-    for question in questions:
-        reports.append([question, QuestionReport.objects.filter(question_id=question.id).count()])
+        reports.sort(key=lambda tup: tup[1], reverse=True)
 
-    reports.sort(key=lambda tup: tup[1], reverse=True)
+        context = {
+            'reports': reports,
+        }
 
-    context = {
-        'reports': reports,
-    }
+        return render(request, 'quiz/viewReports.html', context)
 
-    return render(request, 'quiz/viewReports.html', context)
+    return HttpResponseRedirect('/')
 
 
 def handleReport(request, question_id):
+    # Only site admins are allowed to see and handle reports
+    user = request.user
+    if user.is_superuser:
+        context = {
+            'reports': QuestionReport.objects.filter(question_id=question_id),
+        }
 
-    context = {
-        'reports': QuestionReport.objects.filter(question_id=question_id),
-    }
+        return render(request, 'quiz/handleReport.html', context)
 
-    return render(request, 'quiz/handleReport.html', context)
+    return HttpResponseRedirect('/')

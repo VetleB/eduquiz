@@ -87,12 +87,15 @@ class Player(models.Model):
 
     def ratingList(self, subject=None):
         if subject == None:
-            try:
-                subject = PlayerTopic.objects.filter(player=self).first().topic.subject
-            except AttributeError:
-                return None
+            subject = self.subject()
         qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', flat=True)
         return [float(a) for a in qset]
+
+    def subject(self):
+        try:
+            return PlayerTopic.objects.filter(player=self).first().topic.subject
+        except AttributeError:
+            return None
 
     def rating(self):
         return PlayerRating.getRating(self)
@@ -181,10 +184,7 @@ class PlayerRating(models.Model):
     @staticmethod
     def getRatingObject(player, subject=None):
         if subject == None:
-            try:
-                subject = PlayerTopic.objects.filter(player=player).first().topic.subject
-            except AttributeError:
-                return None
+            subject = player.subject()
         try:
             return PlayerRating.objects.get(player=player, subject=subject)
         except PlayerRating.DoesNotExist:

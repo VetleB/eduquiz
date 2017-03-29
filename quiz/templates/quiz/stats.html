@@ -30,7 +30,7 @@
       data: {
             labels: {{ request.user.player.ratingList }},
             datasets: [{
-                label: 'rating',
+                label: '{{ request.user.player.subject }}',
                 data: {{ request.user.player.ratingList }},
                 backgroundColor: [
                     'rgba(33, 150, 243, 0.5)',

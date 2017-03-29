@@ -185,6 +185,8 @@ class PlayerRating(models.Model):
     def getRatingObject(player, subject=None):
         if subject == None:
             subject = player.subject()
+        if not subject:
+            return None
         try:
             return PlayerRating.objects.get(player=player, subject=subject)
         except PlayerRating.DoesNotExist:
@@ -192,7 +194,11 @@ class PlayerRating(models.Model):
 
     @staticmethod
     def getRating(player, subject=None):
-        return PlayerRating.getRatingObject(player, subject).rating
+        playerRating = PlayerRating.getRatingObject(player, subject)
+        if playerRating:
+            return playerRating.rating
+        else:
+            return 1200
 
     @staticmethod
     def setRating(player, rating, subject=None):

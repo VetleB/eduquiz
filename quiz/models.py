@@ -85,6 +85,15 @@ class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
     user = models.OneToOneField(User)
 
+    def ratingList(self, subject=None):
+        if subject == None:
+            try:
+                subject = PlayerTopic.objects.filter(player=self).first().topic.subject
+            except AttributeError:
+                return None
+        qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', flat=True)
+        return [float(a) for a in qset]
+
     def rating(self):
         return PlayerRating.getRating(self)
 

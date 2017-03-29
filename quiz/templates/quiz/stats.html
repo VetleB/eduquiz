@@ -1,0 +1,55 @@
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles%}
+
+{% block head %}
+  <script src="{% static "quiz/js/moment.js" %}"></script>
+  <script src="{% static "quiz/js/chart.min.js" %}"></script>
+{% endblock head %}
+
+{% block content %}
+
+  <div class="ui middle aligned center aligned grid">
+    <div class="ui container segment rating">
+      <canvas id="myChart" width="400" height="200"></canvas>
+    </div>
+  </div>
+
+  <style>
+    .rating.segment {
+      height: auto;
+      padding: 30px;
+      margin-top: 100px !important;
+      margin-bottom: 50px !important;
+    }
+  </style>
+
+  <script>
+    var ctx = document.getElementById("myChart");
+    var myLineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+            labels: {{ request.user.player.ratingList }},
+            datasets: [{
+                label: 'rating',
+                data: {{ request.user.player.ratingList }},
+                backgroundColor: [
+                    'rgba(33, 150, 243, 0.5)',
+                ],
+                borderColor: [
+                    '#2196F3',
+                ],
+                borderWidth: 1
+            }]
+        },
+      options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });
+  </script>
+{% endblock content %}

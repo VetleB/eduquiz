@@ -379,3 +379,6 @@ def report(request):
                 report_skip=True,
             )
     return HttpResponseRedirect('/quiz')
+
+def stats(request):
+    return render(request, 'quiz/stats.html')

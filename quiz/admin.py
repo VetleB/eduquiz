@@ -220,6 +220,7 @@ class PlayerAnswerAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'player',
+                'rating',
                 'question',
                 'result',
                 'answer_date',

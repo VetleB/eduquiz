@@ -165,8 +165,8 @@ class PlayerTopic(models.Model):
 
 
 class PlayerRating(models.Model):
-    player = models.ForeignKey(Player, blank=True)
-    subject = models.ForeignKey(Subject, blank=True)
+    player = models.ForeignKey(Player)
+    subject = models.ForeignKey(Subject)
     rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
 
     @staticmethod
@@ -351,7 +351,12 @@ class PlayerAnswer(models.Model):
     question = models.ForeignKey(Question)
     result = models.BooleanField(verbose_name='Result')
     answer_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
+    rating = models.DecimalField(max_digits=8, decimal_places=3, verbose_name='Rating')
     report_skip = models.BooleanField(verbose_name='Report', default=False)
+
+    def save(self, *args, **kwargs):
+        self.rating = self.player.rating()
+        super(PlayerAnswer, self).save(*args, **kwargs)
 
 
 class PropAnswerdQuestionInSubject(Property):

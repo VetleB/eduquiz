@@ -107,10 +107,10 @@
     var myLineChart = new Chart(ctx, {
       type: 'line',
       data: {
-            labels: {{ request.user.player.ratingList }},
+            labels: [{% for title in request.user.player.ratingList.1 %}'{{ title }}', {% endfor %}],
             datasets: [{
                 label: '{{ request.user.player.subject }}',
-                data: {{ request.user.player.ratingList }},
+                data: {{ request.user.player.ratingList.0 }},
                 backgroundColor: [
                     'rgba(33, 150, 243, 0.5)',
                 ],

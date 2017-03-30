@@ -3,7 +3,7 @@ from django.contrib.auth.admin import User
 from django.utils import timezone
 from re import match
 from django.db.models import Count
-from django.http import JsonResponse
+from datetime import datetime
 
 
 class Achievement(models.Model):
@@ -103,8 +103,8 @@ class Player(models.Model):
     def ratingList(self, subject=None):
         if subject == None:
             subject = self.subject()
-        qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', flat=True)
-        return [float(a) for a in qset]
+        qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', 'answer_date')
+        return ([float(a[0]) for a in qset], [datetime.strftime(a[1], '%d %B') for a in qset])
 
     def subject(self):
         try:

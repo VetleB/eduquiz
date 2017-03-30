@@ -2,6 +2,7 @@ from django.test import TestCase
 from quiz.models import *
 from django.contrib.auth.admin import User
 import random
+from django.test import Client
 
 
 class TextQuestionTestCase(TestCase):
@@ -656,3 +657,98 @@ class StatsTestCase(TestCase):
         self.playerA.update(self.questionB, True)
 
         self.assertEqual(self.playerA.subjectAnswers(), ([2, 3], ['TEST_SUBJECT_A', 'TEST_SUBJECT_B']))
+
+
+class QuestionFormTestCase(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        category = Category.objects.create(title='TEST_CATEGORY')
+        self.subject = Subject.objects.create(title='TEST_SUBJECT', category=category)
+        self.topic = Topic.objects.create(title='TEST_TOPIC', subject=self.subject)
+        self.user = User.objects.create_user(username='TEST_USER', password='TEST_PASSWORD')
+        self.player = Player.objects.create(user=self.user)
+        self.client.post('/authentication/login/', {
+            'username': 'TEST_USER',
+            'password': 'TEST_PASSWORD',
+        })
+
+    def test_create_quetsion_page(self):
+        response = self.client.get('/quiz/new//')
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_multiplechoice_question(self):
+        response = self.client.post('/quiz/new/multiplechoice/', {
+            'question': 'TEST_QUESTION',
+            'answer1': 'TEST_ANSWER_1',
+            'answer2': 'TEST_ANSWER_2',
+            'answer3': 'TEST_ANSWER_3',
+            'answer4': 'TEST_ANSWER_4',
+            'correct': 'Alt2',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 302)
+        self.assertTrue(response.url, '/quiz/new/')
+
+    def test_create_multiplechoice_question_fail(self):
+        response = self.client.post('/quiz/new/multiplechoice/', {
+            'question': 'TEST_QUESTION',
+            'answer1': 'TEST_ANSWER_1',
+            'answer2': 'TEST_ANSWER_2',
+            'answer3': 'TEST_ANSWER_3',
+            'answer4': 'TEST_ANSWER_4',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 200)
+
+    def test_create_truefalse_question(self):
+        response = self.client.post('/quiz/new/truefalse/', {
+            'question': 'TEST_QUESTION',
+            'correct': 'True',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 302)
+        self.assertTrue(response.url, '/quiz/new/')
+
+    def test_create_truefalse_question_fail(self):
+        response = self.client.post('/quiz/new/truefalse/', {
+            'question': 'TEST_QUESTION',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 200)
+
+    def test_create_text_question(self):
+        response = self.client.post('/quiz/new/text/', {
+            'question': 'TEST_QUESTION',
+            'answer': 'TEST_ANSWER',
+            'text': 'True',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 302)
+        self.assertTrue(response.url, '/quiz/new/')
+
+    def test_create_text_question_fail(self):
+        response = self.client.post('/quiz/new/text/', {
+            'question': 'TEST_QUESTION',
+            'answer': 'TEST_ANSWER',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 200)

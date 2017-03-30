@@ -18,7 +18,6 @@ class MultipleChoiceQuestionForm(forms.Form):
 
     def clean(self):
         form_data = self.cleaned_data
-        print(form_data)
 
         try:
             if not form_data['correct']:
@@ -39,7 +38,6 @@ class TrueFalseQuestionForm(forms.Form):
 
     def clean(self):
         form_data = self.cleaned_data
-        print(form_data)
 
         try:
             if not form_data['correct']:

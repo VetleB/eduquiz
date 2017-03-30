@@ -56,21 +56,16 @@
     {% if user.is_authenticated %}
       <a class="item" href="/quiz">Continue</a>
       <a class="item" href="/quiz/select-topics">Select topics</a>
-    {% endif %}
     <a class="item" href="/quiz/new/">
       Suggest Question
     </a>
-    {% if user.is_authenticated %}
       <a class="item" href="#">My account</a>
       <a class="item" href="/quiz/stats">Statistics</a>
       <a class="item" href="/authentication/logout/">Sign out</a>
     {% else %}
-      <a class="item login button">
-        Sign in
-      </a>
-      <a class="item register button">
-        Register
-      </a>
+      <a class="item login button">Play</a>
+      <a class="item login button">Sign in</a>
+      <a class="item register button">Register</a>
     {% endif %}
   </div>
 </div>

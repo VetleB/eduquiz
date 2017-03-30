@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth.admin import User
 from django.utils import timezone
 from re import match
-from django.http import JsonResponse
+from django.db.models import Count
+from datetime import datetime
 
 
 class Achievement(models.Model):
@@ -83,8 +84,45 @@ class Title(models.Model):
 
 class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
-    rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     user = models.OneToOneField(User)
+
+    def subjectAnswers(self):
+        counts = []
+        titles = []
+
+        query = PlayerAnswer.objects.filter(player=self).values('question__topic__subject').annotate(count=Count('question__topic__subject'))
+        for element in query:
+            sub = Subject.objects.get(pk=element['question__topic__subject'])
+            count = element['count']
+            counts.append(count)
+            titles.append(sub.title)
+
+        return (counts, titles)
+
+
+    def ratingList(self, subject=None):
+        if subject == None:
+            subject = self.subject()
+        qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', 'answer_date')
+        return ([float(a[0]) for a in qset], [datetime.strftime(a[1], '%d %B') for a in qset])
+
+    def ratingLists(self):
+        li = []
+        for subject in Subject.objects.all():
+            li2 = 50 * [1200]
+            qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', flat=True)
+            li2[50-len(qset):] = [int(rating) for rating in qset]
+            li.append((li2, subject.title))
+        return (range(1, 51), li)
+
+    def subject(self):
+        try:
+            return PlayerTopic.objects.filter(player=self).first().topic.subject
+        except AttributeError:
+            return None
+
+    def rating(self):
+        return PlayerRating.getRating(self)
 
     def update(self, question, win):
         win = int(win)
@@ -92,12 +130,13 @@ class Player(models.Model):
         PLAYER_K = 16
         RATING_CAP = 150
 
-        if self.rating - question.rating < RATING_CAP:
-            rating = self.rating + PLAYER_K * (win - self.exp(self.rating, question.rating))
-            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, self.rating))
+        rating = self.rating()
+
+        if rating - question.rating < RATING_CAP:
+            newrating = rating + PLAYER_K * (win - self.exp(rating, question.rating))
+            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, rating))
             question.save()
-            self.rating = rating
-            self.save()
+            PlayerRating.setRating(self, newrating)
 
     def exp(self, a, b):
             return 1/(1+pow(10,(b-a)/400))
@@ -109,7 +148,7 @@ class Player(models.Model):
         # Get the VIRTUAL_C latest answers that are not reports (report_skip must equal False) and in/decrease rating thereafter
         answers = [pa for pa in PlayerAnswer.objects.filter(player=self, question__topic__in=topics).order_by('-answer_date') if pa.report_skip!=True][:VIRTUAL_C]
         virtual = sum([VIRTUAL_K if answer.result else -VIRTUAL_K for answer in answers])
-        return self.rating + virtual
+        return PlayerRating.getRating(self) + virtual
 
     def __str__(self):
         return self.user.username
@@ -147,6 +186,10 @@ class Subject(models.Model):
     def __str__(self):
         return '%s - %s' % (self.code, self.title)
 
+    def highscore(self):
+        query = PlayerRating.objects.filter(subject=self).values_list('player', 'rating').order_by('-rating')
+        return [(a[0]+1, Player.objects.get(pk=a[1][0]).user.username, int(a[1][1])) for a in enumerate(query)]
+
 
 class Topic(models.Model):
     title = models.CharField(max_length=100, verbose_name='Title')
@@ -159,6 +202,37 @@ class Topic(models.Model):
 class PlayerTopic(models.Model):
     player = models.ForeignKey(Player)
     topic = models.ForeignKey(Topic)
+
+
+class PlayerRating(models.Model):
+    player = models.ForeignKey(Player)
+    subject = models.ForeignKey(Subject)
+    rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
+
+    @staticmethod
+    def getRatingObject(player, subject=None):
+        if subject == None:
+            subject = player.subject()
+        if not subject:
+            return None
+        try:
+            return PlayerRating.objects.get(player=player, subject=subject)
+        except PlayerRating.DoesNotExist:
+            return PlayerRating.objects.create(player=player, subject=subject)
+
+    @staticmethod
+    def getRating(player, subject=None):
+        playerRating = PlayerRating.getRatingObject(player, subject)
+        if playerRating:
+            return playerRating.rating
+        else:
+            return 1200
+
+    @staticmethod
+    def setRating(player, rating, subject=None):
+        playerRating = PlayerRating.getRatingObject(player, subject)
+        playerRating.rating = rating
+        playerRating.save()
 
 
 class Question(models.Model):
@@ -321,7 +395,12 @@ class PlayerAnswer(models.Model):
     question = models.ForeignKey(Question)
     result = models.BooleanField(verbose_name='Result')
     answer_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
+    rating = models.DecimalField(max_digits=8, decimal_places=3, verbose_name='Rating')
     report_skip = models.BooleanField(verbose_name='Report', default=False)
+
+    def save(self, *args, **kwargs):
+        self.rating = self.player.rating()
+        super(PlayerAnswer, self).save(*args, **kwargs)
 
 
 class PropAnswerdQuestionInSubject(Property):

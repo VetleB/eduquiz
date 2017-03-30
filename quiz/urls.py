@@ -9,4 +9,6 @@ urlpatterns = [
     url(r'^new/text', views.newTextQuestion, name='newTextQuestion'),
     url(r'^new/', views.newQuestion, name='newQuestion'),
     url(r'^report/', views.report, name='report'),
+    url(r'^stats/(?P<subject_id>[0-9]+)', views.stats, name='stats'),
+    url(r'^stats/', views.statsDefault, name='statsDefault'),
 ]

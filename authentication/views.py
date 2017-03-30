@@ -39,7 +39,6 @@ def logout(request):
 
 def register(request):
     if request.method == 'POST':
-        print(request.POST)
         form = RegistrationForm(request.POST)
 
         if form.is_valid():

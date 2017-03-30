@@ -106,6 +106,15 @@ class Player(models.Model):
         qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', 'answer_date')
         return ([float(a[0]) for a in qset], [datetime.strftime(a[1], '%d %B') for a in qset])
 
+    def ratingLists(self):
+        li = []
+        for subject in Subject.objects.all():
+            li2 = 50 * [1200]
+            qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', flat=True)
+            li2[50-len(qset):] = [int(rating) for rating in qset]
+            li.append((li2, subject.title))
+        return (range(1, 51), li)
+
     def subject(self):
         try:
             return PlayerTopic.objects.filter(player=self).first().topic.subject

@@ -1,5 +1,5 @@
 {% extends 'eduquiz/base.html' %}
-{% load staticfiles%}
+{% load staticfiles %}
 
 {% block head %}
   <script src="{% static "quiz/js/moment.js" %}"></script>
@@ -9,126 +9,167 @@
 {% block content %}
 
   <div class="ui middle aligned center aligned grid">
-    <div class="ui container segment rating">
-      <div style="width: 100%;">
-        <div class="ui container person header">
-          <h2 class="pos">#</h2>
-          <h2 class="name">Username</h2>
-          <h2 class="rating">Rating</h2>
-        </div>
-        {% for element in request.user.player.subject.highscore %}
-          <div class="ui container person">
-            <p class="pos">{{ element.0 }}</p>
-            <p class="name">{{ element.1 }}</p>
-            <p class="rating">{{ element.2 }}</p>
+    <div class="ui container stackable grid rating">
+      <div class="four wide column left">
+        <div class="ui segment">
+          <h2>Select subject</h2>
+          <div class="ui selection subject dropdown search scrolling field">
+            <input name="subject" type="hidden">
+            <i class="dropdown icon"></i>
+            <div class="default text">Subject</div>
+            <div class="menu">
+              {% for subject in subjects %}
+                <div class="item selectSubject" data-value="{{ subject.id }}">{{ subject.title }}</div>
+              {% endfor %}
+            </div>
           </div>
-        {% endfor %}
+        </div>
+        <div class="ui piled segment">
+          <h2>Highscore</h2>
+          <div class="ui container person header">
+            <h5 class="rank">Rank</h5>
+            <h5 class="name">Username</h5>
+            <h5 class="rating">Rating</h5>
+          </div>
+          {% for element in subject.highscore %}
+            <div class="ui container person">
+              <p class="rank">{{ element.0 }}</p>
+              <p class="name">{{ element.1 }}</p>
+              <p class="rating">{{ element.2 }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="twelve wide column">
+        <div class="ui segment">
+          <h2>Rating</h2>
+          {% if ratingList.0 %}
+            <canvas id="ratingChart" width="400" height="200"></canvas>
+          {% else %}
+            <p>You have not answered any questions in this subject</p>
+          {% endif %}
+        </div>
+        <div class="ui segment">
+          <h2>Questions answered</h2>
+          {% if subjectAnswers.0 %}
+            <canvas id="answerChart" width="400" height="200"></canvas>
+          {% else %}
+            <p>You have not answered any questions</p>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="ui middle aligned center aligned grid">
-    <div class="ui container segment rating">
-      <canvas id="ratingChart" width="400" height="200"></canvas>
-    </div>
-  </div>
-
-  <div class="ui middle aligned center aligned grid">
-    <div class="ui container segment rating">
-      <canvas id="answerChart" width="400" height="200"></canvas>
-    </div>
-  </div>
-
   <style>
-    .rating.segment {
+    .rating.container {
       height: auto;
       padding: 30px;
       margin-top: 100px !important;
       margin-bottom: 50px !important;
+      z-index: 0;
     }
-    .person.header {
-      margin-bottom: 15px;
+
+    .search {
+      width: 100% !important;
     }
+
+    .segment h2 {
+      margin-top: 5px;
+      margin-bottom: 20px;
+    }
+
+    .piled {
+      margin-top: 12px !important;
+      margin-bottom: -10px !important;
+      display: inline-block;
+      float: left;
+      padding-bottom: 30px !important;
+    }
+
     .person {
       display: block !important;
       width: 100% !important;
     }
-    .name, .rating, .pos {
+
+    .name, .rating, .rank {
       display: inline-block;
       vertical-align: top;
+      float: left;
+      margin: 0 !important;
     }
-    .pos {
-      padding-right: 30px;
+
+    .rank {
+      width: 25%;
     }
-    .header .pos {
-      padding-right: 20px;
-    }
+
     .name {
-      margin: 0 !important;
+      width: 45%;
     }
+
     .rating {
-      float: right !important;
-      margin: 0 !important;
+      width: 30%;
     }
   </style>
 
   <script>
-    var ctx = document.getElementById("answerChart");
-    var myLineChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-            labels: [{% for title in request.user.player.subjectAnswers.1 %}'{{ title }}', {% endfor %}],
-            datasets: [{
-                label: 'Subjects',
-                data: {{ request.user.player.subjectAnswers.0 }},
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                ],
-                borderColor: [
-                    'rgba(255,99,132,1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                ],
-                borderWidth: 1
-            }]
+    $('.subject.dropdown').dropdown('set exactly', '{{ subject.title }}');
+
+    {% if subjectAnswers.0 %}
+      var ctx = document.getElementById("answerChart");
+      var myLineChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: [{% for title in subjectAnswers.1 %}'{{ title }}', {% endfor %}],
+          datasets: [{
+            label: 'Subjects',
+            data: {{ subjectAnswers.0 }},
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+            ],
+            borderColor: [
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)',
+            ],
+            borderWidth: 1
+          }]
+        },
+      });
+    {% endif %}
+
+    {% if ratingList.0 %}
+      var ctx = document.getElementById("ratingChart");
+      var myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [{% for title in ratingList.1 %}'{{ title }}', {% endfor %}],
+          datasets: [{
+            label: '{{ subject }}',
+            data: {{ ratingList.0 }},
+            backgroundColor: [
+              'rgba(33, 150, 243, 0.5)',
+            ],
+            borderColor: [
+              '#2196F3',
+            ],
+            borderWidth: 1
+          }]
         },
 
-    });
+      });
+    {% endif %}
 
-    var ctx = document.getElementById("ratingChart");
-    var myLineChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-            labels: [{% for title in request.user.player.ratingList.1 %}'{{ title }}', {% endfor %}],
-            datasets: [{
-                label: '{{ request.user.player.subject }}',
-                data: {{ request.user.player.ratingList.0 }},
-                backgroundColor: [
-                    'rgba(33, 150, 243, 0.5)',
-                ],
-                borderColor: [
-                    '#2196F3',
-                ],
-                borderWidth: 1
-            }]
-        },
-      options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero:true
-                    }
-                }]
-            }
-        }
+    $('.selectSubject').click(function () {
+      window.location.replace('/quiz/stats/' + $(this).attr('data-value'));
     });
   </script>
 {% endblock content %}

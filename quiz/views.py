@@ -3,7 +3,6 @@ from django.db.models import Func, F
 from django.shortcuts import render
 from quiz.models import *
 from quiz.forms import *
-import random
 from django.contrib import messages
 
 def question(request):
@@ -27,8 +26,8 @@ def question(request):
 
         if hasattr(request, 'user') and hasattr(request.user, 'player') and feedback:
             result = feedback['answeredCorrect']
-            PlayerAnswer(player=request.user.player, question=question, result=result).save()
             request.user.player.update(question, result)
+            PlayerAnswer(player=request.user.player, question=question, result=result).save()
 
         return JsonResponse(feedback, safe=False)
 
@@ -380,5 +379,23 @@ def report(request):
             )
     return HttpResponseRedirect('/quiz')
 
-def stats(request):
-    return render(request, 'quiz/stats.html')
+def statsDefault(request):
+    try:
+        return HttpResponseRedirect('/quiz/stats/%r' % request.user.player.subject().id)
+    except AttributeError:
+        return HttpResponseRedirect('/quiz/stats/0')
+
+def stats(request, subject_id):
+    subjects = Subject.objects.all()
+    try:
+        subject = Subject.objects.get(pk=subject_id)
+    except Subject.DoesNotExist:
+        subject = None
+
+    context = {
+        'subjects': subjects,
+        'subject': subject,
+        'ratingList': request.user.player.ratingList(subject),
+        'subjectAnswers': request.user.player.subjectAnswers(),
+    }
+    return render(request, 'quiz/stats.html', context)

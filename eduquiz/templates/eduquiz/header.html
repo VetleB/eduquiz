@@ -7,6 +7,9 @@
           <img class="logo" src="{% static "eduquiz/img/logo.png" %}">
       </div>
     </a>
+    {% if not user.is_authenticated %}
+      <a class="item login button">Play</a>
+    {% endif %}
     {% if user.is_authenticated %}
       <div class="ui dropdown item">
         <div class="text">Play</div>

@@ -35,7 +35,7 @@ def login(request):
 
 def logout(request):
     djangologout(request)
-    return HttpResponseRedirect("/")
+    return HttpResponseRedirect('/')
 
 def register(request):
     if request.method == 'POST':
@@ -43,21 +43,20 @@ def register(request):
 
         if form.is_valid():
             #Dictionary to hold user information
-            userDict=form.cleaned_data
-            user=User.objects.create_user(
+            userDict = form.cleaned_data
+
+            user = User.objects.create_user(
                 username=userDict['username'],
                 password=userDict['password'],
                 first_name=userDict['firstName'],
                 last_name=userDict['lastName'],
                 email=userDict['email'],
             )
-            user.save()
-            new_user=authenticate(username=form.cleaned_data["username"],
-                                  password=form.cleaned_data["password"])
-            player=Player(user=user)
-            player.save()
+
+            Player.objects.create(user=user)
             login(request)
 
+            return HttpResponseRedirect('/')
 
     else:
         form = RegistrationForm(initial={

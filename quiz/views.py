@@ -197,7 +197,6 @@ def textQuestion(request, question, context):
 
 
 def numberQuestion(request, question, context):
-
     answers = question.answer
 
     context.update({
@@ -209,16 +208,17 @@ def numberQuestion(request, question, context):
 
 
 def newQuestion(request):
+    if request.user.is_authenticated:
+        subjects = Subject.objects.all()
+        topics = Topic.objects.all()
 
-    subjects = Subject.objects.all()
-    topics = Topic.objects.all()
+        context = {
+            'subjects': subjects,
+            'topics': topics,
+        }
 
-    context = {
-        'subjects': subjects,
-        'topics': topics,
-    }
-
-    return render(request, 'quiz/newQuestion.html', context)
+        return render(request, 'quiz/newQuestion.html', context)
+    return HttpResponseRedirect('/')
 
 
 def newTextQuestion(request):

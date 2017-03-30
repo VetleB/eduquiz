@@ -9,5 +9,6 @@ urlpatterns = [
     url(r'^new/text', views.newTextQuestion, name='newTextQuestion'),
     url(r'^new/', views.newQuestion, name='newQuestion'),
     url(r'^report/', views.report, name='report'),
-    url(r'^stats/', views.stats, name='stats')
+    url(r'^stats/', views.stats, name='stats'),
+    url(r'^subjectAnswers/', views.subjectAnswers, name='subjectAnswers'),
 ]

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.admin import User
 from django.utils import timezone
 from re import match
+from django.db.models import Count
 from django.http import JsonResponse
 
 
@@ -84,6 +85,22 @@ class Title(models.Model):
 class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
     user = models.OneToOneField(User)
+
+    def subjectAnswers(self):
+        counts = []
+        titles = []
+
+        query = PlayerAnswer.objects.filter(player=self).values('question__topic__subject').annotate(count=Count('question__topic__subject'))
+        for element in query:
+            sub = Subject.objects.get(pk=element['question__topic__subject'])
+            count = element['count']
+            counts.append(count)
+            titles.append(sub.title)
+
+        print(titles)
+
+        return (counts, titles)
+
 
     def ratingList(self, subject=None):
         if subject == None:

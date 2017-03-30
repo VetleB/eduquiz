@@ -1,6 +1,11 @@
-ignore:
-  - manage.py
 coverage:
   status:
     project:
-      threshold: 100
+      default:
+        threshold: 100%
+    patch:
+      default:
+        threshold: 100%
+  ignore:
+    - manage.py
+    - eduquiz/settings.py

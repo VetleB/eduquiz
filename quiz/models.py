@@ -240,6 +240,7 @@ class Question(models.Model):
     creator = models.ForeignKey(Player, blank=True, null=True)
     creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
     rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
+    rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     topic = models.ForeignKey(Topic, null=True, blank=True)
 
     def __str__(self):

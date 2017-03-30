@@ -5,6 +5,7 @@ from quiz.models import *
 from quiz.forms import *
 from django.contrib import messages
 
+
 def question(request):
     if request.method == 'POST':
         try:
@@ -135,9 +136,25 @@ def selectTopic(request):
             if topic.question_set.count() > 0:
                 showtopics.append(topic)
 
+
+        topicsInPlayer = PlayerTopic.objects.filter(player=request.user.player)
+        allTopics= Topic.objects.all().filter(subject=topicsInPlayer.first().topic.subject)
+        playerTopics = [playerTopic.topic for playerTopic in topicsInPlayer]
+        if(len(topicsInPlayer))!=allTopics.count():
+            pass
+        else:
+            playerTopics=[]
+        try:
+            subject = topicsInPlayer.first().topic.subject
+        except AttributeError:
+            subject=None
+
         context = {
             'subjects': subjects,
             'topics': showtopics,
+            'subject': subject,
+            'playerTopics': playerTopics,
+
         }
 
         return render(request, 'quiz/select_topic.html', context)
@@ -179,7 +196,6 @@ def textQuestion(request, question, context):
 
 
 def numberQuestion(request, question, context):
-
     answers = question.answer
 
     context.update({
@@ -191,16 +207,17 @@ def numberQuestion(request, question, context):
 
 
 def newQuestion(request):
+    if request.user.is_authenticated:
+        subjects = Subject.objects.all()
+        topics = Topic.objects.all()
 
-    subjects = Subject.objects.all()
-    topics = Topic.objects.all()
+        context = {
+            'subjects': subjects,
+            'topics': topics,
+        }
 
-    context = {
-        'subjects': subjects,
-        'topics': topics,
-    }
-
-    return render(request, 'quiz/newQuestion.html', context)
+        return render(request, 'quiz/newQuestion.html', context)
+    return HttpResponseRedirect('/')
 
 
 def newTextQuestion(request):

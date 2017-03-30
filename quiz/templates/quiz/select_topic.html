@@ -32,7 +32,7 @@
               </div>
             </div>
 
-            <div class="ui multiple search topics selection dropdown scrolling field">
+            <div class="ui multiple search dropdown topics selection scrolling field">
               <input class="dummy" name="topics" type="hidden">
               <i class="dropdown icon"></i>
               <div class="default text">Topic</div>
@@ -42,6 +42,7 @@
                 {% endfor %}
               </div>
             </div>
+
             Leave blank to select all topics in subject.
 
           </form>
@@ -52,6 +53,10 @@
             <div class="ui positive right icon button submit">
               Go
             </div>
+
+              <div class="ui icon button gray left clear emptytopics">
+                  Clear topics
+              </div>
           </div>
         </div>
       </div>
@@ -62,6 +67,9 @@
     .topics.dropdown, .subject.dropdown {
       vertical-align: top;
       width: 100%;
+    }
+    .actions.select .clear{
+        float: left !important;
     }
     .actions.select.topics {
       text-align: right;
@@ -76,6 +84,7 @@
   </style>
 
   <script>
+
     function filterTopics() {
       $('.topic.item').each(function() {
         if ($(this).attr('subject') != $('input[name="subject"]').val()) {
@@ -89,10 +98,6 @@
       });
     };
 
-    $(".button.submit").click(function() {
-      $('form.topics').submit();
-    });
-
     $(function() {
       $('.topics.dropdown').dropdown();
       $('.subject.dropdown').dropdown();
@@ -102,8 +107,18 @@
         filterTopics();
       });
 
+      $('.subject.dropdown').dropdown('set exactly', '{{ subject.title }}');
       filterTopics();
+      $('.topics.dropdown').dropdown('set exactly', [{% for element in playerTopics %}'{{ element }}', {% endfor %}] );
+
+      $(".button.submit").click(function() {
+        $('form.topics').submit();
+      });
+    $('.button.emptytopics').click(function () {
+        $('.topics.dropdown').dropdown('set exactly', '{{ None }}');
+        })
     });
+
   </script>
 
 {% endblock content %}

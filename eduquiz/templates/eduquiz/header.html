@@ -16,11 +16,9 @@
           <a class="item" href="/quiz/select-topics">Select topics</a>
         </div>
       </div>
-    {% endif %}
-    <a class="item" href="/quiz/new/">
-      Suggest Question
-    </a>
-    {% if user.is_authenticated %}
+      <a class="item" href="/quiz/new/">
+        Suggest Question
+      </a>
       <div class="ui dropdown item">
         <div class="text">{{ user }} - {{ user.player.rating|floatformat:"0" }}</div>
         <i class="dropdown icon"></i>

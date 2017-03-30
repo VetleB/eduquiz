@@ -28,7 +28,6 @@ def question(request):
         if hasattr(request, 'user') and hasattr(request.user, 'player') and feedback:
             result = feedback['answeredCorrect']
             request.user.player.update(question, result)
-            PlayerAnswer(player=request.user.player, question=question, result=result).save()
 
         return JsonResponse(feedback, safe=False)
 

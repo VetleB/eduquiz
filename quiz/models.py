@@ -86,6 +86,9 @@ class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
     user = models.OneToOneField(User)
 
+    def setRating(self, rating):
+        PlayerRating.setRating(self, rating)
+
     def subjectAnswers(self):
         counts = []
         titles = []
@@ -106,14 +109,14 @@ class Player(models.Model):
         qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', 'answer_date')
         return ([float(a[0]) for a in qset], [datetime.strftime(a[1], '%d %B') for a in qset])
 
-    def ratingLists(self):
-        li = []
-        for subject in Subject.objects.all():
-            li2 = 50 * [1200]
-            qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', flat=True)
-            li2[50-len(qset):] = [int(rating) for rating in qset]
-            li.append((li2, subject.title))
-        return (range(1, 51), li)
+    #def ratingLists(self):
+    #    li = []
+    #    for subject in Subject.objects.all():
+    #        li2 = 50 * [1200]
+    #        qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', flat=True)
+    #        li2[50-len(qset):] = [int(rating) for rating in qset]
+    #        li.append((li2, subject.title))
+    #    return (range(1, 51), li)
 
     def subject(self):
         try:
@@ -130,13 +133,16 @@ class Player(models.Model):
         PLAYER_K = 16
         RATING_CAP = 150
 
-        rating = self.rating()
+        rating = float(self.rating())
+        questionRating = float(question.rating)
 
-        if rating - question.rating < RATING_CAP:
-            newrating = rating + PLAYER_K * (win - self.exp(rating, question.rating))
-            question.rating += QUESTION_K * ((1-win) - self.exp(question.rating, rating))
+        if rating - questionRating < RATING_CAP:
+            newrating = rating + PLAYER_K * (win - self.exp(rating, questionRating))
+            question.rating = questionRating + QUESTION_K * ((1-win) - self.exp(questionRating, rating))
             question.save()
             PlayerRating.setRating(self, newrating)
+
+        PlayerAnswer.objects.create(player=self, question=question, result=win)
 
     def exp(self, a, b):
             return 1/(1+pow(10,(b-a)/400))

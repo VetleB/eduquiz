@@ -599,3 +599,60 @@ class redirectTestCase(TestCase):
         self.client.login(user=self.TEST_USERNAME, password=self.TEST_PASS)
         response = self.client.get('/quiz')
         self.assertEqual(response['location'], '/quiz/')
+
+
+class StatsTestCase(TestCase):
+
+    def setUp(self):
+        category = Category.objects.create(title='TEST_CATEGORY')
+        self.subjectA = Subject.objects.create(title='TEST_SUBJECT_A', category=category)
+        self.subjectB = Subject.objects.create(title='TEST_SUBJECT_B', category=category)
+        self.topicA = Topic.objects.create(title='TEST_TOPIC_A', subject=self.subjectA)
+        self.topicB = Topic.objects.create(title='TEST_TOPIC_B', subject=self.subjectB)
+        self.questionA = TrueFalseQuestion.objects.create(question_text='TEST_QUESTION_A', answer=True, topic=self.topicA)
+        self.questionB = TrueFalseQuestion.objects.create(question_text='TEST_QUESTION_B', answer=True, topic=self.topicB)
+        userA = User.objects.create(username='TEST_USER_A')
+        userB = User.objects.create(username='TEST_USER_B')
+        self.playerA = Player.objects.create(user=userA)
+        self.playerB = Player.objects.create(user=userB)
+        PlayerTopic.objects.create(player=self.playerA, topic=self.topicA)
+        PlayerTopic.objects.create(player=self.playerB, topic=self.topicA)
+
+
+    def test_highscore(self):
+        self.playerA.setRating(1300)
+        self.playerB.setRating(1250)
+        self.assertEqual(self.subjectA.highscore(), [(1, 'TEST_USER_A', 1300), (2, 'TEST_USER_B', 1250)])
+
+    def test_setRating(self):
+        self.playerA.setRating(1500)
+        self.assertEqual(PlayerRating.getRating(self.playerA), 1500)
+
+    def test_ratingList(self):
+        self.playerA.update(self.questionA, True)
+        self.playerA.update(self.questionA, True)
+        self.playerA.update(self.questionA, True)
+
+        ratingList = self.playerA.ratingList()
+        self.assertEqual(len(ratingList[0]), len(ratingList[1]), 3)
+
+        a, b, c = ratingList[0]
+        self.assertTrue(a < b < c)
+
+    def test_ratingList2(self):
+        self.playerA.update(self.questionA, False)
+        self.playerA.update(self.questionA, False)
+        self.playerA.update(self.questionA, False)
+
+        ratingList = self.playerA.ratingList()
+        a, b, c = ratingList[0]
+        self.assertTrue(a > b > c)
+
+    def test_subjectAnswers(self):
+        self.playerA.update(self.questionA, False)
+        self.playerA.update(self.questionA, True)
+        self.playerA.update(self.questionB, False)
+        self.playerA.update(self.questionB, True)
+        self.playerA.update(self.questionB, True)
+
+        self.assertEqual(self.playerA.subjectAnswers(), [2, 3], ['TEST_SUBJECT_A', 'TEST_SUBJECT_B'])

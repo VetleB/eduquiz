@@ -109,6 +109,10 @@ def selectTopic(request):
         except ValueError:
             return HttpResponseRedirect('/')
 
+        if subject == '':
+            messages.warning(request, 'You must select a subject')
+            return HttpResponseRedirect('/quiz/select-topics/')
+
         # list of strings
         topics = topics.split(',')
 
@@ -138,16 +142,14 @@ def selectTopic(request):
 
 
         topicsInPlayer = PlayerTopic.objects.filter(player=request.user.player)
-        allTopics= Topic.objects.all().filter(subject=topicsInPlayer.first().topic.subject)
-        playerTopics = [playerTopic.topic for playerTopic in topicsInPlayer]
-        if(len(topicsInPlayer))!=allTopics.count():
-            pass
-        else:
-            playerTopics=[]
         try:
             subject = topicsInPlayer.first().topic.subject
+            allTopics = Topic.objects.all().filter(subject=subject)
         except AttributeError:
             subject=None
+            allTopics = topics
+
+        playerTopics = [playerTopic.topic for playerTopic in topicsInPlayer] if len(topicsInPlayer) != allTopics.count() else []
 
         context = {
             'subjects': subjects,

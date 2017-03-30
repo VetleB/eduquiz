@@ -1,2 +1,6 @@
 ignore:
   - manage.py
+coverage:
+  status:
+    project:
+      threshold: 100

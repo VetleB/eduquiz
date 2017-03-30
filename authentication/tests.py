@@ -159,3 +159,17 @@ class LoginTestCase(TestCase):
         })
         self.assertFalse(response.context['user'].is_authenticated)
         self.assertEqual(response.status_code, 200)
+
+    def test_login_without_username(self):
+        response = self.client.post('/authentication/login/', {
+            'password': 'WRONG_PASSWORD',
+        })
+        self.assertFalse(response.context['user'].is_authenticated)
+        self.assertEqual(response.status_code, 200)
+
+    def test_login_without_password(self):
+        response = self.client.post('/authentication/login/', {
+            'username': 'TEST_USER',
+        })
+        self.assertFalse(response.context['user'].is_authenticated)
+        self.assertEqual(response.status_code, 200)

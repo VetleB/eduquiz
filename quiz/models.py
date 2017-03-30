@@ -106,7 +106,7 @@ class Player(models.Model):
     def ratingList(self, subject=None):
         if subject == None:
             subject = self.subject()
-        qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', 'answer_date')
+        qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', 'answer_date').order_by('answer_date')
         return ([float(a[0]) for a in qset], [datetime.strftime(a[1], '%d %B') for a in qset])
 
     #def ratingLists(self):

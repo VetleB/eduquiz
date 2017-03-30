@@ -554,3 +554,41 @@ class RatingTestCase(TestCase):
             result=False,
         )
         self.assertTrue(player.rating == player.virtualRating([question.topic]))
+
+
+class redirectTestCase(TestCase):
+    TEST_USERNAME = 'TEST_USERNAME'
+    TEST_PASS = 'TEST_PASSWORD'
+
+    def setUp(self):
+        TEST_USER = User.objects.create(
+            username=self.TEST_USERNAME,
+            password=self.TEST_PASS,
+        )
+        Player.objects.create(
+            user=TEST_USER,
+        )
+        PlayerTopic.objects.create(
+            player=Player.objects.get(),
+            topic=Topic.objects.create(
+                title='TEST_TITLE',
+                subject=Subject.objects.create(
+                    title='TEST_SUBJECT',
+                    short='TS',
+                    code='TS-1234',
+                    category=Category.objects.create(
+                        title='TEST_CATEGORY'
+                    )
+                )
+            )
+        )
+
+    def test_play_redirects_to_frontpage_when_not_signed_in(self):
+        response = self.client.get('/quiz', follow=True)
+        final_url = response.redirect_chain[-1]
+        self.assertEqual(final_url[0], '/')
+
+    def test_play_does_not_redirect_when_logged_in_with_topics(self):
+        self.client.login(user=self.TEST_USERNAME, password=self.TEST_PASS)
+        response = self.client.get('/quiz')
+        self.assertEqual(response['location'], '/quiz/')

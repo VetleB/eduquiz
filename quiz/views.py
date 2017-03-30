@@ -382,6 +382,3 @@ def report(request):
 
 def stats(request):
     return render(request, 'quiz/stats.html')
-
-def subjectAnswers(request):
-    return render(request, 'quiz/subject_answers.html')

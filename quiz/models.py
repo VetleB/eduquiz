@@ -97,8 +97,6 @@ class Player(models.Model):
             counts.append(count)
             titles.append(sub.title)
 
-        print(titles)
-
         return (counts, titles)
 
 
@@ -178,6 +176,10 @@ class Subject(models.Model):
 
     def __str__(self):
         return '%s - %s' % (self.code, self.title)
+
+    def highscore(self):
+        query = PlayerRating.objects.filter(subject=self).values_list('player', 'rating').order_by('-rating')
+        return [(a[0]+1, Player.objects.get(pk=a[1][0]).user.username, int(a[1][1])) for a in enumerate(query)]
 
 
 class Topic(models.Model):

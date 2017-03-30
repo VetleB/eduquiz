@@ -10,7 +10,32 @@
 
   <div class="ui middle aligned center aligned grid">
     <div class="ui container segment rating">
-      <canvas id="myChart" width="400" height="200"></canvas>
+      <div style="width: 100%;">
+        <div class="ui container person header">
+          <h2 class="pos">#</h2>
+          <h2 class="name">Username</h2>
+          <h2 class="rating">Rating</h2>
+        </div>
+        {% for element in request.user.player.subject.highscore %}
+          <div class="ui container person">
+            <p class="pos">{{ element.0 }}</p>
+            <p class="name">{{ element.1 }}</p>
+            <p class="rating">{{ element.2 }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="ui middle aligned center aligned grid">
+    <div class="ui container segment rating">
+      <canvas id="ratingChart" width="400" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="ui middle aligned center aligned grid">
+    <div class="ui container segment rating">
+      <canvas id="answerChart" width="400" height="200"></canvas>
     </div>
   </div>
 
@@ -21,10 +46,64 @@
       margin-top: 100px !important;
       margin-bottom: 50px !important;
     }
+    .person.header {
+      margin-bottom: 15px;
+    }
+    .person {
+      display: block !important;
+      width: 100% !important;
+    }
+    .name, .rating, .pos {
+      display: inline-block;
+      vertical-align: top;
+    }
+    .pos {
+      padding-right: 30px;
+    }
+    .header .pos {
+      padding-right: 20px;
+    }
+    .name {
+      margin: 0 !important;
+    }
+    .rating {
+      float: right !important;
+      margin: 0 !important;
+    }
   </style>
 
   <script>
-    var ctx = document.getElementById("myChart");
+    var ctx = document.getElementById("answerChart");
+    var myLineChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+            labels: [{% for title in request.user.player.subjectAnswers.1 %}'{{ title }}', {% endfor %}],
+            datasets: [{
+                label: 'Subjects',
+                data: {{ request.user.player.subjectAnswers.0 }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+
+    });
+
+    var ctx = document.getElementById("ratingChart");
     var myLineChart = new Chart(ctx, {
       type: 'line',
       data: {

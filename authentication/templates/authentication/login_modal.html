@@ -36,12 +36,22 @@
       </form>
     </div>
   </div>
+
   <div class="actions">
     <div class="ui positive right icon button submit login">
       Login
     </div>
+    <div class="ui gray left icon button register">
+      New user?
+    </div>
   </div>
 </div>
+
+<style>
+  .actions .register.gray {
+    float: left !important;
+  }
+</style>
 
 <script>
   $(".login.button").click(function() {

@@ -102,7 +102,6 @@ class Player(models.Model):
 
         return (counts, titles)
 
-
     def ratingList(self, subject=None):
         if subject == None:
             subject = self.subject()
@@ -128,6 +127,18 @@ class Player(models.Model):
         return PlayerRating.getRating(self)
 
     def update(self, question, win):
+        """
+        Adjust rating of player and question when question has been answered
+
+        :param question: question that has been answered
+        :type question: Question object
+
+        :param win: True if question was answered correctly, False otherwise
+        :type win: boolean
+
+        :return: None
+        :rtype: None
+        """
         win = int(win)
         QUESTION_K = 8
         PLAYER_K = 16
@@ -145,9 +156,32 @@ class Player(models.Model):
         PlayerAnswer.objects.create(player=self, question=question, result=win)
 
     def exp(self, a, b):
-            return 1/(1+pow(10,(b-a)/400))
+        """
+        Returns a fraction to be used in adjustment of rating.
+        The larger the difference between opponents, the smaller the return value will be,
+        and a lesser impact will be made on the ratings.
+
+        :param a: Rating of the one being adjusted
+        :type a: float
+
+        :param b: Opponent's rating
+        :type b: float
+
+        :return: Fraction
+        :rtype: float
+        """
+        return 1/(1+pow(10, (b-a)/400))
 
     def virtualRating(self, topics):
+        """
+        Return rating adjusted up if player is on win streak, down if on loss streak.
+
+        :param topics: List of PlayerTopic objects
+        :type topics: list
+
+        :return: Player's adjusted rating
+        :rtype: float
+        """
         VIRTUAL_K = 10
         VIRTUAL_C = 5
 
@@ -228,6 +262,18 @@ class PlayerRating(models.Model):
 
     @staticmethod
     def getRating(player, subject=None):
+        """
+        Get rating of a player in a subject
+
+        :param player: player for whom rating is wanted
+        :type player: Player object
+
+        :param subject: subject for which player's rating is wanted
+        :type subject: Subject object
+
+        :return: Player's rating in subject
+        :rtype: float
+        """
         playerRating = PlayerRating.getRatingObject(player, subject)
         if playerRating:
             return playerRating.rating
@@ -236,6 +282,21 @@ class PlayerRating(models.Model):
 
     @staticmethod
     def setRating(player, rating, subject=None):
+        """
+        Set a player's rating in a subject
+
+        :param player: Player who's rating is to be changed
+        :type player: Player object
+
+        :param rating: Rating the player is to get
+        :type rating: float
+
+        :param subject: Subject in which a player's rating is to be changed
+        :type subject: Subject object
+
+        :return: None
+        :rtype: None
+        """
         playerRating = PlayerRating.getRatingObject(player, subject)
         playerRating.rating = rating
         playerRating.save()
@@ -245,7 +306,6 @@ class Question(models.Model):
     question_text = models.TextField(max_length=200, verbose_name='Question')
     creator = models.ForeignKey(Player, blank=True, null=True)
     creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
-    rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
     topic = models.ForeignKey(Topic, null=True, blank=True)
 
@@ -257,6 +317,15 @@ class TextQuestion(Question):
     answer = models.CharField(max_length=50, verbose_name='Answer')
 
     def validate(self, inAnswer):
+        """
+        Determines whether a text answer is right or wrong
+
+        :param inAnswer: Answer to be validated
+        :type inAnswer: string
+
+        :return: Whether answer is right or not
+        :rtype: boolean
+        """
         userAnswer = inAnswer.strip().casefold()
         correctAnswer = self.answer.strip().casefold()
 
@@ -270,6 +339,15 @@ class TextQuestion(Question):
         return self.answerFeedback(answer)
 
     def answerFeedback(self, answer):
+        """
+        Validates answer and returns feedback as JSON-object
+
+        :param answer: Answer to be validated
+        :type answer: string
+
+        :return: JSON-object
+        :rtype: dict
+        """
         answeredCorrect = self.validate(answer)
         return {
             'answer': answer,
@@ -284,7 +362,15 @@ class NumberQuestion(Question):
         return super().question_text
 
     def validate(self, inAnswer):
+        """
+        Determines whether a number answer is right or wrong
 
+        :param inAnswer: Answer to be validated
+        :type inAnswer: string
+
+        :return: Whether answer is right or not
+        :rtype: boolean
+        """
         if inAnswer == '':
             return False
 
@@ -338,6 +424,15 @@ class NumberQuestion(Question):
         return self.answerFeedback(answer)
 
     def answerFeedback(self, answer):
+        """
+        Validates answer and returns feedback as JSON-object
+
+        :param answer: Answer to be validated
+        :type answer: string
+
+        :return: JSON-object
+        :rtype: dict
+        """
         answeredCorrect = self.validate(answer)
         return {
             'answer': answer,
@@ -356,6 +451,15 @@ class TrueFalseQuestion(Question):
         return self.answerFeedback(answer.capitalize() == 'True')
 
     def answerFeedback(self, answer):
+        """
+        Validates answer and returns feedback as JSON-object
+
+        :param answer: Answer to be validated
+        :type answer: boolean
+
+        :return: JSON-object
+        :rtype: dict
+        """
         answeredCorrect = answer == self.answer
         return {
             'answer': answer,
@@ -376,6 +480,15 @@ class MultipleChoiceQuestion(Question):
             return self.answerFeedback(1)
 
     def answerFeedback(self, answerID):
+        """
+        Validates answer and returns feedback as JSON-object
+
+        :param answer: Answer to be validated
+        :type answer: int
+
+        :return: JSON-object
+        :rtype: dict
+        """
         answer = MultipleChoiceAnswer.objects.get(id=answerID)
         answeredCorrect = answer.correct
         answers = MultipleChoiceAnswer.objects.filter(question=self.id, correct=True)
@@ -405,8 +518,19 @@ class PlayerAnswer(models.Model):
     report_skip = models.BooleanField(verbose_name='Report', default=False)
 
     def save(self, *args, **kwargs):
+        """
+        Saves PlayerAnswer after setting rating to player's rating
+        Model.save doc: https://docs.djangoproject.com/en/1.10/_modules/django/db/models/base/#Model.save
+
+        :param args: see Model.save documentation
+        :param kwargs: see Model.save documentation
+
+        :return: None
+        :rtype: None
+        """
         self.rating = self.player.rating()
         super(PlayerAnswer, self).save(*args, **kwargs)
+
 
 
 class PropAnswerdQuestionInSubject(Property):
@@ -414,6 +538,7 @@ class PropAnswerdQuestionInSubject(Property):
     subject = models.ForeignKey(Subject, verbose_name="Subject")
 
     def isUnlocked(self, player):
+        """ Return whether property is unlocked """
         return len(PlayerAnswer.objects.filter(player=player, question__topic__subject=self.subject)) >= self.number
 
     def __str__(self):

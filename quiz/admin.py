@@ -204,7 +204,6 @@ class PlayerAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'title',
-                'rating',
                 'user',
             )
         }),

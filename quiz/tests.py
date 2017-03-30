@@ -655,4 +655,4 @@ class StatsTestCase(TestCase):
         self.playerA.update(self.questionB, True)
         self.playerA.update(self.questionB, True)
 
-        self.assertEqual(self.playerA.subjectAnswers(), [2, 3], ['TEST_SUBJECT_A', 'TEST_SUBJECT_B'])
+        self.assertEqual(self.playerA.subjectAnswers(), ([2, 3], ['TEST_SUBJECT_A', 'TEST_SUBJECT_B']))

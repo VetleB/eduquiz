@@ -51,13 +51,7 @@
             </div>
 
             Leave blank to select all topics in subject.
-            <div class="contet extra">
-                <div class="actions select">
-                    <div class="ui icon button emptytopics">
-                        Clear topics
-                    </div>
-                 </div>
-             </div>
+
           </form>
         </div>
 
@@ -66,6 +60,10 @@
             <div class="ui positive right icon button submit">
               Go
             </div>
+
+              <div class="ui icon button gray left clear emptytopics">
+                  Clear topics
+              </div>
           </div>
         </div>
       </div>
@@ -76,6 +74,9 @@
     .topics.dropdown, .subject.dropdown {
       vertical-align: top;
       width: 100%;
+    }
+    .actions.select .clear{
+        float: left !important;
     }
     .actions.select.topics {
       text-align: right;

@@ -138,15 +138,17 @@ def selectTopic(request):
                 showtopics.append(topic)
 
 
-
         topicsInPlayer = PlayerTopic.objects.filter(player=request.user.player)
-        playerTopics= [playerTopic.topic for playerTopic in topicsInPlayer]
-
+        allTopics= Topic.objects.all().filter(subject=topicsInPlayer.first().topic.subject)
+        playerTopics = [playerTopic.topic for playerTopic in topicsInPlayer]
+        if(len(topicsInPlayer))!=allTopics.count():
+            pass
+        else:
+            playerTopics=[]
         try:
             subject = topicsInPlayer.first().topic.subject
         except AttributeError:
             subject=None
-
 
         context = {
             'subjects': subjects,

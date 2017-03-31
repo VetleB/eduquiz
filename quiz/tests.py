@@ -2,6 +2,7 @@ from django.test import TestCase
 from quiz.models import *
 from django.contrib.auth.admin import User
 import random
+from django.test import Client
 
 
 class TextQuestionTestCase(TestCase):
@@ -177,7 +178,7 @@ class MultipleChoiceTestCase(TestCase):
             correct=True,
         )
         correctAnswer = correctAnswers[0]
-        answeredCorrect = True if 1 in correctAnswers else False
+        answeredCorrect = True if correctAnswer.id == 1 else False
         self.assertEqual(mcq.answerFeedbackRaw("fail"), {'answer': 1, 'correct': [correctAnswer.id for correctAnswer in correctAnswers], 'answeredCorrect': answeredCorrect})
 
     def testAnswerCorrect(self):
@@ -479,7 +480,6 @@ class RatingTestCase(TestCase):
 
         )
         player = Player.objects.create(
-            rating=1000,
             user=user,
         )
         category = Category.objects.create(
@@ -494,31 +494,39 @@ class RatingTestCase(TestCase):
             subject=subject,
         )
         question = Question.objects.create(
-            rating=1000,
             topic=topic,
         )
+        playerTopic = PlayerTopic.objects.create(
+            player=player,
+            topic=topic,
+        )
+
+    def test_rating_no_topic(self):
+        Topic.objects.get().delete()
+        player = Player.objects.get()
+        self.assertEqual(PlayerRating.getRatingObject(player), None)
 
     def test_rating_change_on_correct(self):
         player = Player.objects.get()
         question = Question.objects.get()
         player.update(question, 1)
-        self.assertTrue(question.rating < 1000)
-        self.assertTrue(player.rating > 1000)
+        self.assertTrue(question.rating < 1200)
+        self.assertTrue(player.rating() > 1200)
 
     def test_rating_change_on_incorrect(self):
         player = Player.objects.get()
         question = Question.objects.get()
         player.update(question, 0)
-        self.assertTrue(question.rating > 1000)
-        self.assertTrue(player.rating < 1000)
+        self.assertTrue(question.rating > 1200)
+        self.assertTrue(player.rating() < 1200)
 
     def test_no_rating_change_above_cap(self):
         player = Player.objects.get()
-        player.rating = 1500
+        PlayerRating.setRating(player, 1700)
         question = Question.objects.get()
         player.update(question, 0)
-        self.assertTrue(question.rating == 1000)
-        self.assertTrue(player.rating == 1500)
+        self.assertTrue(question.rating == 1200)
+        self.assertTrue(player.rating() == 1700)
 
     def test_virtual_rating_increase(self):
         player = Player.objects.get()
@@ -528,7 +536,7 @@ class RatingTestCase(TestCase):
             question=question,
             result=True,
         )
-        self.assertTrue(player.rating < player.virtualRating([question.topic]))
+        self.assertTrue(player.rating() < player.virtualRating([question.topic]))
 
     def test_virtual_rating_decrease(self):
         player = Player.objects.get()
@@ -538,7 +546,7 @@ class RatingTestCase(TestCase):
             question=question,
             result=False,
         )
-        self.assertTrue(player.rating > player.virtualRating([question.topic]))
+        self.assertTrue(player.rating() > player.virtualRating([question.topic]))
 
     def test_virtual_rating_increase_and_decrease(self):
         player = Player.objects.get()
@@ -553,4 +561,194 @@ class RatingTestCase(TestCase):
             question=question,
             result=False,
         )
-        self.assertTrue(player.rating == player.virtualRating([question.topic]))
+        self.assertTrue(player.rating() == player.virtualRating([question.topic]))
+
+
+class redirectTestCase(TestCase):
+    TEST_USERNAME = 'TEST_USERNAME'
+    TEST_PASS = 'TEST_PASSWORD'
+
+    def setUp(self):
+        TEST_USER = User.objects.create(
+            username=self.TEST_USERNAME,
+            password=self.TEST_PASS,
+        )
+        Player.objects.create(
+            user=TEST_USER,
+        )
+        PlayerTopic.objects.create(
+            player=Player.objects.get(),
+            topic=Topic.objects.create(
+                title='TEST_TITLE',
+                subject=Subject.objects.create(
+                    title='TEST_SUBJECT',
+                    short='TS',
+                    code='TS-1234',
+                    category=Category.objects.create(
+                        title='TEST_CATEGORY'
+                    )
+                )
+            )
+        )
+
+    def test_play_redirects_to_frontpage_when_not_signed_in(self):
+        response = self.client.get('/quiz', follow=True)
+        final_url = response.redirect_chain[-1]
+        self.assertEqual(final_url[0], '/')
+
+    def test_play_does_not_redirect_when_logged_in_with_topics(self):
+        self.client.login(user=self.TEST_USERNAME, password=self.TEST_PASS)
+        response = self.client.get('/quiz')
+        self.assertEqual(response['location'], '/quiz/')
+
+
+class StatsTestCase(TestCase):
+
+    def setUp(self):
+        category = Category.objects.create(title='TEST_CATEGORY')
+        self.subjectA = Subject.objects.create(title='TEST_SUBJECT_A', category=category)
+        self.subjectB = Subject.objects.create(title='TEST_SUBJECT_B', category=category)
+        self.topicA = Topic.objects.create(title='TEST_TOPIC_A', subject=self.subjectA)
+        self.topicB = Topic.objects.create(title='TEST_TOPIC_B', subject=self.subjectB)
+        self.questionA = TrueFalseQuestion.objects.create(question_text='TEST_QUESTION_A', answer=True, topic=self.topicA)
+        self.questionB = TrueFalseQuestion.objects.create(question_text='TEST_QUESTION_B', answer=True, topic=self.topicB)
+        userA = User.objects.create(username='TEST_USER_A')
+        userB = User.objects.create(username='TEST_USER_B')
+        self.playerA = Player.objects.create(user=userA)
+        self.playerB = Player.objects.create(user=userB)
+        PlayerTopic.objects.create(player=self.playerA, topic=self.topicA)
+        PlayerTopic.objects.create(player=self.playerB, topic=self.topicA)
+
+
+    def test_highscore(self):
+        self.playerA.setRating(1300)
+        self.playerB.setRating(1250)
+        self.assertEqual(self.subjectA.highscore(), [(1, 'TEST_USER_A', 1300), (2, 'TEST_USER_B', 1250)])
+
+    def test_setRating(self):
+        self.playerA.setRating(1500)
+        self.assertEqual(PlayerRating.getRating(self.playerA), 1500)
+
+    def test_ratingList(self):
+        self.playerA.update(self.questionA, True)
+        self.playerA.update(self.questionA, True)
+        self.playerA.update(self.questionA, True)
+
+        ratingList = self.playerA.ratingList()
+        self.assertEqual(len(ratingList[0]), len(ratingList[1]), 3)
+
+        a, b, c = ratingList[0]
+        self.assertTrue(a < b < c)
+
+    def test_ratingList2(self):
+        self.playerA.update(self.questionA, False)
+        self.playerA.update(self.questionA, False)
+        self.playerA.update(self.questionA, False)
+
+        ratingList = self.playerA.ratingList()
+        a, b, c = ratingList[0]
+        self.assertTrue(a > b > c)
+
+    def test_subjectAnswers(self):
+        self.playerA.update(self.questionA, False)
+        self.playerA.update(self.questionA, True)
+        self.playerA.update(self.questionB, False)
+        self.playerA.update(self.questionB, True)
+        self.playerA.update(self.questionB, True)
+
+        self.assertEqual(self.playerA.subjectAnswers(), ([2, 3], ['TEST_SUBJECT_A', 'TEST_SUBJECT_B']))
+
+
+class QuestionFormTestCase(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        category = Category.objects.create(title='TEST_CATEGORY')
+        self.subject = Subject.objects.create(title='TEST_SUBJECT', category=category)
+        self.topic = Topic.objects.create(title='TEST_TOPIC', subject=self.subject)
+        self.user = User.objects.create_user(username='TEST_USER', password='TEST_PASSWORD')
+        self.player = Player.objects.create(user=self.user)
+        self.client.post('/authentication/login/', {
+            'username': 'TEST_USER',
+            'password': 'TEST_PASSWORD',
+        })
+
+    def test_create_quetsion_page(self):
+        response = self.client.get('/quiz/new//')
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_multiplechoice_question(self):
+        response = self.client.post('/quiz/new/multiplechoice/', {
+            'question': 'TEST_QUESTION',
+            'answer1': 'TEST_ANSWER_1',
+            'answer2': 'TEST_ANSWER_2',
+            'answer3': 'TEST_ANSWER_3',
+            'answer4': 'TEST_ANSWER_4',
+            'correct': 'Alt2',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 302)
+        self.assertTrue(response.url, '/quiz/new/')
+
+    def test_create_multiplechoice_question_fail(self):
+        response = self.client.post('/quiz/new/multiplechoice/', {
+            'question': 'TEST_QUESTION',
+            'answer1': 'TEST_ANSWER_1',
+            'answer2': 'TEST_ANSWER_2',
+            'answer3': 'TEST_ANSWER_3',
+            'answer4': 'TEST_ANSWER_4',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 200)
+
+    def test_create_truefalse_question(self):
+        response = self.client.post('/quiz/new/truefalse/', {
+            'question': 'TEST_QUESTION',
+            'correct': 'True',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 302)
+        self.assertTrue(response.url, '/quiz/new/')
+
+    def test_create_truefalse_question_fail(self):
+        response = self.client.post('/quiz/new/truefalse/', {
+            'question': 'TEST_QUESTION',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 200)
+
+    def test_create_text_question(self):
+        response = self.client.post('/quiz/new/text/', {
+            'question': 'TEST_QUESTION',
+            'answer': 'TEST_ANSWER',
+            'text': 'True',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 302)
+        self.assertTrue(response.url, '/quiz/new/')
+
+    def test_create_text_question_fail(self):
+        response = self.client.post('/quiz/new/text/', {
+            'question': 'TEST_QUESTION',
+            'answer': 'TEST_ANSWER',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 200)

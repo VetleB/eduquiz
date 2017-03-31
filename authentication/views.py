@@ -37,6 +37,7 @@ def logout(request):
     djangologout(request)
     return HttpResponseRedirect('/')
 
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -71,3 +72,7 @@ def register(request):
     }
 
     return render(request, 'eduquiz/index.html', context)
+
+
+def account(request):
+    return render(request, 'authentication/ account.html', {})

@@ -60,27 +60,25 @@ def question(request):
                     break
 
             if not questionReturn:
-                question = PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[len(questions)-1].question
+                questionReturn = PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[len(questions)-1].question
 
-            question = (list(TrueFalseQuestion.objects.filter(id=question.id))
-                + list(MultipleChoiceQuestion.objects.filter(id=question.id))
-                + list(TextQuestion.objects.filter(id=question.id))
-                + list(NumberQuestion.objects.filter(id=question.id)))[0]
+            question = (list(TrueFalseQuestion.objects.filter(id=questionReturn.id))
+                + list(MultipleChoiceQuestion.objects.filter(id=questionReturn.id))
+                + list(TextQuestion.objects.filter(id=questionReturn.id))
+                + list(NumberQuestion.objects.filter(id=questionReturn.id)))[0]
 
             # In order to have recently answered questions from current topics in list over reportable questions in report_modal
             # How far back the list of questions goes is defined by REPORTABLE_AMOUNT
             # Only list questions that have been ANSWERED, not REPORTED (report_skip must equal False)
             REPORTABLE_AMOUNT = 2
             recent_questions = [pa.question for pa in PlayerAnswer.objects.order_by('-answer_date') if (pa.question.topic in topics and not pa.report_skip)]
-            text_list = [question.question_text]
-            return_list = []
+            q_list = [question]
             for q in recent_questions:
-                if q.question_text in text_list:
+                if q in q_list:
                     pass
                 else:
-                    text_list.append(q.question_text)
-                    return_list.append(q)
-            recent_questions = return_list[0:REPORTABLE_AMOUNT]
+                    q_list.append(q)
+            recent_questions = q_list[1:REPORTABLE_AMOUNT+1]
             context = {
                 'recent_questions': recent_questions,
             }
@@ -472,7 +470,7 @@ def report(request):
             userDict = form.cleaned_data
             QuestionReport.objects.create(
                 player=request.user.player,
-                question=Question.objects.get(question_text=userDict['question_text']),
+                question=Question.objects.get(pk=userDict['question_id']),
                 red_right=userDict['red_right'],
                 green_wrong=userDict['green_wrong'],
                 unclear=userDict['unclear'],
@@ -485,11 +483,58 @@ def report(request):
             # (set report_skip to True to mark it as skipped because of a report)
             PlayerAnswer.objects.create(
                 player=request.user.player,
-                question=Question.objects.get(question_text=userDict['question_text']),
+                question=Question.objects.get(pk=userDict['question_id']),
                 result=True,
                 report_skip=True,
             )
     return HttpResponseRedirect('/quiz')
+
+ 
+def viewReports(request):
+    # Only site admins are allowed to see and handle reports
+    user = request.user
+    if user.is_superuser:
+        reportesQuestionIDs = QuestionReport.objects.all().values_list('question_id', flat=True)
+        questions = Question.objects.filter(id__in=reportesQuestionIDs)
+        reports = []
+
+        for question in questions:
+            reports.append([question, QuestionReport.objects.filter(question_id=question.id).count()])
+
+        reports.sort(key=lambda tup: tup[1], reverse=True)
+
+        context = {
+            'reports': reports,
+        }
+
+        return render(request, 'quiz/viewReports.html', context)
+
+    return HttpResponseRedirect('/')
+
+
+def handleReport(request, question_id):
+    # Only site admins are allowed to see and handle reports
+    user = request.user
+    if user.is_superuser:
+        context = {
+            'question_id': question_id,
+            'reports': QuestionReport.objects.filter(question_id=question_id),
+        }
+
+        return render(request, 'quiz/handleReport.html', context)
+
+    return HttpResponseRedirect('/')
+
+
+def deleteReport(request, question_id):
+
+    # Only site admins are allowed to delete questions
+    user = request.user
+    if user.is_superuser:
+        question = Question.objects.get(pk=question_id)
+        question.delete()
+        return HttpResponseRedirect('/quiz/viewreports')
+    return HttpResponseRedirect('/')
 
 
 def statsDefault(request):
@@ -513,3 +558,4 @@ def stats(request, subject_id):
         'subjectAnswers': request.user.player.subjectAnswers(),
     }
     return render(request, 'quiz/stats.html', context)
+

@@ -204,7 +204,6 @@ class PlayerAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'title',
-                'rating',
                 'user',
             )
         }),
@@ -219,6 +218,7 @@ class PlayerAnswerAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'player',
+                'rating',
                 'question',
                 'result',
                 'answer_date',

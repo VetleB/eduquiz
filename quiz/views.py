@@ -3,11 +3,18 @@ from django.db.models import Func, F
 from django.shortcuts import render
 from quiz.models import *
 from quiz.forms import *
-import random
 from django.contrib import messages
 
 
 def question(request):
+    """
+    POST: updates player and question rating
+    GET: gets next question to be answered and makes it so that "quiz" is rendered
+
+    :param request: Request to be handled
+
+    :return: JsonResponse, HttPResponse, render
+    """
     if request.method == 'POST':
         try:
             questionID = int(request.POST['question'])
@@ -28,7 +35,6 @@ def question(request):
 
         if hasattr(request, 'user') and hasattr(request.user, 'player') and feedback:
             result = feedback['answeredCorrect']
-            PlayerAnswer(player=request.user.player, question=question, result=result).save()
             request.user.player.update(question, result)
 
         return JsonResponse(feedback, safe=False)
@@ -97,7 +103,14 @@ def question(request):
 
 
 def selectTopic(request):
+    """
+    POST: updates a player's PlayerTopic objects
+    GET: gets a player's PlayerTopic objects and renders "select topics" page
 
+    :param request: Request to be handled
+
+    :return: HttPResponse, render
+    """
     if request.method == 'POST':
         # deletes all previously selected topics
         PlayerTopic.objects.filter(player=request.user.player).delete()
@@ -109,6 +122,13 @@ def selectTopic(request):
             topics = request.POST['topics']
         except ValueError:
             return HttpResponseRedirect('/')
+
+        # If user has no current subject, redirect to same page and display a message
+        # This happens if user has no PlayerTopic objects, i.e. if the user has never chosen topics before (new user)
+        # or if the user's PlayerTopic objects have somehow been deleted
+        if subject == '':
+            messages.warning(request, 'You must select a subject')
+            return HttpResponseRedirect('/quiz/select-topics/')
 
         # list of strings
         topics = topics.split(',')
@@ -138,15 +158,15 @@ def selectTopic(request):
                 showtopics.append(topic)
 
 
-
         topicsInPlayer = PlayerTopic.objects.filter(player=request.user.player)
-        playerTopics= [playerTopic.topic for playerTopic in topicsInPlayer]
-
         try:
             subject = topicsInPlayer.first().topic.subject
+            allTopics = Topic.objects.all().filter(subject=subject)
         except AttributeError:
             subject=None
+            allTopics = topics
 
+        playerTopics = [playerTopic.topic for playerTopic in topicsInPlayer] if len(topicsInPlayer) != allTopics.count() else []
 
         context = {
             'subjects': subjects,
@@ -158,8 +178,17 @@ def selectTopic(request):
 
         return render(request, 'quiz/select_topic.html', context)
 
-def multipleChoiceQuestion(request, question, context):
 
+def multipleChoiceQuestion(request, question, context):
+    """
+    Renders a MC-question
+
+    :param request: request to be handled
+    :param question: question to be rendered
+    :param context: context to be edited
+
+    :return: render
+    """
     answers = MultipleChoiceAnswer.objects.filter(question=question)
 
     context.update({
@@ -171,7 +200,15 @@ def multipleChoiceQuestion(request, question, context):
 
 
 def trueFalseQuestion(request, question, context):
+    """
+    Renders a TF-question
 
+    :param request: request to be handled
+    :param question: question to be rendered
+    :param context: context to be edited
+
+    :return: render
+    """
     answers = (('true', 'True'), ('false', 'False'))
 
     context.update({
@@ -183,7 +220,15 @@ def trueFalseQuestion(request, question, context):
 
 
 def textQuestion(request, question, context):
+    """
+    Renders a text question
 
+    :param request: request to be handled
+    :param question: question to be rendered
+    :param context: context to be edited
+
+    :return: render
+    """
     answers = question.answer
 
     context.update({
@@ -195,7 +240,15 @@ def textQuestion(request, question, context):
 
 
 def numberQuestion(request, question, context):
+    """
+    Renders a number question
 
+    :param request: request to be handled
+    :param question: question to be rendered
+    :param context: context to be edited
+
+    :return: render
+    """
     answers = question.answer
 
     context.update({
@@ -207,19 +260,35 @@ def numberQuestion(request, question, context):
 
 
 def newQuestion(request):
+    """
+    Renders "new question" page if user is logged in
 
-    subjects = Subject.objects.all()
-    topics = Topic.objects.all()
+    :param request: Request to be handled
 
-    context = {
-        'subjects': subjects,
-        'topics': topics,
-    }
+    :return: HttPResponse, render
+    """
+    if request.user.is_authenticated:
+        subjects = Subject.objects.all()
+        topics = Topic.objects.all()
 
-    return render(request, 'quiz/newQuestion.html', context)
+        context = {
+            'subjects': subjects,
+            'topics': topics,
+        }
+
+        return render(request, 'quiz/newQuestion.html', context)
+    return HttpResponseRedirect('/')
 
 
 def newTextQuestion(request):
+    """
+    POST: creates new text or number question if form valid and redirects back to "new question" page
+    Otherwise renders "new question" page
+
+    :param request: Request to be handled
+
+    :return: HttPResponse, render
+    """
     if request.method == 'POST':
         form = TextQuestionForm(request.POST)
         if form.is_valid():
@@ -267,6 +336,14 @@ def newTextQuestion(request):
 
 
 def newTrueFalseQuestion(request):
+    """
+    POST: creates new TF-question if form valid and redirects back to "new question" page
+    Otherwise renders "new question" page
+
+    :param request: Request to be handled
+
+    :return: HttPResponse, render
+    """
     if request.method == 'POST':
         form = TrueFalseQuestionForm(request.POST)
         if form.is_valid():
@@ -305,6 +382,14 @@ def newTrueFalseQuestion(request):
 
 
 def newMultiplechoiceQuestion(request):
+    """
+    POST: creates new MC-question if form valid and redirects back to "new question" page
+    Otherwise renders "new question" page
+
+    :param request: Request to be handled
+
+    :return: HttPResponse, render
+    """
     if request.method == 'POST':
         form = MultipleChoiceQuestionForm(request.POST)
 
@@ -370,23 +455,34 @@ def newMultiplechoiceQuestion(request):
 
     return render(request, 'quiz/newQuestion.html', context)
 
+
 def report(request):
+    """
+    POST: creates new QuestionReport object if form valid. Also creates new PlayerAnswer object to avoid being asked the
+    question again immediately.
+    Redirects to "quiz" afterwards and in all other cases.
+
+    :param request: Request to be handled
+
+    :return: HttPResponse
+    """
     if request.method == 'POST':
         form = ReportForm(request.POST)
         if form.is_valid():
             userDict = form.cleaned_data
             QuestionReport.objects.create(
-                player = request.user.player,
-                question = Question.objects.get(question_text=userDict['question_text']),
-                red_right = userDict['red_right'],
-                green_wrong = userDict['green_wrong'],
-                unclear = userDict['unclear'],
-                off_topic = userDict['off_topic'],
-                inappropriate = userDict['inappropriate'],
-                other = userDict['other'],
-                comment = userDict['comment'],
+                player=request.user.player,
+                question=Question.objects.get(question_text=userDict['question_text']),
+                red_right=userDict['red_right'],
+                green_wrong=userDict['green_wrong'],
+                unclear=userDict['unclear'],
+                off_topic=userDict['off_topic'],
+                inappropriate=userDict['inappropriate'],
+                other=userDict['other'],
+                comment=userDict['comment'],
             )
-            # Make a PA-object so that player doesn't get this question again immediatly (set report_skip to True to mark it as skipped because of a report)
+            # Make a PA-object so that player doesn't get this question again immediately
+            # (set report_skip to True to mark it as skipped because of a report)
             PlayerAnswer.objects.create(
                 player=request.user.player,
                 question=Question.objects.get(question_text=userDict['question_text']),
@@ -394,3 +490,26 @@ def report(request):
                 report_skip=True,
             )
     return HttpResponseRedirect('/quiz')
+
+
+def statsDefault(request):
+    try:
+        return HttpResponseRedirect('/quiz/stats/%r' % request.user.player.subject().id)
+    except AttributeError:
+        return HttpResponseRedirect('/quiz/stats/0')
+
+
+def stats(request, subject_id):
+    subjects = Subject.objects.all()
+    try:
+        subject = Subject.objects.get(pk=subject_id)
+    except Subject.DoesNotExist:
+        subject = None
+
+    context = {
+        'subjects': subjects,
+        'subject': subject,
+        'ratingList': request.user.player.ratingList(subject),
+        'subjectAnswers': request.user.player.subjectAnswers(),
+    }
+    return render(request, 'quiz/stats.html', context)

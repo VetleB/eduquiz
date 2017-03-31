@@ -18,13 +18,9 @@ class MultipleChoiceQuestionForm(forms.Form):
 
     def clean(self):
         form_data = self.cleaned_data
-        print(form_data)
 
-        try:
-            if not form_data['correct']:
-                raise ValidationError({'correct': 'One of the alteratives must be correct'}, code='invalid')
-        except KeyError:
-            pass
+        if not form_data['correct']:
+            raise ValidationError({'correct': 'One of the alteratives must be correct'}, code='invalid')
 
         return form_data
 
@@ -39,13 +35,9 @@ class TrueFalseQuestionForm(forms.Form):
 
     def clean(self):
         form_data = self.cleaned_data
-        print(form_data)
 
-        try:
-            if not form_data['correct']:
-                raise ValidationError({'correct': 'Is it true or false?'}, code='invalid')
-        except KeyError:
-            pass
+        if not form_data['correct']:
+            raise ValidationError({'correct': 'Is it true or false?'}, code='invalid')
 
         return form_data
 
@@ -64,11 +56,8 @@ class TextQuestionForm(forms.Form):
     def clean(self):
         form_data = self.cleaned_data
 
-        try:
-            if not form_data['text']:
-                raise ValidationError({'text': 'Is the answer text or a number?'}, code='invalid')
-        except KeyError:
-            pass
+        if not form_data['text']:
+            raise ValidationError({'text': 'Is the answer text or a number?'}, code='invalid')
 
         return form_data
 
@@ -81,7 +70,3 @@ class ReportForm(forms.Form):
     inappropriate = forms.BooleanField(label="Inappropriate", required=False)
     other = forms.BooleanField(label="Other", required=False)
     comment = forms.CharField(label="Comment", required=False)
-
-    def clean(self):
-        form_data = self.cleaned_data
-        return form_data

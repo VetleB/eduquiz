@@ -1,3 +1,6 @@
+notifications:
+  email: false
+
 # code language
 language: python
 python:

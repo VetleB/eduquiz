@@ -669,14 +669,16 @@ class QuestionFormTestCase(TestCase):
         self.topic = Topic.objects.create(title='TEST_TOPIC', subject=self.subject)
         self.user = User.objects.create_user(username='TEST_USER', password='TEST_PASSWORD')
         self.player = Player.objects.create(user=self.user)
-        self.client.post('/authentication/login/', {
-            'username': 'TEST_USER',
-            'password': 'TEST_PASSWORD',
-        })
+        self.client.login(username='TEST_USER', password='TEST_PASSWORD')
 
     def test_create_quetsion_page(self):
         response = self.client.get('/quiz/new//')
         self.assertEqual(response.status_code, 200)
+
+    def test_not_authenticated(self):
+        self.client.logout()
+        response = self.client.post('/quiz/new/')
+        self.assertEqual(response.status_code, 302)
 
     def test_create_multiplechoice_question(self):
         response = self.client.post('/quiz/new/multiplechoice/', {
@@ -815,3 +817,18 @@ class ViewTestCase(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response.url, '/quiz')
         self.assertEquals(PlayerTopic.objects.all().count(), 2)
+
+    def test_stats_default(self):
+        response = self.client.get('/quiz/stats/')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/quiz/stats/%r' % self.topicA.id)
+
+    def test_stats_default_none_selected(self):
+        PlayerTopic.objects.all().delete()
+        response = self.client.get('/quiz/stats/')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/quiz/stats/0')
+
+    def test_stats_page(self):
+        response = self.client.get('/quiz/stats/%r' % self.topicA.id)
+        self.assertEqual(response.status_code, 200)

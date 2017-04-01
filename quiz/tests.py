@@ -922,7 +922,12 @@ class ViewTestCase(TestCase):
         response = self.client.get('/quiz/stats/%r' % self.topicA.id)
         self.assertEqual(response.status_code, 200)
 
-    def test_stats_subject_doesnt_exist(self):
-        response = self.client.get('/quiz/stats/1337')
-        self.assertEqual(response.status_code, 200)
+    def test_report(self):
+        response = self.client.post('/quiz/report/', {
+            'question_id': self.questionA.id,
+        })
+        self.assertEqual(QuestionReport.objects.all().count(), 1)
+        self.assertEqual(QuestionReport.objects.get().question.id, self.questionA.id)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/quiz')
 

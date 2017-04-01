@@ -9,3 +9,6 @@ coverage:
   ignore:
     - manage.py
     - eduquiz/settings.py
+    - **/apps.py
+    - **/tests.py
+    - **/wsgi.py

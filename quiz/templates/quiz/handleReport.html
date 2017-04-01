@@ -1,0 +1,50 @@
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "quiz/css/viewReports.css" %}">
+{% endblock head %}
+
+{% block header %}
+
+  {% include 'eduquiz/header.html' %}
+
+{% endblock header %}
+
+{% block content %}
+    <div class="reports">
+        <div class="actions">
+            <div class="ui negative right icon button submit delete">
+                Delete
+                <a href="/quiz/viewreports/deletequestion/{{ question_id }}"></a>
+            </div>
+        </div>
+        {% for report in reports %}
+            <div class="ui piled segment report" report="{{ report.id }}">
+                <div class="content">
+                    {% if report.red_right %}
+                        <div class="questionText">Red right</div>
+                    {% endif %}
+                    {% if report.green_wrong %}
+                        <div class="questionText">Green wrong</div>
+                    {% endif %}
+                    {% if report.unclear %}
+                        <div class="questionText">Unclear</div>
+                    {% endif %}
+                    {% if report.off_topic %}
+                        <div class="questionText">Off topic</div>
+                    {% endif %}
+                    {% if report.inappropriate %}
+                        <div class="questionText">Inappropriate</div>
+                    {% endif %}
+                    {% if report.other %}
+                        <div class="questionText">Other</div>
+                    {% endif %}
+                    <div class="questionText">{{ report.comment }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock content %}

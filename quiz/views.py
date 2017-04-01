@@ -19,7 +19,7 @@ def question(request):
         try:
             questionID = int(request.POST['question'])
         except ValueError:
-            JsonResponse({}, safe=False)
+            return JsonResponse({}, safe=False)
 
         questionList = (list(TrueFalseQuestion.objects.filter(id=questionID))
             + list(MultipleChoiceQuestion.objects.filter(id=questionID))
@@ -29,7 +29,7 @@ def question(request):
         if questionList:
             question = questionList[0]
         else:
-            JsonResponse({}, safe=False)
+            return JsonResponse({}, safe=False)
 
         feedback = question.answerFeedbackRaw(request.POST['answer'])
 

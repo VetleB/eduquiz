@@ -2,6 +2,7 @@ from django.test import TestCase
 from quiz.models import *
 from django.contrib.auth.admin import User
 import random
+import json
 from django.test import Client
 
 
@@ -668,14 +669,16 @@ class QuestionFormTestCase(TestCase):
         self.topic = Topic.objects.create(title='TEST_TOPIC', subject=self.subject)
         self.user = User.objects.create_user(username='TEST_USER', password='TEST_PASSWORD')
         self.player = Player.objects.create(user=self.user)
-        self.client.post('/authentication/login/', {
-            'username': 'TEST_USER',
-            'password': 'TEST_PASSWORD',
-        })
+        self.client.login(username='TEST_USER', password='TEST_PASSWORD')
 
     def test_create_quetsion_page(self):
-        response = self.client.get('/quiz/new//')
+        response = self.client.get('/quiz/new/')
         self.assertEqual(response.status_code, 200)
+
+    def test_not_authenticated(self):
+        self.client.logout()
+        response = self.client.post('/quiz/new/')
+        self.assertEqual(response.status_code, 302)
 
     def test_create_multiplechoice_question(self):
         response = self.client.post('/quiz/new/multiplechoice/', {
@@ -742,6 +745,19 @@ class QuestionFormTestCase(TestCase):
         self.assertTrue(response.status_code, 302)
         self.assertTrue(response.url, '/quiz/new/')
 
+    def test_create_number_question(self):
+        response = self.client.post('/quiz/new/text/', {
+            'question': 'TEST_QUESTION',
+            'answer': 'TEST_ANSWER',
+            'text': 'False',
+            'rating': '5',
+            'subject': self.subject.title,
+            'topics': self.topic.title,
+        })
+
+        self.assertTrue(response.status_code, 302)
+        self.assertTrue(response.url, '/quiz/new/')
+
     def test_create_text_question_fail(self):
         response = self.client.post('/quiz/new/text/', {
             'question': 'TEST_QUESTION',
@@ -752,3 +768,161 @@ class QuestionFormTestCase(TestCase):
         })
 
         self.assertTrue(response.status_code, 200)
+
+
+class ViewTestCase(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        category = Category.objects.create(title='TEST_CATEGORY')
+        self.subject = Subject.objects.create(title='TEST_SUBJECT', category=category)
+        self.topicA = Topic.objects.create(title='TEST_TOPIC_A', subject=self.subject)
+        self.topicB = Topic.objects.create(title='TEST_TOPIC_B', subject=self.subject)
+        self.questionA = TrueFalseQuestion.objects.create(question_text='TEST_QUESTION_A', answer=True, topic=self.topicA)
+        self.questionB = TextQuestion.objects.create(question_text='TEST_QUESTION_B', answer='TEST_ANSWER', topic=self.topicA)
+        self.questionC = NumberQuestion.objects.create(question_text='TEST_QUESTION_C', answer=42, topic=self.topicA)
+        self.questionD = MultipleChoiceQuestion.objects.create(question_text='TEST_QUESTION_D', topic=self.topicA)
+        MultipleChoiceAnswer.objects.create(question=self.questionD, answer='TEST_ANSWER_A', correct=True)
+        MultipleChoiceAnswer.objects.create(question=self.questionD, answer='TEST_ANSWER_B', correct=False)
+        user = User.objects.create_user(username='TEST_USER', password='TEST_PASSWORD')
+        self.player = Player.objects.create(user=user)
+        PlayerTopic.objects.create(player=self.player, topic=self.topicA)
+        self.client.login(username='TEST_USER', password='TEST_PASSWORD')
+
+    def test_post_truefalse_correct(self):
+        post = {
+            'question': self.questionA.id,
+            'answer': 'True',
+        }
+        response = self.client.post('/quiz/', post)
+        self.assertEquals(json.loads(response.content.decode()), self.questionA.answerFeedbackRaw(post['answer']))
+
+    def test_post_truefalse_question_not_int(self):
+        response = self.client.post('/quiz/', {'question': 'NOT_INT'})
+        self.assertEquals(json.loads(response.content.decode()), {})
+
+    def test_post_truefalse_question_doesnt_exist(self):
+        response = self.client.post('/quiz/', {'question': '1337'})
+        self.assertEquals(json.loads(response.content.decode()), {})
+
+    def test_select_topic_page(self):
+        response = self.client.get('/quiz/select-topics/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.context[0].dicts[3]['subject'], self.subject)
+        self.assertEquals(response.context[0].dicts[3]['playerTopics'], [self.topicA])
+
+    def test_select_topic(self):
+        response = self.client.post('/quiz/select-topics/', {
+            'subject': 'TEST_SUBJECT',
+            'topics': 'TEST_TOPIC_A',
+        })
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, '/quiz')
+        self.assertEquals(PlayerTopic.objects.all().count(), 1)
+        self.assertEquals(PlayerTopic.objects.get().player, self.player)
+        self.assertEquals(PlayerTopic.objects.get().topic, self.topicA)
+
+    def test_select_all_topics(self):
+        response = self.client.post('/quiz/select-topics/', {
+            'subject': 'TEST_SUBJECT',
+            'topics': '',
+        })
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, '/quiz')
+        self.assertEquals(PlayerTopic.objects.all().count(), 2)
+
+    def test_select_topics_no_data(self):
+        response = self.client.post('/quiz/select-topics/', {})
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, '/')
+
+    def test_select_topics_no_subject(self):
+        response = self.client.post('/quiz/select-topics/', {
+            'subject': '',
+            'topics': '',
+        })
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, '/quiz/select-topics/')
+
+    def test_select_topics_topic_doesnt_exist(self):
+        response = self.client.post('/quiz/select-topics/', {
+            'subject': 'TEST_SUBJECT',
+            'topics': 'UNKNOWN_TOPIC',
+        })
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, '/quiz')
+
+    def test_select_topics_player_has_no_topics(self):
+        PlayerTopic.objects.all().delete()
+        response = self.client.get('/quiz/select-topics/')
+        self.assertEquals(response.status_code, 200)
+
+    def test_stats_default(self):
+        response = self.client.get('/quiz/stats/')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/quiz/stats/%r' % self.topicA.id)
+
+    def test_stats_default_none_selected(self):
+        PlayerTopic.objects.all().delete()
+        response = self.client.get('/quiz/stats/')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/quiz/stats/0')
+
+    def test_question_page(self):
+        response = self.client.get('/quiz/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_question_page_without_topics(self):
+        PlayerTopic.objects.all().delete()
+        response = self.client.get('/quiz/')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/quiz/select-topics')
+
+    def test_question_page_answered_all(self):
+        PlayerAnswer.objects.create(question=self.questionA, player=self.player, result=True)
+        PlayerAnswer.objects.create(question=self.questionB, player=self.player, result=True)
+        PlayerAnswer.objects.create(question=self.questionC, player=self.player, result=True)
+        PlayerAnswer.objects.create(question=self.questionD, player=self.player, result=True)
+        response = self.client.get('/quiz/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_question_page_multiplechoice(self):
+        self.questionA.delete()
+        self.questionB.delete()
+        self.questionC.delete()
+        response = self.client.get('/quiz/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, 'quiz/multipleChoiceQuestion.html')
+
+    def test_question_page_truefalsequestion(self):
+        self.questionB.delete()
+        self.questionC.delete()
+        self.questionD.delete()
+        response = self.client.get('/quiz/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, 'quiz/trueFalseQuestion.html')
+
+    def test_question_page_textquestion(self):
+        self.questionA.delete()
+        self.questionC.delete()
+        self.questionD.delete()
+        response = self.client.get('/quiz/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, 'quiz/textQuestion.html')
+
+    def test_question_page_numberquestion(self):
+        self.questionA.delete()
+        self.questionB.delete()
+        self.questionD.delete()
+        response = self.client.get('/quiz/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, 'quiz/numberQuestion.html')
+
+    def test_stats_page(self):
+        response = self.client.get('/quiz/stats/%r' % self.topicA.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_stats_subject_doesnt_exist(self):
+        response = self.client.get('/quiz/stats/1337')
+        self.assertEqual(response.status_code, 200)
+

@@ -1,4 +1,5 @@
 from django.http import JsonResponse, HttpResponseRedirect
+from django.utils.datastructures import MultiValueDictKeyError
 from django.db.models import Func, F
 from django.shortcuts import render
 from quiz.models import *
@@ -19,7 +20,7 @@ def question(request):
         try:
             questionID = int(request.POST['question'])
         except ValueError:
-            JsonResponse({}, safe=False)
+            return JsonResponse({}, safe=False)
 
         questionList = (list(TrueFalseQuestion.objects.filter(id=questionID))
             + list(MultipleChoiceQuestion.objects.filter(id=questionID))
@@ -29,7 +30,7 @@ def question(request):
         if questionList:
             question = questionList[0]
         else:
-            JsonResponse({}, safe=False)
+            return JsonResponse({}, safe=False)
 
         feedback = question.answerFeedbackRaw(request.POST['answer'])
 
@@ -97,9 +98,7 @@ def question(request):
             elif isinstance(question, NumberQuestion):
                 return numberQuestion(request, question, context)
 
-            return HttpResponseRedirect('/')
-        else:
-            return HttpResponseRedirect('/')
+        return HttpResponseRedirect('/')
 
 
 def selectTopic(request):
@@ -120,7 +119,7 @@ def selectTopic(request):
             subject = request.POST['subject']
             # string of topics separated by comma
             topics = request.POST['topics']
-        except ValueError:
+        except MultiValueDictKeyError:
             return HttpResponseRedirect('/')
 
         # If user has no current subject, redirect to same page and display a message

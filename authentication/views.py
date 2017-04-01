@@ -75,4 +75,4 @@ def register(request):
 
 
 def account(request):
-    return render(request, 'authentication/ account.html', {})
+    return render(request, 'authentication/account.html', {})

@@ -1,10 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
 
-</body>
-</html>
+{% block head %}
+  <script src="{% static "quiz/js/moment.js" %}"></script>
+  <script src="{% static "quiz/js/chart.min.js" %}"></script>
+{% endblock head %}
+
+{% block content %}
+
+  <div class="ui middle aligned center aligned grid">
+    <div class="ui container stackable grid account">
+      <div class="four wide column left">
+        <div class="ui segment">
+          <div class="ui secondary vertical menu">
+            <a class="{% if active == "overview" %} active {% endif %} item" data-tab="first">Overview</a>
+            <a class="{% if active == "settings" %} active {% endif %} item" data-tab="second">Settings</a>
+            <a class="{% if active == "other" %} active {% endif %} item" data-tab="third">Other</a>
+          </div>
+        </div>
+
+      </div>
+      <div class="twelve wide column">
+        <div class="ui segment tab {% if active == "overview" %} active {% endif %}" data-tab="first">
+          Overview
+        </div>
+        <div class="ui segment tab {% if active == "settings" %} active {% endif %}" data-tab="second">
+          Settings
+        </div>
+        <div class="ui segment tab {% if active == "other" %} active {% endif %}" data-tab="third">
+          Other
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .account.container {
+      height: auto;
+      padding: 30px;
+      margin-top: 100px !important;
+      margin-bottom: 50px !important;
+      z-index: 0;
+    }
+
+
+
+  </style>
+
+  <script>
+  $(function() {
+    $('.menu .item').tab();
+  });
+  </script>
+{% endblock content %}

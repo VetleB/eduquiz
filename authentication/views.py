@@ -108,3 +108,25 @@ def change_pswd(request):
         'login_form': form,
     }
     return render(request, 'authentication/account.html', context)
+
+
+def change_name(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/')
+
+    if request.method == 'POST':
+        form = ChangeUsernameForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Your username was successfully updated!')
+
+            return account(request)
+    else:
+        form = ChangeUsernameForm(
+            user=request.user,
+        )
+
+    context = {
+        'name_form': form,
+    }
+    return render(request, 'authentication/account.html', context)

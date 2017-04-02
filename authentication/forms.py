@@ -55,3 +55,26 @@ class RegistrationForm(forms.Form):
             pass
 
         return form_data
+
+
+class ChangeUsernameForm(forms.Form):
+    username = forms.CharField(max_length=15, label='username')
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(ChangeUsernameForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        form_data = self.cleaned_data
+        try:
+            User.objects.get(username=form_data['username'])
+            raise forms.ValidationError({'username': 'Username taken. Please choose another one.'}, code='invalid')
+        except User.DoesNotExist:
+            pass
+        except:
+            pass
+
+        return form_data
+
+    def save(self):
+        self.user.username = self.cleaned_data['username']

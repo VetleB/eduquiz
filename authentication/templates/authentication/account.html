@@ -23,7 +23,7 @@
                 {{ request.user.player }}
             </div>
             <div class="ui segment tab {% if login_form %} active {% endif %}" data-tab="second">
-                Settings
+                Change password
                 <br><br>
                 <div class="content">
                     <div class="description">
@@ -74,28 +74,50 @@
                 </div>
             </div>
             <div class="ui segment tab" data-tab="third">
-                Other
+                Change username
+                <br><br>
+                <div class="content">
+                    <div class="description">
+                        <form class="ui form change_name" action="/authentication/change_name/" method="POST">
+                            {% csrf_token %}
+
+                            <div class="field">
+                                <label>New username</label>
+                                <input id="new_name" type="text" name="username" value="{{ name_form.username.value }}" required>
+                            </div>
+                            {% if name_form.errors.username %}
+                                <div class="ui negative message name_error">
+                                    <div class="header">
+                                        <!--Invalid-->
+                                    </div>
+                                    <p>{{ name_form.errors.username.0 }}</p>
+                                </div>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+                <br>
+                <div class="actions">
+                    <div class="ui positive right icon button submit change_name">
+                        Change username
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-        .account.container {
-          height: auto;
-          padding: 30px;
-          margin-top: 100px !important;
-          margin-bottom: 50px !important;
-          z-index: 0;
-        }
-        .segment.tab {
-          margin: 0;
-        }
-
-
-
-
-
+    .account.container {
+        height: auto;
+        padding: 30px;
+        margin-top: 100px !important;
+        margin-bottom: 50px !important;
+        z-index: 0;
+    }
+    .segment.tab {
+        margin: 0;
+    }
 </style>
 
 <script>
@@ -128,6 +150,9 @@
         }
     });
 
+    $(".change_name.button.submit").click(function() {
+        $('form.change_name').submit();
+    });
 
 </script>
 {% endblock content %}

@@ -78,3 +78,4 @@ class ChangeUsernameForm(forms.Form):
 
     def save(self):
         self.user.username = self.cleaned_data['username']
+        self.user.save()

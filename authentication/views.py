@@ -77,6 +77,9 @@ def register(request):
 
 
 def account(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/')
+
     context = {
         'login_form': None
     }
@@ -85,6 +88,9 @@ def account(request):
 
 
 def change_pswd(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/')
+
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():

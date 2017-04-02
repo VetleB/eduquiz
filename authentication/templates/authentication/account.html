@@ -11,15 +11,15 @@
         <div class="four wide column left">
             <div class="ui segment">
                 <div class="ui secondary vertical menu">
-                    <a class="{% if not login_form %} active {% endif %} item" data-tab="first">Overview</a>
+                    <a class="{% if not login_form and not name_form%} active {% endif %} item" data-tab="first">Overview</a>
                     <a class="{% if login_form %} active {% endif %} item" data-tab="second">Settings</a>
-                    <a class="item" data-tab="third">Other</a>
+                    <a class="{% if name_form %} active {% endif %} item" data-tab="third">Other</a>
                 </div>
             </div>
 
         </div>
         <div class="twelve wide column">
-            <div class="ui segment tab {% if not login_form %} active {% endif %}" data-tab="first">
+            <div class="ui segment tab {% if not login_form and not name_form %} active {% endif %}" data-tab="first">
                 {{ request.user.player }}
             </div>
             <div class="ui segment tab {% if login_form %} active {% endif %}" data-tab="second">
@@ -73,7 +73,7 @@
                     </div>
                 </div>
             </div>
-            <div class="ui segment tab" data-tab="third">
+            <div class="ui segment tab {% if name_form %} active {% endif %}" data-tab="third">
                 Change username
                 <br><br>
                 <div class="content">

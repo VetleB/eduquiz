@@ -81,7 +81,8 @@ def account(request):
         return HttpResponseRedirect('/')
 
     context = {
-        'login_form': None
+        'login_form': None,
+        'name_form': None,
     }
 
     return render(request, 'authentication/account.html', context)
@@ -115,11 +116,13 @@ def change_name(request):
         return HttpResponseRedirect('/')
 
     if request.method == 'POST':
-        form = ChangeUsernameForm(request.user, request.POST)
+        form = ChangeUsernameForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            userdict = form.cleaned_data
+            user = request.user
+            user.username = userdict['username']
+            user.save()
             messages.success(request, 'Your username was successfully updated!')
-
             return account(request)
     else:
         form = ChangeUsernameForm(

@@ -2,56 +2,132 @@
 {% load staticfiles %}
 
 {% block head %}
-  <script src="{% static "quiz/js/moment.js" %}"></script>
-  <script src="{% static "quiz/js/chart.min.js" %}"></script>
 {% endblock head %}
 
 {% block content %}
 
-  <div class="ui middle aligned center aligned grid">
+<div class="ui middle aligned center aligned grid">
     <div class="ui container stackable grid account">
-      <div class="four wide column left">
-        <div class="ui segment">
-          <div class="ui secondary vertical menu">
-            <a class="active item" data-tab="first">Overview</a>
-            <a class="item" data-tab="second">Settings</a>
-            <a class="item" data-tab="third">Other</a>
-          </div>
-        </div>
+        <div class="four wide column left">
+            <div class="ui segment">
+                <div class="ui secondary vertical menu">
+                    <a class="{% if not login_form %} active {% endif %} item" data-tab="first">Overview</a>
+                    <a class="{% if login_form %} active {% endif %} item" data-tab="second">Settings</a>
+                    <a class="item" data-tab="third">Other</a>
+                </div>
+            </div>
 
-      </div>
-      <div class="twelve wide column">
-        <div class="ui segment tab active" data-tab="first">
-          Overview
         </div>
-        <div class="ui segment tab" data-tab="second">
-          Settings
+        <div class="twelve wide column">
+            <div class="ui segment tab {% if not login_form %} active {% endif %}" data-tab="first">
+                {{ request.user.player }}
+            </div>
+            <div class="ui segment tab {% if login_form %} active {% endif %}" data-tab="second">
+                Settings
+                <br><br>
+                <div class="content">
+                    <div class="description">
+                        <form class="ui form change_pswd" action="/authentication/change_pswd/" method="POST">
+                            {% csrf_token %}
+
+                            <div class="field">
+                                <label>Old password</label>
+                                <input id="old_pswd" type="password" name="old_password" required>
+                            </div>
+
+                            {% if login_form.errors.old_password %}
+                                <div class="ui negative message change_pswd_error">
+                                    <div class="header">
+                                        <!--Invalid-->
+                                    </div>
+                                    <p>{{ login_form.errors.old_password.0 }}</p>
+                                </div>
+                            {% endif %}
+
+                            <div class="field">
+                                <label>New password</label>
+                                <input id="new_pswd1" type="password" name="new_password1" required>
+                            </div>
+
+                            <div class="field">
+                                <label>Confirm new password</label>
+                                <input id="new_pswd2" type="password" name="new_password2" required>
+                            </div>
+
+                            {% if login_form.errors.new_password2 and not login_form.errors.old_password %}
+                                <div class="ui negative message change_pswd_error">
+                                    <div class="header">
+                                        <!--Invalid-->
+                                    </div>
+                                    <p>{{ login_form.errors.new_password2.0 }}</p>
+                                </div>
+                            {% endif %}
+
+                        </form>
+                    </div>
+                </div>
+                <br>
+                <div class="actions">
+                    <div class="ui positive right icon button submit change_pswd">
+                        Change password
+                    </div>
+                </div>
+            </div>
+            <div class="ui segment tab" data-tab="third">
+                Other
+            </div>
         </div>
-        <div class="ui segment tab" data-tab="third">
-          Other
-        </div>
-      </div>
     </div>
-  </div>
+</div>
 
-  <style>
-    .account.container {
-      height: auto;
-      padding: 30px;
-      margin-top: 100px !important;
-      margin-bottom: 50px !important;
-      z-index: 0;
-    }
-    .segment.tab {
-      margin: 0;
-    }
+<style>
+        .account.container {
+          height: auto;
+          padding: 30px;
+          margin-top: 100px !important;
+          margin-bottom: 50px !important;
+          z-index: 0;
+        }
+        .segment.tab {
+          margin: 0;
+        }
 
 
-  </style>
 
-  <script>
-  $(function() {
-    $('.menu .item').tab();
-  });
-  </script>
+
+
+</style>
+
+<script>
+    $(function() {
+        $('.menu .item').tab();
+    });
+
+    $(".change_pswd.button.submit").click(function() {
+        $('form.change_pswd').submit();
+    });
+
+    $("#old_pswd").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $("#new_pswd1").focus();
+        }
+    });
+
+    $("#new_pswd1").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $("#new_pswd2").focus();
+        }
+    });
+
+    $("#new_pswd2").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $('form.change_pswd').submit();
+        }
+    });
+
+
+</script>
 {% endblock content %}

@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from authentication.forms import *
-from django.contrib.auth import authenticate
+from django.contrib import messages
+from django.contrib.auth import authenticate, update_session_auth_hash
 from django.contrib.auth import login as djangologin
 from authentication.forms import LoginForm, RegistrationForm
 from django.contrib.auth import logout as djangologout
+from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ValidationError
 from quiz.models import Player
 
@@ -75,4 +77,28 @@ def register(request):
 
 
 def account(request):
-    return render(request, 'authentication/account.html', {})
+    context = {
+        'login_form': None
+    }
+
+    return render(request, 'authentication/account.html', context)
+
+
+def change_pswd(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Your password was successfully updated!')
+
+            return account(request)
+    else:
+        form = PasswordChangeForm(
+            user=request.user.player,
+        )
+
+    context = {
+        'login_form': form,
+    }
+    return render(request, 'authentication/account.html', context)

@@ -7,8 +7,8 @@ from django.contrib.auth import login as djangologin
 from authentication.forms import LoginForm, RegistrationForm
 from django.contrib.auth import logout as djangologout
 from django.contrib.auth.forms import PasswordChangeForm
-from django.core.exceptions import ValidationError
-from quiz.models import Player, PlayerRating
+from django.contrib.auth.admin import User
+from quiz.models import Player, PlayerRating, Subject
 
 
 def login(request):
@@ -80,10 +80,13 @@ def account(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/')
 
-    subject = PlayerRating.objects.filter(player=Player.objects.get(user=request.user)).order_by('-rating')[0].subject
-
+    top_pr = PlayerRating.objects.filter(player=Player.objects.get(user=request.user)).order_by('-rating')[0]
+    player_subjects = request.user.player.subjectAnswers()
+    fav_sub = Subject.objects.get(title=player_subjects[1][player_subjects[0].index(max(player_subjects[0]))])
+    print(fav_sub)
     context = {
-        'subject': subject,
+        'top_pr': top_pr,
+        'fav_sub': fav_sub,
         'login_form': None,
         'name_form': None,
     }

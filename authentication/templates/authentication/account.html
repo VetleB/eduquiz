@@ -25,9 +25,14 @@
                 <p>
                     Member since {{ request.user.date_joined }}
                 </p>
+                <br>
                 <p>
-                    Top Subject: {{ subject }}
+                    Top Subject: {{ top_pr.subject }}
                 </p>
+                <br>
+                <P>
+                    Favorite subject: {{ fav_sub }}
+                </P>
             </div>
             <div class="ui segment tab {% if login_form %} active {% endif %}" data-tab="second">
                 <h3>Change password</h3>
@@ -81,7 +86,9 @@
                 </div>
             </div>
             <div class="ui segment tab {% if name_form %} active {% endif %}" data-tab="third">
-                Change username
+                <h3>
+                    Change username
+                </h3>
                 <br><br>
                 <div class="content">
                     <div class="description">

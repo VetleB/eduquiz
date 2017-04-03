@@ -493,8 +493,8 @@ def viewReports(request):
     # Only site admins are allowed to see and handle reports
     user = request.user
     if user.is_superuser:
-        reportesQuestionIDs = QuestionReport.objects.all().values_list('question_id', flat=True)
-        questions = Question.objects.filter(id__in=reportesQuestionIDs)
+        reportQuestionIDs = QuestionReport.objects.all().values_list('question_id', flat=True)
+        questions = Question.objects.filter(id__in=reportQuestionIDs)
         reports = []
 
         for question in questions:
@@ -520,10 +520,15 @@ def handleReport(request, question_id):
             + list(TextQuestion.objects.filter(id=question_id))
             + list(NumberQuestion.objects.filter(id=question_id)))
 
+        reports = QuestionReport.objects.filter(question_id=question_id)
+
+        if not reports:
+            return HttpResponseRedirect('/quiz/viewreports/')
+
         context = {
             'question': questionList[0],
             'question_id': question_id,
-            'reports': QuestionReport.objects.filter(question_id=question_id),
+            'reports': reports,
         }
 
         return render(request, 'quiz/handleReport.html', context)

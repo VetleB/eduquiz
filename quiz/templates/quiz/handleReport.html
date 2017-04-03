@@ -16,7 +16,7 @@
     <div class="reports">
         <div class="actions">
             <a class="ui negative right icon button submit delete" href="/quiz/viewreports/deletequestion/{{ question_id }}">
-                Delete
+                Delete question
             </a>
         </div>
         {% for report in reports %}
@@ -41,6 +41,11 @@
                         <div class="questionText">Other</div>
                     {% endif %}
                     <div class="questionText">{{ report.comment }}</div>
+                    <div class="actions">
+                        <a class="ui negative right icon button submit delete" href="/quiz/viewreports/deletereport/{{ question_id }}/{{ report.id }}">
+                            Delete report
+                        </a>
+                    </div>
                 </div>
             </div>
         {% endfor %}

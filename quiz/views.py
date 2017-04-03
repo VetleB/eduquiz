@@ -525,7 +525,7 @@ def handleReport(request, question_id):
     return HttpResponseRedirect('/')
 
 
-def deleteReport(request, question_id):
+def deleteQuestion(request, question_id):
 
     # Only site admins are allowed to delete questions
     user = request.user
@@ -533,6 +533,15 @@ def deleteReport(request, question_id):
         question = Question.objects.get(pk=question_id)
         question.delete()
         return HttpResponseRedirect('/quiz/viewreports')
+    return HttpResponseRedirect('/')
+
+
+def deleteReport(request, question_id, report_id):
+    user = request.user
+    if user.is_superuser:
+        report = QuestionReport.objects.get(pk=report_id)
+        report.delete()
+        return HttpResponseRedirect('/quiz/viewreports/handlereport/'+question_id+'/')
     return HttpResponseRedirect('/')
 
 
@@ -557,4 +566,3 @@ def stats(request, subject_id):
         'subjectAnswers': request.user.player.subjectAnswers(),
     }
     return render(request, 'quiz/stats.html', context)
-

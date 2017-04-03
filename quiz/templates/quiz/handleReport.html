@@ -21,6 +21,11 @@
                     {{ question }}
                 </h2>
                 <br>
+                {% for a in question.answer_to_list %}
+                    <p>
+                        {{ a }}
+                    </p>
+                {% endfor %}
                 <div class="actions">
                     <a class="ui negative right icon button submit delete_question">
                         Delete question

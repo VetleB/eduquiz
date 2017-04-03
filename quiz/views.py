@@ -515,8 +515,13 @@ def handleReport(request, question_id):
     # Only site admins are allowed to see and handle reports
     user = request.user
     if user.is_superuser:
+        questionList = (list(TrueFalseQuestion.objects.filter(id=question_id))
+            + list(MultipleChoiceQuestion.objects.filter(id=question_id))
+            + list(TextQuestion.objects.filter(id=question_id))
+            + list(NumberQuestion.objects.filter(id=question_id)))
+
         context = {
-            'question': Question.objects.get(pk=question_id),
+            'question': questionList[0],
             'question_id': question_id,
             'reports': QuestionReport.objects.filter(question_id=question_id),
         }

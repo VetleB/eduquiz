@@ -312,6 +312,15 @@ class Question(models.Model):
     def __str__(self):
         return self.question_text
 
+    def answer_to_list(self):
+        """
+        Returns the answer as a text string in a list
+
+        :return: Answer
+        :rtype: str
+        """
+        return []
+
 
 class TextQuestion(Question):
     answer = models.CharField(max_length=50, verbose_name='Answer')
@@ -355,6 +364,14 @@ class TextQuestion(Question):
             'answeredCorrect': answeredCorrect,
         }
 
+    def answer_to_list(self):
+        """
+        Returns the answer as a text string in a list
+
+        :return: Answer
+        :rtype: list
+        """
+        return [self.answer]
 
 class NumberQuestion(Question):
     answer = models.CharField(max_length=50, verbose_name='Answer')
@@ -440,6 +457,14 @@ class NumberQuestion(Question):
             'answeredCorrect': answeredCorrect,
         }
 
+    def answer_to_list(self):
+        """
+        Returns the answer as a text string in a list
+
+        :return: Answer
+        :rtype: list
+        """
+        return [self.answer]
 
 class TrueFalseQuestion(Question):
     answer = models.BooleanField(verbose_name='Answer')
@@ -466,6 +491,15 @@ class TrueFalseQuestion(Question):
             'correct': self.answer,
             'answeredCorrect': answeredCorrect,
         }
+
+    def answer_to_list(self):
+        """
+        Returns the answer as a text string in a list
+
+        :return: Answer
+        :rtype: list
+        """
+        return [str(self.answer)]
 
 
 class MultipleChoiceQuestion(Question):
@@ -498,6 +532,24 @@ class MultipleChoiceQuestion(Question):
             'correct': answerIDs,
             'answeredCorrect': answeredCorrect,
         }
+
+    def answer_to_list(self):
+        """
+        Returns the answers as a list of strings, indicating the correct one
+
+        :return: Answer
+        :rtype: list
+        """
+
+        return_list = []
+
+        for ans in MultipleChoiceAnswer.objects.filter(question=self):
+            tmp = '-' + ans.answer
+            if ans.correct:
+                tmp += ' -> Correct'
+            return_list.append(tmp + '\n')
+
+        return return_list
 
 
 class MultipleChoiceAnswer(models.Model):

@@ -143,7 +143,7 @@ class LoginTestCase(TestCase):
 
     def test_login_correct(self):
         response = self.client.post('/authentication/login/', {
-            'username':'TEST_USER',
+            'username': 'TEST_USER',
             'password': 'TEST_PASSWORD',
         })
         self.assertTrue(response.status_code, 302)
@@ -173,3 +173,62 @@ class LoginTestCase(TestCase):
         })
         self.assertFalse(response.context['user'].is_authenticated)
         self.assertEqual(response.status_code, 200)
+
+class AccountTestCase(TestCase):
+    TEST_USERNAME = 'TEST_USERNAME'
+    TEST_PASS = 'TEST_PASSWORD'
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create(
+            username=self.TEST_USERNAME,
+            password=self.TEST_PASS,
+        )
+
+    def test_user_redirect_when_not_logged_in(self):
+        response = self.client.get('/authentication/account', follow=True)
+        final_url = response.redirect_chain[-1]
+        self.assertEqual(final_url[0], '/')
+
+    def test_user_does_not_redirect_when_logged_in(self):
+        self.client.force_login(user=self.user)
+        response = self.client.get('/authentication/account')
+        self.assertEqual(response['location'], '/authentication/account/')
+
+# TODO: Figure out how to test stuff that needs passwords
+class ChangePasswordTestCase(TestCase):
+    TEST_USERNAME = 'TEST_USERNAME'
+    TEST_PASS = 'TEST_PASSWORD'
+    NEW_PASS = 'TEST_PSWD'
+
+    def setUp(self):
+        self.client = Client()
+        self.credentials = {
+            'username': self.TEST_USERNAME,
+            #'password': self.TEST_PASS,
+        }
+        self.user = User.objects.create(**self.credentials)
+        #self.user.set_password(self.TEST_PASS)
+
+    def test_user_redirect_when_not_logged_in(self):
+        response = self.client.get('/authentication/change_pswd/', follow=True)
+        final_url = response.redirect_chain[-1]
+        self.assertEqual(final_url[0], '/')
+
+
+class ChangeUsernameTestCase(TestCase):
+    TEST_USERNAME = 'TEST_USERNAME'
+    TEST_PASS = 'TEST_PASSWORD'
+    NEW_PASS = 'TEST_PSWD'
+
+    def setUp(self):
+        self.client = Client()
+        self.credentials = {
+            'username': self.TEST_USERNAME,
+        }
+        self.user = User.objects.create(**self.credentials)
+        #self.user.set_password(self.TEST_PASS)
+
+    def test_change_username(self):
+        return True
+# End TODO

@@ -83,7 +83,7 @@ def account(request):
     top_pr = PlayerRating.objects.filter(player=Player.objects.get(user=request.user)).order_by('-rating')[0]
     player_subjects = request.user.player.subjectAnswers()
     fav_sub = Subject.objects.get(title=player_subjects[1][player_subjects[0].index(max(player_subjects[0]))])
-    print(fav_sub)
+
     context = {
         'top_pr': top_pr,
         'fav_sub': fav_sub,
@@ -99,7 +99,11 @@ def change_pswd(request):
         return HttpResponseRedirect('/')
 
     if request.method == 'POST':
+        print(request.user.password)
+        print(request.POST)
+        print(request.user.password == request.POST['old_password'])
         form = PasswordChangeForm(request.user, request.POST)
+        print(form.old_password)
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # Important!

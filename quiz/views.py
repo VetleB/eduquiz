@@ -407,6 +407,7 @@ def handleReport(request, question_id):
     user = request.user
     if user.is_superuser:
         context = {
+            'question': Question.objects.get(pk=question_id),
             'question_id': question_id,
             'reports': QuestionReport.objects.filter(question_id=question_id),
         }
@@ -425,6 +426,7 @@ def deleteQuestion(request, question_id):
         question.delete()
         return HttpResponseRedirect('/quiz/viewreports')
     return HttpResponseRedirect('/')
+
 
 def deleteReport(request, question_id, report_id):
     user = request.user

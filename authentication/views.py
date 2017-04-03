@@ -116,7 +116,7 @@ def change_name(request):
         return HttpResponseRedirect('/')
 
     if request.method == 'POST':
-        form = ChangeUsernameForm(request.POST)
+        form = ChangeUsernameForm(request.user, request.POST)
         if form.is_valid():
             userdict = form.cleaned_data
             user = request.user

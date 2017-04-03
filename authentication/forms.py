@@ -12,8 +12,8 @@ class LoginForm(forms.Form):
 
         try:
             user = authenticate(
-                username = form_data['username'],
-                password = form_data['password'],
+                username=form_data['username'],
+                password=form_data['password'],
             )
             if user is None:
                 raise ValidationError({'password': 'Wrong username or password.'}, code='invalid')
@@ -59,11 +59,23 @@ class RegistrationForm(forms.Form):
 
 class ChangeUsernameForm(forms.Form):
     username = forms.CharField(max_length=15, label='username')
+    password = forms.CharField(max_length=30, widget=forms.PasswordInput, label="password")
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(ChangeUsernameForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         form_data = self.cleaned_data
         try:
             try:
+                user = authenticate(
+                    username=self.user.username,
+                    password=form_data['password'],
+                )
+                if user is None:
+                    raise ValidationError({'password': 'Wrong password.'}, code='invalid')
+
                 User.objects.get(username=form_data["username"])
                 raise forms.ValidationError({'username': 'Username already in use.'}, code='invalid')
             except User.DoesNotExist:

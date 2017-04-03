@@ -93,6 +93,21 @@
                                     <p>{{ name_form.errors.username.0 }}</p>
                                 </div>
                             {% endif %}
+
+                            <div class="field">
+                                <label>Password</label>
+                                <input id="pswd" type="password" name="password" required>
+                            </div>
+
+                            {% if name_form.errors.password %}
+                                <div class="ui negative message name_error">
+                                    <div class="header">
+                                        <!--Invalid-->
+                                    </div>
+                                    <p>{{ name_form.errors.password.0 }}</p>
+                                </div>
+                            {% endif %}
+
                         </form>
                     </div>
                 </div>
@@ -157,5 +172,18 @@
         $('form.change_name').submit();
     });
 
+    $("#new_name").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $("#pswd").focus();
+        }
+    });
+
+    $("#pswd").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $('form.change_name').submit();
+        }
+    });
 </script>
 {% endblock content %}

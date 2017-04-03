@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/semantic.min.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/alertify.min.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/alertify.semantic.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/header.css" %}">
 
     <link rel="stylesheet" type="text/css" href="{% static "eduquiz/css/style.css" %}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -26,6 +27,7 @@
     <div class="pusher">
       <div class="page">
         {% block header %}
+          {% include 'eduquiz/header.html' %}
         {% endblock header %}
 
         {% block content %}

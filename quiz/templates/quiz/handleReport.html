@@ -15,7 +15,7 @@
 {% block content %}
     <div class="reports">
 
-        <div class="ui piled segment report" report="{{ report.id }}">
+        <div class="ui segment report" report="{{ report.id }}">
             <div class="content">
                 <h2>
                     {{ question }}
@@ -35,7 +35,7 @@
         </div>
 
         {% for report in reports %}
-            <div class="ui piled segment report" report="{{ report.id }}">
+            <div class="ui segment report" report="{{ report.id }}">
                 <div class="content">
                     {% if report.red_right %}
                         <div class="questionText">Red right</div>
@@ -65,5 +65,16 @@
             </div>
         {% endfor %}
     </div>
+  <style>
+    .delete_question {
+      opacity: 0.9;
+    }
+
+    .delete_report {
+      opacity: 0.8;
+    }
+
+
+  </style>
 
 {% endblock content %}

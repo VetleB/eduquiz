@@ -20,7 +20,14 @@
         </div>
         <div class="twelve wide column">
             <div class="ui segment tab {% if not login_form and not name_form %} active {% endif %}" data-tab="first">
-                {{ request.user.player }}
+                <h3>{{ request.user.player }}</h3>
+                <br><br>
+                <p>
+                    Member since {{ request.user.date_joined }}
+                </p>
+                <p>
+                    Top Subject: {{ subject }}
+                </p>
             </div>
             <div class="ui segment tab {% if login_form %} active {% endif %}" data-tab="second">
                 <h3>Change password</h3>

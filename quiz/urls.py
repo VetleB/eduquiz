@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^viewreports/handlereport/(?P<question_id>[0-9]+)/$', views.handleReport, name='handleReport'),
     url(r'^viewreports/deletequestion/(?P<question_id>[0-9]+)/$', views.deleteQuestion, name='deleteQuestion'),
     url(r'^viewreports/deletereport/(?P<question_id>[0-9]+)/(?P<report_id>[0-9]+)/$', views.deleteReport, name='deleteReport'),
+    url(r'^stats/(?P<subject_id>[0-9]+)', views.stats, name='stats'),
+    url(r'^stats/', views.statsDefault, name='statsDefault'),
 ]

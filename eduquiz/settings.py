@@ -1,10 +1,15 @@
 import os
+
+# Default values
+SECRET_KEY = 'SECRET_KEY'
+DB = 'sqlite'
+DEBUG = True
+ALLOWED_HOSTS = ['*']
+
 try:
     from .local_settings import *
 except ImportError:
-    SECRET_KEY = 'SECRET_KEY'
-    DEBUG = True
-    ALLOWED_HOSTS = ['*']
+    pass
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -58,12 +63,24 @@ WSGI_APPLICATION = 'eduquiz.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+if DB == 'postgres':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': DATABASE_NAME,
+            'USER': DATABASE_USER,
+            'PASSWORD': DATABASE_PASSWORD,
+            'HOST': 'localhost',
+            'PORT': '',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 
 # Password validation

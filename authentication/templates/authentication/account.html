@@ -26,13 +26,17 @@
                     Member since {{ request.user.date_joined }}
                 </p>
                 <br>
-                <p>
-                    Top Subject: {{ top_pr.subject }}
-                </p>
-                <br>
-                <P>
-                    Favorite subject: {{ fav_sub }}
-                </P>
+                {% if top_pr.subject %}
+                  <p>
+                      Top Subject: {{ top_pr.subject }}
+                  </p>
+                  <br>
+                {% endif %}
+                {% if fav_sub %}
+                  <p>
+                      Favorite subject: {{ fav_sub }}
+                  </p>
+                {% endif %}
             </div>
             <div class="ui segment tab {% if login_form %} active {% endif %}" data-tab="second">
                 <h3>Change password</h3>

@@ -1,5 +1,3 @@
-Pillow
 django==1.10.5
-coverage
-codecov
+Pillow
 psycopg2

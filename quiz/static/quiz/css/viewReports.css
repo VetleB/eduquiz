@@ -1,0 +1,75 @@
+.page {
+  text-align: center;
+}
+
+.reports {
+  width: 90%;
+  max-width: 1000px;
+  display: inline-block;
+  margin-top: 100px;
+}
+
+.report {
+  position: relative;
+  width: 95% !important;
+  margin: 3% 2% !important;
+  min-height: 200px !important;
+}
+
+.report > a {
+  position: absolute;
+  top: 0; right: 0;
+  bottom: 0; left: 0;
+}
+
+.report .content {
+  text-align: left;
+}
+
+.delete > a {
+  position: absolute !important;
+  top: 0; right: 0 !important;
+  bottom: 0; left: 0 !important;
+}
+
+.questionText {
+  font-size: 25px;
+  margin-top: 15px;
+  margin-left: 1.2%;
+  margin-bottom: 8px;
+  line-height: 30px;
+}
+
+.reportCount {
+  font-size: 25px;
+  margin-top: 15px;
+  margin-left: 1.2%;
+  margin-bottom: 8px;
+  line-height: 30px;
+}
+
+.answer {
+  display: inline-block !important;
+  width: 47% !important;
+  margin: 1% 1% !important;
+}
+
+.answer {
+  font-size: 20px;
+}
+
+.piled.segment {
+  z-index: 1 !important;
+  padding: 40px !important;
+}
+
+.info.stuff {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  color: #2196F3;
+}
+
+.piled.segment {
+  width: 95%;
+}

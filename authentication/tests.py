@@ -211,6 +211,11 @@ class ChangePasswordTestCase(TestCase):
         self.user = User.objects.create_user(**self.credentials)
         Player.objects.create(user=self.user)
 
+    def test_change_password_page(self):
+        self.client.login(**self.credentials)
+        response = self.client.get('/authentication/change_pswd/')
+        self.assertEqual(response.status_code, 200)
+
     def test_user_redirect_when_not_logged_in(self):
         response = self.client.get('/authentication/change_pswd/', follow=True)
         final_url = response.redirect_chain[-1]
@@ -248,8 +253,16 @@ class ChangeUsernameTestCase(TestCase):
         }
         self.user = User.objects.create_user(**self.credentials)
         Player.objects.create(user=self.user)
+        self.other_user = User.objects.create_user('OTHER_USERNAME', self.TEST_PASS)
 
-    def test_change_username(self):
+    def test_change_username_without_login(self):
+        response = self.client.post('/authentication/change_name/', {
+            'username': 'NEW_USERNAME',
+            'password': self.credentials['password'],
+        })
+        self.assertNotEqual(response.status_code, 200)
+
+    def test_change_username_correct(self):
         self.client.login(**self.credentials)
         response = self.client.post('/authentication/change_name/', {
             'username': 'NEW_USERNAME',
@@ -257,4 +270,28 @@ class ChangeUsernameTestCase(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context[0].dicts[1]['user'].username, 'NEW_USERNAME')
+
+    def test_change_username_wrong_password(self):
+        self.client.login(**self.credentials)
+        response = self.client.post('/authentication/change_name/', {
+            'username': 'NEW_USERNAME',
+            'password': 'WRONG_PASSWORD',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.context[0].dicts[1]['user'].username, 'NEW_USERNAME')
+
+    def test_change_username_username_taken(self):
+        self.client.login(**self.credentials)
+        response = self.client.post('/authentication/change_name/', {
+            'username': self.other_user.username,
+            'password': 'WRONG_PASSWORD',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.context[0].dicts[1]['user'].username, 'NEW_USERNAME')
+
+    def test_change_username_no_fields(self):
+        self.client.login(**self.credentials)
+        response = self.client.post('/authentication/change_name/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.context[0].dicts[1]['user'].username, 'NEW_USERNAME')
 

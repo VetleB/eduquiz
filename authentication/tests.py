@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.test import Client
+from quiz.models import Player
 
 class LogoutTestCase(TestCase):
 
@@ -195,7 +196,7 @@ class AccountTestCase(TestCase):
         response = self.client.get('/authentication/account')
         self.assertEqual(response['location'], '/authentication/account/')
 
-# TODO: Figure out how to test stuff that needs passwords
+
 class ChangePasswordTestCase(TestCase):
     TEST_USERNAME = 'TEST_USERNAME'
     TEST_PASS = 'TEST_PASSWORD'
@@ -205,30 +206,55 @@ class ChangePasswordTestCase(TestCase):
         self.client = Client()
         self.credentials = {
             'username': self.TEST_USERNAME,
-            #'password': self.TEST_PASS,
+            'password': self.TEST_PASS,
         }
-        self.user = User.objects.create(**self.credentials)
-        #self.user.set_password(self.TEST_PASS)
+        self.user = User.objects.create_user(**self.credentials)
+        Player.objects.create(user=self.user)
 
     def test_user_redirect_when_not_logged_in(self):
         response = self.client.get('/authentication/change_pswd/', follow=True)
         final_url = response.redirect_chain[-1]
         self.assertEqual(final_url[0], '/')
 
+    def test_change_password(self):
+        self.client.login(**self.credentials)
+        response = self.client.post('/authentication/change_pswd/', {
+            'old_password': self.credentials['password'],
+            'new_password1': 'NEW_PASSWORD',
+            'new_password2': 'NEW_PASSWORD',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.client.logout()
+
+        old_login = self.client.login(username=self.credentials['username'], password=self.credentials['password'])
+        self.client.logout()
+
+        new_login = self.client.login(username=self.credentials['username'], password='NEW_PASSWORD')
+        self.client.logout()
+
+        self.assertFalse(old_login)
+        self.assertTrue(new_login)
+
 
 class ChangeUsernameTestCase(TestCase):
     TEST_USERNAME = 'TEST_USERNAME'
     TEST_PASS = 'TEST_PASSWORD'
-    NEW_PASS = 'TEST_PSWD'
 
     def setUp(self):
         self.client = Client()
         self.credentials = {
             'username': self.TEST_USERNAME,
+            'password': self.TEST_PASS,
         }
-        self.user = User.objects.create(**self.credentials)
-        #self.user.set_password(self.TEST_PASS)
+        self.user = User.objects.create_user(**self.credentials)
+        Player.objects.create(user=self.user)
 
     def test_change_username(self):
-        return True
-# End TODO
+        self.client.login(**self.credentials)
+        response = self.client.post('/authentication/change_name/', {
+            'username': 'NEW_USERNAME',
+            'password': self.credentials['password'],
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context[0].dicts[1]['user'].username, 'NEW_USERNAME')
+

@@ -221,14 +221,15 @@ class ChangePasswordTestCase(TestCase):
         final_url = response.redirect_chain[-1]
         self.assertEqual(final_url[0], '/')
 
-    def test_change_password(self):
+    def test_change_password_correct(self):
         self.client.login(**self.credentials)
         response = self.client.post('/authentication/change_pswd/', {
             'old_password': self.credentials['password'],
             'new_password1': 'NEW_PASSWORD',
             'new_password2': 'NEW_PASSWORD',
         })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/authentication/account/')
         self.client.logout()
 
         old_login = self.client.login(username=self.credentials['username'], password=self.credentials['password'])
@@ -274,7 +275,10 @@ class ChangeUsernameTestCase(TestCase):
             'username': 'NEW_USERNAME',
             'password': self.credentials['password'],
         })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/authentication/account/')
+
+        response = self.client.get('/')
         self.assertEqual(response.context[0].dicts[1]['user'].username, 'NEW_USERNAME')
 
     def test_change_username_wrong_password(self):

@@ -107,9 +107,9 @@ def change_pswd(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # Important!
-            messages.success(request, 'Your password was successfully updated!')
 
-            return account(request)
+            messages.success(request, 'Your password was successfully updated!')
+            return HttpResponseRedirect('/authentication/account/')
     else:
         form = PasswordChangeForm(
             user=request.user.player,
@@ -132,8 +132,9 @@ def change_name(request):
             user = request.user
             user.username = userdict['username']
             user.save()
+
             messages.success(request, 'Your username was successfully updated!')
-            return account(request)
+            return HttpResponseRedirect('/authentication/account/')
     else:
         form = ChangeUsernameForm(
             user=request.user,

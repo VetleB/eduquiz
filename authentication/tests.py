@@ -181,20 +181,21 @@ class AccountTestCase(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create(
+        self.user = User.objects.create_user(
             username=self.TEST_USERNAME,
             password=self.TEST_PASS,
         )
+        Player.objects.create(user=self.user)
 
     def test_user_redirect_when_not_logged_in(self):
         response = self.client.get('/authentication/account', follow=True)
         final_url = response.redirect_chain[-1]
         self.assertEqual(final_url[0], '/')
 
-    def test_user_does_not_redirect_when_logged_in(self):
-        self.client.force_login(user=self.user)
-        response = self.client.get('/authentication/account')
-        self.assertEqual(response['location'], '/authentication/account/')
+    def test_account_page(self):
+        self.client.login(username=self.TEST_USERNAME, password=self.TEST_PASS)
+        response = self.client.get('/authentication/account/')
+        self.assertEqual(response.status_code, 200)
 
 
 class ChangePasswordTestCase(TestCase):

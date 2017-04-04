@@ -56,8 +56,8 @@ class NumberQuestionTestCase(TestCase):
 
     def setUp(self):
         NumberQuestion.objects.create(
-            question_text = 'TEST_QUESTION',
-            answer = '1.000',
+            question_text='TEST_QUESTION',
+            answer='1.000',
         )
 
     def test_str_returns_question_text(self):
@@ -156,7 +156,7 @@ class MultipleChoiceTestCase(TestCase):
                 answer='TEST_ANSWER_%s' % ans,
                 correct=False,
             ) for ans in ('A', 'B', 'C', 'D')]
-        true_answer = answers[random.randint(0,3)]
+        true_answer = answers[random.randint(0, 3)]
         true_answer.correct = True
         true_answer.save()
 
@@ -172,7 +172,8 @@ class MultipleChoiceTestCase(TestCase):
         )
         correct_answer = correct_answers[0]
         self.assertEqual(mcq.answer_feedback_raw(str(correct_answer.id)),
-                         {'answer': correct_answer.id, 'correct': [correctAnswer.id for correctAnswer in correct_answers], 'answered_correct': True})
+                         {'answer': correct_answer.id,
+                          'correct': [correctAnswer.id for correctAnswer in correct_answers], 'answered_correct': True})
 
     def test_raw_feedback_invalid_id(self):
         mcq = MultipleChoiceQuestion.objects.get()
@@ -183,7 +184,8 @@ class MultipleChoiceTestCase(TestCase):
         correct_answer = correct_answers[0]
         answered_correct = True if correct_answer.id == 1 else False
         self.assertEqual(mcq.answer_feedback_raw("fail"),
-                         {'answer': 1, 'correct': [correctAnswer.id for correctAnswer in correct_answers], 'answered_correct': answered_correct})
+                         {'answer': 1, 'correct': [correctAnswer.id for correctAnswer in correct_answers],
+                          'answered_correct': answered_correct})
 
     def testAnswerCorrect(self):
         question = MultipleChoiceQuestion.objects.get(question_text='TEST_QUESTION')
@@ -234,7 +236,8 @@ class TrueFalseTestCase(TestCase):
 
     def test_raw_feedback(self):
         tfq = TrueFalseQuestion.objects.get()
-        self.assertEqual(tfq.answer_feedback_raw('False'), {'answer': False, 'correct': True, 'answered_correct': False})
+        self.assertEqual(tfq.answer_feedback_raw('False'),
+                         {'answer': False, 'correct': True, 'answered_correct': False})
 
     def testAnswerCorrect(self):
         question = TrueFalseQuestion.objects.get(question_text='TEST_QUESTION')
@@ -336,7 +339,7 @@ class PlayerTestCase(TestCase):
         Player.objects.create(user=user)
 
     def test_str_returns_username(self):
-        player=Player.objects.get()
+        player = Player.objects.get()
         self.assertEqual(str(player), 'TEST_USER')
 
 
@@ -344,7 +347,6 @@ class PropertyTestCase(TestCase):
 
     def setUp(self):
         Property.objects.create(name='TEST_PROPERTY')
-
 
     def test_str_returns_name(self):
         prop = Property.objects.get()
@@ -370,8 +372,8 @@ class PropAnsweredQuestionInSubjectTestCase(TestCase):
             subject=sub,
         )
         user = User.objects.create(username='TEST_USER')
-        player = Player.objects.create(user=user)
-        question = Question.objects.create(
+        Player.objects.create(user=user)
+        Question.objects.create(
             question_text='TEST_QUESTION_TEXT',
             topic=topic,
         )
@@ -488,10 +490,10 @@ class RatingTestCase(TestCase):
             title="test_topic",
             subject=subject,
         )
-        question = Question.objects.create(
+        Question.objects.create(
             topic=topic,
         )
-        player_topic = PlayerTopic.objects.create(
+        PlayerTopic.objects.create(
             player=player,
             topic=topic,
         )
@@ -937,13 +939,13 @@ class ViewTestCase(TestCase):
         self.user.is_superuser = True
         self.user.save()
         QuestionReport.objects.create(question=self.question_a, player=self.player)
-        response = self.client.get('/quiz/viewreports/deletequestion/%r/' % self.question_a.id)
+        self.client.get('/quiz/viewreports/deletequestion/%r/' % self.question_a.id)
         # self.assertEqual(QuestionReport.objects.all().count(), 0)
         self.assertEqual(Question.objects.filter(pk=self.question_a.id).count(), 0)
 
     def test_report_delete_as_nonadmin(self):
         QuestionReport.objects.create(question=self.question_a, player=self.player)
-        response = self.client.get('/quiz/viewreports/deletequestion/%r/' % self.question_a.id)
+        self.client.get('/quiz/viewreports/deletequestion/%r/' % self.question_a.id)
         self.assertEqual(Question.objects.filter(pk=self.question_a.id).count(), 1)
 
     def test_view_reports_as_admin(self):

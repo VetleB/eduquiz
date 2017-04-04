@@ -20,7 +20,7 @@ class TextQuestionTestCase(TestCase):
 
     def test_raw_feedback(self):
         tq = TextQuestion.objects.get()
-        self.assertEqual(tq.answerFeedbackRaw('fail'), {'answer': 'fail', 'correct': 'Answer', 'answeredCorrect': False})
+        self.assertEqual(tq.answer_feedback_raw('fail'), {'answer': 'fail', 'correct': 'Answer', 'answeredCorrect': False})
 
     def test_validation_ignores_capitalization(self):
         question = TextQuestion.objects.get()
@@ -65,7 +65,7 @@ class NumberQuestionTestCase(TestCase):
 
     def test_raw_feedback(self):
         nq = NumberQuestion.objects.get()
-        self.assertEqual(nq.answerFeedbackRaw('2'), {'answer': '2', 'correct': '1.000', 'answeredCorrect': False})
+        self.assertEqual(nq.answer_feedback_raw('2'), {'answer': '2', 'correct': '1.000', 'answeredCorrect': False})
 
     def test_empty_returns_false(self):
         question = NumberQuestion.objects.get()
@@ -170,7 +170,7 @@ class MultipleChoiceTestCase(TestCase):
             correct=True,
         )
         correctAnswer = correctAnswers[0]
-        self.assertEqual(mcq.answerFeedbackRaw(str(correctAnswer.id)), {'answer': correctAnswer.id, 'correct': [correctAnswer.id for correctAnswer in correctAnswers], 'answeredCorrect': True})
+        self.assertEqual(mcq.answer_feedback_raw(str(correctAnswer.id)), {'answer': correctAnswer.id, 'correct': [correctAnswer.id for correctAnswer in correctAnswers], 'answeredCorrect': True})
 
     def test_raw_feedback_invalid_id(self):
         mcq = MultipleChoiceQuestion.objects.get()
@@ -180,7 +180,7 @@ class MultipleChoiceTestCase(TestCase):
         )
         correctAnswer = correctAnswers[0]
         answeredCorrect = True if correctAnswer.id == 1 else False
-        self.assertEqual(mcq.answerFeedbackRaw("fail"), {'answer': 1, 'correct': [correctAnswer.id for correctAnswer in correctAnswers], 'answeredCorrect': answeredCorrect})
+        self.assertEqual(mcq.answer_feedback_raw("fail"), {'answer': 1, 'correct': [correctAnswer.id for correctAnswer in correctAnswers], 'answeredCorrect': answeredCorrect})
 
     def testAnswerCorrect(self):
         question = MultipleChoiceQuestion.objects.get(question_text='TEST_QUESTION')
@@ -189,7 +189,7 @@ class MultipleChoiceTestCase(TestCase):
             correct = True,
         )
         correctAnswer = correctAnswers[0]
-        response = question.answerFeedback(correctAnswer.id)
+        response = question.answer_feedback(correctAnswer.id)
         json = {
             'answer': correctAnswer.id,
             'correct': [correctAnswer.id for correctAnswer in correctAnswers],
@@ -208,7 +208,7 @@ class MultipleChoiceTestCase(TestCase):
             correct = True,
             )
         wrongAnswer = wrongAnswers[0]
-        response = question.answerFeedback(wrongAnswer.id)
+        response = question.answer_feedback(wrongAnswer.id)
         json = {
             'answer': wrongAnswer.id,
             'correct': [correctAnswer.id for correctAnswer in correctAnswers],
@@ -231,11 +231,11 @@ class TrueFalseTestCase(TestCase):
 
     def test_raw_feedback(self):
         tfq = TrueFalseQuestion.objects.get()
-        self.assertEqual(tfq.answerFeedbackRaw('False'), {'answer': False, 'correct': True, 'answeredCorrect': False})
+        self.assertEqual(tfq.answer_feedback_raw('False'), {'answer': False, 'correct': True, 'answeredCorrect': False})
 
     def testAnswerCorrect(self):
         question = TrueFalseQuestion.objects.get(question_text='TEST_QUESTION')
-        response = question.answerFeedback(True)
+        response = question.answer_feedback(True)
         json = {
             'answer': True,
             'correct': True,
@@ -245,7 +245,7 @@ class TrueFalseTestCase(TestCase):
 
     def testAnswerIncorrect(self):
         question = TrueFalseQuestion.objects.get(question_text='TEST_QUESTION')
-        response = question.answerFeedback(False)
+        response = question.answer_feedback(False)
         json = {
             'answer': False,
             'correct': True,
@@ -279,7 +279,7 @@ class AchievementTestCase(TestCase):
     def test_is_achieved_returns_false_when_not_all_props_checked(self):
         achievement = Achievement.objects.get()
         player = Player.objects.get()
-        self.assertFalse(achievement.isAchieved(player))
+        self.assertFalse(achievement.is_achieved(player))
 
     def testTrigger(self):
         player = Player.objects.get()
@@ -362,7 +362,7 @@ class PropAnsweredQuestionInSubjectTestCase(TestCase):
             title='TEST_TOPIC',
             subject=sub,
         )
-        PropAnswerdQuestionInSubject.objects.create(
+        PropAnsweredQuestionInSubject.objects.create(
             number=1,
             subject=sub,
         )
@@ -374,23 +374,23 @@ class PropAnsweredQuestionInSubjectTestCase(TestCase):
         )
 
     def test_str_returns_number_in_title(self):
-        prop = PropAnswerdQuestionInSubject.objects.get()
+        prop = PropAnsweredQuestionInSubject.objects.get()
         self.assertEqual(str(prop), '1 in TEST_SUBJECT')
 
     def test_is_unlocked(self):
-        prop = PropAnswerdQuestionInSubject.objects.get()
+        prop = PropAnsweredQuestionInSubject.objects.get()
         player = Player.objects.get()
-        self.assertFalse(prop.isUnlocked(player))
+        self.assertFalse(prop.is_unlocked(player))
         question = Question.objects.get()
         PlayerAnswer.objects.create(
             player=player,
             question=question,
             result=True,
         )
-        self.assertTrue(prop.isUnlocked(player))
+        self.assertTrue(prop.is_unlocked(player))
 
     def test_does_not_exist_not_thrown_on_update(self):
-        prop = PropAnswerdQuestionInSubject.objects.get()
+        prop = PropAnsweredQuestionInSubject.objects.get()
         player = Player.objects.get()
         self.assertEqual(prop.update(player), None)
 
@@ -495,7 +495,7 @@ class RatingTestCase(TestCase):
     def test_rating_no_topic(self):
         Topic.objects.get().delete()
         player = Player.objects.get()
-        self.assertEqual(PlayerRating.getRatingObject(player), None)
+        self.assertEqual(PlayerRating.get_rating_object(player), None)
 
     def test_rating_change_on_correct(self):
         player = Player.objects.get()
@@ -513,7 +513,7 @@ class RatingTestCase(TestCase):
 
     def test_no_rating_change_above_cap(self):
         player = Player.objects.get()
-        PlayerRating.setRating(player, 1700)
+        PlayerRating.set_rating(player, 1700)
         question = Question.objects.get()
         player.update(question, 0)
         self.assertTrue(question.rating == 1200)
@@ -527,7 +527,7 @@ class RatingTestCase(TestCase):
             question=question,
             result=True,
         )
-        self.assertTrue(player.rating() < player.virtualRating([question.topic]))
+        self.assertTrue(player.rating() < player.virtual_rating([question.topic]))
 
     def test_virtual_rating_decrease(self):
         player = Player.objects.get()
@@ -537,7 +537,7 @@ class RatingTestCase(TestCase):
             question=question,
             result=False,
         )
-        self.assertTrue(player.rating() > player.virtualRating([question.topic]))
+        self.assertTrue(player.rating() > player.virtual_rating([question.topic]))
 
     def test_virtual_rating_increase_and_decrease(self):
         player = Player.objects.get()
@@ -552,7 +552,7 @@ class RatingTestCase(TestCase):
             question=question,
             result=False,
         )
-        self.assertTrue(player.rating() == player.virtualRating([question.topic]))
+        self.assertTrue(player.rating() == player.virtual_rating([question.topic]))
 
 
 class redirectTestCase(TestCase):
@@ -613,20 +613,20 @@ class StatsTestCase(TestCase):
 
 
     def test_highscore(self):
-        self.playerA.setRating(1300)
-        self.playerB.setRating(1250)
-        self.assertEqual(self.subjectA.highscore(), [(1, 'TEST_USER_A', 1300), (2, 'TEST_USER_B', 1250)])
+        self.playerA.set_rating(1300)
+        self.playerB.set_rating(1250)
+        self.assertEqual(self.subjectA.high_score(), [(1, 'TEST_USER_A', 1300), (2, 'TEST_USER_B', 1250)])
 
     def test_setRating(self):
-        self.playerA.setRating(1500)
-        self.assertEqual(PlayerRating.getRating(self.playerA), 1500)
+        self.playerA.set_rating(1500)
+        self.assertEqual(PlayerRating.get_rating(self.playerA), 1500)
 
     def test_ratingList(self):
         self.playerA.update(self.questionA, True)
         self.playerA.update(self.questionA, True)
         self.playerA.update(self.questionA, True)
 
-        ratingList = self.playerA.ratingList()
+        ratingList = self.playerA.rating_list()
         self.assertEqual(len(ratingList[0]), len(ratingList[1]), 3)
 
         a, b, c = ratingList[0]
@@ -637,7 +637,7 @@ class StatsTestCase(TestCase):
         self.playerA.update(self.questionA, False)
         self.playerA.update(self.questionA, False)
 
-        ratingList = self.playerA.ratingList()
+        ratingList = self.playerA.rating_list()
         a, b, c = ratingList[0]
         self.assertTrue(a > b > c)
 
@@ -648,7 +648,7 @@ class StatsTestCase(TestCase):
         self.playerA.update(self.questionB, True)
         self.playerA.update(self.questionB, True)
 
-        self.assertEqual(self.playerA.subjectAnswers(), ([2, 3], ['TEST_SUBJECT_A', 'TEST_SUBJECT_B']))
+        self.assertEqual(self.playerA.subject_answers(), ([2, 3], ['TEST_SUBJECT_A', 'TEST_SUBJECT_B']))
 
 
 class QuestionFormTestCase(TestCase):
@@ -786,7 +786,7 @@ class ViewTestCase(TestCase):
             'answer': 'True',
         }
         response = self.client.post('/quiz/', post)
-        self.assertEquals(json.loads(response.content.decode()), self.questionA.answerFeedbackRaw(post['answer']))
+        self.assertEquals(json.loads(response.content.decode()), self.questionA.answer_feedback_raw(post['answer']))
 
     def test_post_truefalse_question_not_int(self):
         response = self.client.post('/quiz/', {'question': 'NOT_INT'})

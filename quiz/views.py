@@ -32,7 +32,7 @@ def question(request):
         else:
             return JsonResponse({}, safe=False)
 
-        feedback = question.answerFeedbackRaw(request.POST['answer'])
+        feedback = question.answer_feedback_raw(request.POST['answer'])
 
         if hasattr(request, 'user') and hasattr(request.user, 'player') and feedback:
             result = feedback['answeredCorrect']
@@ -48,7 +48,7 @@ def question(request):
             if not topics:
                 return HttpResponseRedirect('/quiz/select-topics')
 
-            virtualRating = request.user.player.virtualRating(topics)
+            virtualRating = request.user.player.virtual_rating(topics)
             questions = Question.objects.filter(topic__in=topics).annotate(dist=Func(F('rating') - virtualRating, function='ABS')).order_by('dist')
 
             REPEAT = 5
@@ -540,8 +540,8 @@ def stats(request, subject_id):
     context = {
         'subjects': subjects,
         'subject': subject,
-        'ratingList': request.user.player.ratingList(subject),
-        'subjectAnswers': request.user.player.subjectAnswers(),
+        'ratingList': request.user.player.rating_list(subject),
+        'subjectAnswers': request.user.player.subject_answers(),
     }
     return render(request, 'quiz/stats.html', context)
 

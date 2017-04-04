@@ -105,7 +105,7 @@ def account(request):
 
     top_pr = PlayerRating.objects.filter(player=Player.objects.get(user=request.user)).order_by('-rating').first()
 
-    player_subjects = request.user.player.subjectAnswers()
+    player_subjects = request.user.player.subject_answers()
     try:
         fav_sub = Subject.objects.get(title=player_subjects[1][player_subjects[0].index(max(player_subjects[0]))])
     except ValueError:

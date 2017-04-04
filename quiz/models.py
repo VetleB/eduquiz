@@ -10,7 +10,7 @@ class Achievement(models.Model):
     name = models.CharField(max_length=50, verbose_name='Title', default='')
     badge = models.ImageField(verbose_name='Badge', blank=True, null=True)
 
-    def isAchieved(self, player):
+    def is_achieved(self, player):
         for prop in self.property_set.all():
             try:
                 PropertyUnlock.objects.get(player=player, prop=prop)
@@ -19,7 +19,7 @@ class Achievement(models.Model):
         return True
 
     def update(self, player):
-        if self.isAchieved(player):
+        if self.is_achieved(player):
             try:
                 AchievementUnlock.objects.get(player=player, achievement=self)
             except AchievementUnlock.DoesNotExist:
@@ -38,11 +38,11 @@ class Property(models.Model):
 
     # return wether the propery is unlocked or not
     # implemented in subclasses
-    def isUnlocked(self, player):
+    def is_unlocked(self, player):
         return True
 
     def update(self, player):
-        if self.isUnlocked(player):
+        if self.is_unlocked(player):
             try:
                 PropertyUnlock.objects.get(player=player, prop=self)
             except PropertyUnlock.DoesNotExist:
@@ -86,36 +86,31 @@ class Player(models.Model):
     title = models.ForeignKey(Title, blank=True, null=True)
     user = models.OneToOneField(User)
 
-    def setRating(self, rating):
-        PlayerRating.setRating(self, rating)
+    def set_rating(self, rating):
+        PlayerRating.set_rating(self, rating)
 
-    def subjectAnswers(self):
+    def subject_answers(self):
         counts = []
         titles = []
 
-        query = PlayerAnswer.objects.filter(player=self).values('question__topic__subject').annotate(count=Count('question__topic__subject'))
+        query = PlayerAnswer.objects.filter(player=self).values('question__topic__subject')\
+            .annotate(count=Count('question__topic__subject'))
+
         for element in query:
             sub = Subject.objects.get(pk=element['question__topic__subject'])
             count = element['count']
             counts.append(count)
             titles.append(sub.title)
 
-        return (counts, titles)
+        return counts, titles
 
-    def ratingList(self, subject=None):
-        if subject == None:
+    def rating_list(self, subject=None):
+        if subject is None:
             subject = self.subject()
-        qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', 'answer_date').order_by('answer_date')
-        return ([float(a[0]) for a in qset], [datetime.strftime(a[1], '%d %B') for a in qset])
+        qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject)\
+            .values_list('rating', 'answer_date').order_by('answer_date')
 
-    #def ratingLists(self):
-    #    li = []
-    #    for subject in Subject.objects.all():
-    #        li2 = 50 * [1200]
-    #        qset = PlayerAnswer.objects.filter(player=self, question__topic__subject=subject).values_list('rating', flat=True)
-    #        li2[50-len(qset):] = [int(rating) for rating in qset]
-    #        li.append((li2, subject.title))
-    #    return (range(1, 51), li)
+        return [float(a[0]) for a in qset], [datetime.strftime(a[1], '%d %B') for a in qset]
 
     def subject(self):
         try:
@@ -124,7 +119,7 @@ class Player(models.Model):
             return None
 
     def rating(self):
-        return PlayerRating.getRating(self)
+        return PlayerRating.get_rating(self)
 
     def update(self, question, win):
         """
@@ -140,18 +135,18 @@ class Player(models.Model):
         :rtype: None
         """
         win = int(win)
-        QUESTION_K = 8
-        PLAYER_K = 16
-        RATING_CAP = 150
+        question_k = 8
+        player_k = 16
+        rating_cap = 150
 
         rating = float(self.rating())
-        questionRating = float(question.rating)
+        question_rating = float(question.rating)
 
-        if rating - questionRating < RATING_CAP:
-            newrating = rating + PLAYER_K * (win - self.exp(rating, questionRating))
-            question.rating = questionRating + QUESTION_K * ((1-win) - self.exp(questionRating, rating))
+        if rating - question_rating < rating_cap:
+            new_rating = rating + player_k * (win - self.exp(rating, question_rating))
+            question.rating = question_rating + question_k * ((1-win) - self.exp(question_rating, rating))
             question.save()
-            PlayerRating.setRating(self, newrating)
+            PlayerRating.set_rating(self, new_rating)
 
         PlayerAnswer.objects.create(player=self, question=question, result=win)
 
@@ -172,7 +167,7 @@ class Player(models.Model):
         """
         return 1/(1+pow(10, (b-a)/400))
 
-    def virtualRating(self, topics):
+    def virtual_rating(self, topics):
         """
         Return rating adjusted up if player is on win streak, down if on loss streak.
 
@@ -182,13 +177,16 @@ class Player(models.Model):
         :return: Player's adjusted rating
         :rtype: float
         """
-        VIRTUAL_K = 10
-        VIRTUAL_C = 5
+        virtual_k = 10
+        virtual_c = 5
 
-        # Get the VIRTUAL_C latest answers that are not reports (report_skip must equal False) and in/decrease rating thereafter
-        answers = [pa for pa in PlayerAnswer.objects.filter(player=self, question__topic__in=topics).order_by('-answer_date') if pa.report_skip!=True][:VIRTUAL_C]
-        virtual = sum([VIRTUAL_K if answer.result else -VIRTUAL_K for answer in answers])
-        return PlayerRating.getRating(self) + virtual
+        # Get the virtual_c latest answers that are not reports
+        # (report_skip must equal False) and in/decrease rating thereafter
+        answers = [pa for pa in PlayerAnswer.objects.filter(player=self, question__topic__in=topics)
+            .order_by('-answer_date') if pa.report_skip is not True][:virtual_c]
+
+        virtual = sum([virtual_k if answer.result else -virtual_k for answer in answers])
+        return PlayerRating.get_rating(self) + virtual
 
     def __str__(self):
         return self.user.username
@@ -226,7 +224,7 @@ class Subject(models.Model):
     def __str__(self):
         return '%s - %s' % (self.code, self.title)
 
-    def highscore(self):
+    def high_score(self):
         query = PlayerRating.objects.filter(subject=self).values_list('player', 'rating').order_by('-rating')
         return [(a[0]+1, Player.objects.get(pk=a[1][0]).user.username, int(a[1][1])) for a in enumerate(query)]
 
@@ -250,8 +248,8 @@ class PlayerRating(models.Model):
     rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
 
     @staticmethod
-    def getRatingObject(player, subject=None):
-        if subject == None:
+    def get_rating_object(player, subject=None):
+        if subject is None:
             subject = player.subject()
         if not subject:
             return None
@@ -261,7 +259,7 @@ class PlayerRating(models.Model):
             return PlayerRating.objects.create(player=player, subject=subject)
 
     @staticmethod
-    def getRating(player, subject=None):
+    def get_rating(player, subject=None):
         """
         Get rating of a player in a subject
 
@@ -274,14 +272,14 @@ class PlayerRating(models.Model):
         :return: Player's rating in subject
         :rtype: float
         """
-        playerRating = PlayerRating.getRatingObject(player, subject)
-        if playerRating:
-            return playerRating.rating
+        player_rating = PlayerRating.get_rating_object(player, subject)
+        if player_rating:
+            return player_rating.rating
         else:
             return 1200
 
     @staticmethod
-    def setRating(player, rating, subject=None):
+    def set_rating(player, rating, subject=None):
         """
         Set a player's rating in a subject
 
@@ -297,9 +295,9 @@ class PlayerRating(models.Model):
         :return: None
         :rtype: None
         """
-        playerRating = PlayerRating.getRatingObject(player, subject)
-        playerRating.rating = rating
-        playerRating.save()
+        player_rating = PlayerRating.get_rating_object(player, subject)
+        player_rating.rating = rating
+        player_rating.save()
 
 
 class Question(models.Model):
@@ -316,29 +314,29 @@ class TextQuestion(Question):
     def __str__(self):
         return self.question_text
 
-    def validate(self, inAnswer):
+    def validate(self, in_answer):
         """
         Determines whether a text answer is right or wrong
 
-        :param inAnswer: Answer to be validated
-        :type inAnswer: string
+        :param in_answer: Answer to be validated
+        :type in_answer: string
 
         :return: Whether answer is right or not
         :rtype: boolean
         """
-        userAnswer = inAnswer.strip().casefold()
-        correctAnswer = self.answer.strip().casefold()
+        user_answer = in_answer.strip().casefold()
+        correct_answer = self.answer.strip().casefold()
 
         # Fjerner alt som ikke er alfanumerisk
-        userAnswer = ''.join([c for c in userAnswer if c.isalnum()])
-        correctAnswer = ''.join([c for c in correctAnswer if c.isalnum()])
+        user_answer = ''.join([c for c in user_answer if c.isalnum()])
+        correct_answer = ''.join([c for c in correct_answer if c.isalnum()])
 
-        return userAnswer == correctAnswer
+        return user_answer == correct_answer
 
-    def answerFeedbackRaw(self, answer):
-        return self.answerFeedback(answer)
+    def answer_feedback_raw(self, answer):
+        return self.answer_feedback(answer)
 
-    def answerFeedback(self, answer):
+    def answer_feedback(self, answer):
         """
         Validates answer and returns feedback as JSON-object
 
@@ -348,11 +346,11 @@ class TextQuestion(Question):
         :return: JSON-object
         :rtype: dict
         """
-        answeredCorrect = self.validate(answer)
+        answered_correct = self.validate(answer)
         return {
             'answer': answer,
             'correct': self.answer,
-            'answeredCorrect': answeredCorrect,
+            'answered_correct': answered_correct,
         }
 
 
@@ -362,69 +360,69 @@ class NumberQuestion(Question):
     def __str__(self):
         return self.question_text
 
-    def validate(self, inAnswer):
+    def validate(self, in_answer):
         """
         Determines whether a number answer is right or wrong
 
-        :param inAnswer: Answer to be validated
-        :type inAnswer: string
+        :param in_answer: Answer to be validated
+        :type in_answer: string
 
         :return: Whether answer is right or not
         :rtype: boolean
         """
-        if inAnswer == '':
+        if in_answer == '':
             return False
 
-        userAnswer = inAnswer.casefold().strip().replace(',', '.')
-        correctAnswer = self.answer.casefold().strip().replace(',', '.')
+        user_answer = in_answer.casefold().strip().replace(',', '.')
+        correct_answer = self.answer.casefold().strip().replace(',', '.')
 
         # Removes leading zeros
-        while len(userAnswer) > 1 and userAnswer[0] == '0':
-            userAnswer = userAnswer[1:]
+        while len(user_answer) > 1 and user_answer[0] == '0':
+            user_answer = user_answer[1:]
 
         # If no integer part, set it to '0'
-        if userAnswer[0] == '.':
-            userAnswer = '0' + userAnswer
+        if user_answer[0] == '.':
+            user_answer = '0' + user_answer
 
         # If answer not a decimal, check if user's answer only has zeros in the decimal part and compare
-        if '.' not in correctAnswer:
-            if '.' in userAnswer:
-                spl = userAnswer.split('.')
+        if '.' not in correct_answer:
+            if '.' in user_answer:
+                spl = user_answer.split('.')
                 if match(r'^0*$', spl[1]):
-                    return spl[0] == correctAnswer
+                    return spl[0] == correct_answer
                 return False
-            return userAnswer == correctAnswer
+            return user_answer == correct_answer
 
-        correctNumOfDecimals = len(correctAnswer.split('.')[1])
+        correct_num_of_decimals = len(correct_answer.split('.')[1])
 
-        if '.' in userAnswer:
-            userAnswer = userAnswer.split('.')
-            numOfDecimals = len(userAnswer[1])
+        if '.' in user_answer:
+            user_answer = user_answer.split('.')
+            num_of_decimals = len(user_answer[1])
 
             # Adds zeros to decimal part to get correct length
-            if numOfDecimals < correctNumOfDecimals:
-                userAnswer[1] += ''.join(['0']*(correctNumOfDecimals-numOfDecimals))
+            if num_of_decimals < correct_num_of_decimals:
+                user_answer[1] += ''.join(['0']*(correct_num_of_decimals-num_of_decimals))
 
             # Remove trailing zeros to get correct length
-            if numOfDecimals > correctNumOfDecimals:
-                extra = userAnswer[1][correctNumOfDecimals:]
-                zeroMatch = match(r'^0*$', extra)
-                if zeroMatch:
-                    userAnswer[1] = userAnswer[1][0:correctNumOfDecimals]
+            if num_of_decimals > correct_num_of_decimals:
+                extra = user_answer[1][correct_num_of_decimals:]
+                zero_match = match(r'^0*$', extra)
+                if zero_match:
+                    user_answer[1] = user_answer[1][0:correct_num_of_decimals]
 
-            userAnswer = '.'.join(userAnswer)
+            user_answer = '.'.join(user_answer)
         else:
-            userAnswer += '.' + ''.join(['0']*correctNumOfDecimals)
+            user_answer += '.' + ''.join(['0']*correct_num_of_decimals)
 
         # Make sure user's answer is on right format
-        patternMatch = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]*$', userAnswer))
+        pattern_match = bool(match(r'^0*[0-9a-f]*[.][0-9a-f]*$', user_answer))
         # Compare user's answer with the actual answer
-        return (userAnswer == correctAnswer) and patternMatch
+        return (user_answer == correct_answer) and pattern_match
 
-    def answerFeedbackRaw(self, answer):
-        return self.answerFeedback(answer)
+    def answer_feedback_raw(self, answer):
+        return self.answer_feedback(answer)
 
-    def answerFeedback(self, answer):
+    def answer_feedback(self, answer):
         """
         Validates answer and returns feedback as JSON-object
 
@@ -434,11 +432,11 @@ class NumberQuestion(Question):
         :return: JSON-object
         :rtype: dict
         """
-        answeredCorrect = self.validate(answer)
+        answered_correct = self.validate(answer)
         return {
             'answer': answer,
             'correct': self.answer,
-            'answeredCorrect': answeredCorrect,
+            'answered_correct': answered_correct,
         }
 
 
@@ -448,10 +446,10 @@ class TrueFalseQuestion(Question):
     def __str__(self):
         return self.question_text
 
-    def answerFeedbackRaw(self, answer):
-        return self.answerFeedback(answer.capitalize() == 'True')
+    def answer_feedback_raw(self, answer):
+        return self.answer_feedback(answer.capitalize() == 'True')
 
-    def answerFeedback(self, answer):
+    def answer_feedback(self, answer):
         """
         Validates answer and returns feedback as JSON-object
 
@@ -461,11 +459,11 @@ class TrueFalseQuestion(Question):
         :return: JSON-object
         :rtype: dict
         """
-        answeredCorrect = answer == self.answer
+        answered_correct = answer == self.answer
         return {
             'answer': answer,
             'correct': self.answer,
-            'answeredCorrect': answeredCorrect,
+            'answered_correct': answered_correct,
         }
 
 
@@ -474,30 +472,30 @@ class MultipleChoiceQuestion(Question):
     def __str__(self):
         return self.question_text
 
-    def answerFeedbackRaw(self, answer):
+    def answer_feedback_raw(self, answer):
         try:
-            return self.answerFeedback(int(answer))
+            return self.answer_feedback(int(answer))
         except ValueError:
-            return self.answerFeedback(1)
+            return self.answer_feedback(1)
 
-    def answerFeedback(self, answerID):
+    def answer_feedback(self, answer_id):
         """
         Validates answer and returns feedback as JSON-object
 
-        :param answer: Answer to be validated
-        :type answer: int
+        :param answer_id: Answer to be validated
+        :type answer_id: int
 
         :return: JSON-object
         :rtype: dict
         """
-        answer = MultipleChoiceAnswer.objects.get(id=answerID)
-        answeredCorrect = answer.correct
+        answer = MultipleChoiceAnswer.objects.get(id=answer_id)
+        answered_correct = answer.correct
         answers = MultipleChoiceAnswer.objects.filter(question=self.id, correct=True)
-        answerIDs = [answer.id for answer in answers]
+        answer_ids = [answer.id for answer in answers]
         return {
-            'answer': answerID,
-            'correct': answerIDs,
-            'answeredCorrect': answeredCorrect,
+            'answer': answer_id,
+            'correct': answer_ids,
+            'answered_correct': answered_correct,
         }
 
 
@@ -533,12 +531,11 @@ class PlayerAnswer(models.Model):
         super(PlayerAnswer, self).save(*args, **kwargs)
 
 
-
-class PropAnswerdQuestionInSubject(Property):
+class PropAnsweredQuestionInSubject(Property):
     number = models.IntegerField(default=0, verbose_name="Number of answers")
     subject = models.ForeignKey(Subject, verbose_name="Subject")
 
-    def isUnlocked(self, player):
+    def is_unlocked(self, player):
         """ Return whether property is unlocked """
         return len(PlayerAnswer.objects.filter(player=player, question__topic__subject=self.subject)) >= self.number
 

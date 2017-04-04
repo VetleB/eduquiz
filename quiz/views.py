@@ -35,7 +35,7 @@ def question(request):
         feedback = question.answer_feedback_raw(request.POST['answer'])
 
         if hasattr(request, 'user') and hasattr(request.user, 'player') and feedback:
-            result = feedback['answeredCorrect']
+            result = feedback['answered_correct']
             request.user.player.update(question, result)
 
         return JsonResponse(feedback, safe=False)

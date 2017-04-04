@@ -570,6 +570,7 @@ class redirectTestCase(TestCase):
     TEST_PASS = 'TEST_PASSWORD'
 
     def setUp(self):
+        self.client = Client()
         TEST_USER = User.objects.create(
             username=self.TEST_USERNAME,
             password=self.TEST_PASS,

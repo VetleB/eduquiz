@@ -1,0 +1,207 @@
+{% extends 'eduquiz/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+{% endblock head %}
+
+{% block content %}
+
+<div class="ui middle aligned center aligned grid">
+    <div class="ui container stackable grid account">
+        <div class="four wide column left">
+            <div class="ui segment">
+                <div class="ui secondary vertical menu">
+                    <a class="{% if not login_form and not name_form%} active {% endif %} item" data-tab="first">Overview</a>
+                    <a class="{% if login_form %} active {% endif %} item" data-tab="second">Settings</a>
+                    <a class="{% if name_form %} active {% endif %} item" data-tab="third">Other</a>
+                </div>
+            </div>
+
+        </div>
+        <div class="twelve wide column">
+            <div class="ui segment tab {% if not login_form and not name_form %} active {% endif %}" data-tab="first">
+                <h3>{{ request.user.player }}</h3>
+                <br><br>
+                <p>
+                    Member since {{ request.user.date_joined }}
+                </p>
+                <br>
+                {% if top_pr.subject %}
+                  <p>
+                      Top Subject: {{ top_pr.subject }}
+                  </p>
+                  <br>
+                {% endif %}
+                {% if fav_sub %}
+                  <p>
+                      Favorite subject: {{ fav_sub }}
+                  </p>
+                {% endif %}
+            </div>
+            <div class="ui segment tab {% if login_form %} active {% endif %}" data-tab="second">
+                <h3>Change password</h3>
+                <br><br>
+                <div class="content">
+                    <div class="description">
+                        <form class="ui form change_pswd" action="/authentication/change_pswd/" method="POST">
+                            {% csrf_token %}
+
+                            <div class="field">
+                                <label>Old password</label>
+                                <input id="old_pswd" type="password" name="old_password" required>
+                            </div>
+
+                            {% if login_form.errors.old_password %}
+                                <div class="ui negative message change_pswd_error">
+                                    <div class="header">
+                                        <!--Invalid-->
+                                    </div>
+                                    <p>{{ login_form.errors.old_password.0 }}</p>
+                                </div>
+                            {% endif %}
+
+                            <div class="field">
+                                <label>New password</label>
+                                <input id="new_pswd1" type="password" name="new_password1" required>
+                            </div>
+
+                            <div class="field">
+                                <label>Confirm new password</label>
+                                <input id="new_pswd2" type="password" name="new_password2" required>
+                            </div>
+
+                            {% if login_form.errors.new_password2 and not login_form.errors.old_password %}
+                                <div class="ui negative message change_pswd_error">
+                                    <div class="header">
+                                        <!--Invalid-->
+                                    </div>
+                                    <p>{{ login_form.errors.new_password2.0 }}</p>
+                                </div>
+                            {% endif %}
+
+                        </form>
+                    </div>
+                </div>
+                <br>
+                <div class="actions">
+                    <div class="ui positive right icon button submit change_pswd">
+                        Change password
+                    </div>
+                </div>
+            </div>
+            <div class="ui segment tab {% if name_form %} active {% endif %}" data-tab="third">
+                <h3>
+                    Change username
+                </h3>
+                <br><br>
+                <div class="content">
+                    <div class="description">
+                        <form class="ui form change_name" action="/authentication/change_name/" method="POST">
+                            {% csrf_token %}
+
+                            <div class="field">
+                                <label>New username</label>
+                                <input id="new_name" type="text" name="username" value="{{ name_form.username.value }}" required>
+                            </div>
+                            {% if name_form.errors.username %}
+                                <div class="ui negative message name_error">
+                                    <div class="header">
+                                        <!--Invalid-->
+                                    </div>
+                                    <p>{{ name_form.errors.username.0 }}</p>
+                                </div>
+                            {% endif %}
+
+                            <div class="field">
+                                <label>Password</label>
+                                <input id="pswd" type="password" name="password" required>
+                            </div>
+
+                            {% if name_form.errors.password %}
+                                <div class="ui negative message name_error">
+                                    <div class="header">
+                                        <!--Invalid-->
+                                    </div>
+                                    <p>{{ name_form.errors.password.0 }}</p>
+                                </div>
+                            {% endif %}
+
+                        </form>
+                    </div>
+                </div>
+                <br>
+                <div class="actions">
+                    <div class="ui positive right icon button submit change_name">
+                        Change username
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .account.container {
+        height: auto;
+        padding: 30px;
+        margin-top: 100px !important;
+        margin-bottom: 50px !important;
+        z-index: 0;
+    }
+    .segment.tab {
+        margin: 0;
+    }
+    h3 {
+        margin-bottom: -20px !important;
+    }
+</style>
+
+<script>
+    $(function() {
+        $('.menu .item').tab();
+    });
+
+    $(".change_pswd.button.submit").click(function() {
+        $('form.change_pswd').submit();
+    });
+
+    $("#old_pswd").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $("#new_pswd1").focus();
+        }
+    });
+
+    $("#new_pswd1").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $("#new_pswd2").focus();
+        }
+    });
+
+    $("#new_pswd2").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $('form.change_pswd').submit();
+        }
+    });
+
+    $(".change_name.button.submit").click(function() {
+        $('form.change_name').submit();
+    });
+
+    $("#new_name").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $("#pswd").focus();
+        }
+    });
+
+    $("#pswd").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $('form.change_name').submit();
+        }
+    });
+</script>
+{% endblock content %}

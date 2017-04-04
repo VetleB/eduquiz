@@ -69,6 +69,9 @@
         <div class="ui positive right icon button submit register">
             Submit
         </div>
+        <div class="ui gray left icon button login">
+            Existing user?
+        </div>
     </div>
 </div>
 
@@ -77,7 +80,10 @@
         margin-top: -10px !important;
     }
     .ui.sidebar .item {
-      font-size: 24px;
+        font-size: 24px;
+    }
+    .actions .login.gray {
+        float: left !important;
     }
 </style>
 
@@ -121,5 +127,8 @@
     }
   });
 
+  $(".login.button").click(function() {
+    $('.ui.modal.login').modal('show');
+  });
 
 </script>

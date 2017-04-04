@@ -809,7 +809,7 @@ class ViewTestCase(TestCase):
         response = self.client.get('/quiz/select-topics/')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.context[0].dicts[3]['subject'], self.subject)
-        self.assertEquals(response.context[0].dicts[3]['playerTopics'], [self.topic_a])
+        self.assertEquals(response.context[0].dicts[3]['player_topics'], [self.topic_a])
 
     def test_select_topic(self):
         response = self.client.post('/quiz/select-topics/', {

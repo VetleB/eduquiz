@@ -450,16 +450,6 @@ class TopicTestCase(TestCase):
         self.assertEqual(str(topic), 'TEST_TOPIC')
 
 
-class QuestionTestCase(TestCase):
-
-    def setUp(self):
-        Question.objects.create(question_text='TEST_QUESTION')
-
-    def test_str_returns_question_text(self):
-        q = Question.objects.get()
-        self.assertEqual(str(q), 'TEST_QUESTION')
-
-
 class MultipleChoiceAnswerTestCase(TestCase):
 
     def setUp(self):
@@ -862,6 +852,10 @@ class ViewTestCase(TestCase):
         response = self.client.get('/quiz/stats/')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/quiz/stats/%r' % self.topicA.id)
+
+    def test_stats_default_with_nonexisting_topic(self):
+        response = self.client.get('/quiz/stats/1337')
+        self.assertEqual(response.status_code, 200)
 
     def test_stats_default_none_selected(self):
         PlayerTopic.objects.all().delete()

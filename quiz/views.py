@@ -75,9 +75,7 @@ def question(request):
             recent_questions = [pa.question for pa in PlayerAnswer.objects.order_by('-answer_date') if (pa.question.topic in topics and not pa.report_skip)]
             q_list = [question]
             for q in recent_questions:
-                if q in q_list:
-                    pass
-                else:
+                if not q in q_list:
                     q_list.append(q)
             recent_questions = q_list[1:REPORTABLE_AMOUNT+1]
             context = {
@@ -286,13 +284,12 @@ def newTextQuestion(request):
 
     :return: HttPResponse, render
     """
+    form = TextQuestionForm()
+
     if request.method == 'POST':
         form = TextQuestionForm(request.POST)
         if form.is_valid():
-            if hasattr(request, 'user') and hasattr(request.user, 'player'):
-                creator = request.user.player
-            else:
-                creator = None
+            creator = request.user
 
             subject = Subject.objects.get(title=form.cleaned_data['subject'])
             topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
@@ -305,7 +302,7 @@ def newTextQuestion(request):
                     topic = topic,
                     answer = form.cleaned_data['answer'],
                 )
-            elif form.cleaned_data['text'] == 'False':
+            else:
                 question = NumberQuestion(
                     question_text = form.cleaned_data['question'],
                     creator = creator,
@@ -316,8 +313,6 @@ def newTextQuestion(request):
             question.save()
             messages.success(request, 'Question successfully created')
             return HttpResponseRedirect('/quiz/new/')
-    else:
-        form = TextQuestionForm()
 
     subjects = Subject.objects.all()
     topics = Topic.objects.all()
@@ -341,13 +336,12 @@ def newTrueFalseQuestion(request):
 
     :return: HttPResponse, render
     """
+    form = TrueFalseQuestionForm()
+
     if request.method == 'POST':
         form = TrueFalseQuestionForm(request.POST)
         if form.is_valid():
-            if hasattr(request, 'user') and hasattr(request.user, 'player'):
-                creator = request.user.player
-            else:
-                creator = None
+            creator = request.user
 
             subject = Subject.objects.get(title=form.cleaned_data['subject'])
             topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
@@ -362,8 +356,6 @@ def newTrueFalseQuestion(request):
             question.save()
             messages.success(request, 'Question successfully created')
             return HttpResponseRedirect('/quiz/new/')
-    else:
-        form = TrueFalseQuestionForm()
 
     subjects = Subject.objects.all()
     topics = Topic.objects.all()
@@ -387,14 +379,13 @@ def newMultiplechoiceQuestion(request):
 
     :return: HttPResponse, render
     """
+    form = MultipleChoiceQuestionForm()
+
     if request.method == 'POST':
         form = MultipleChoiceQuestionForm(request.POST)
 
         if form.is_valid():
-            if hasattr(request, 'user') and hasattr(request.user, 'player'):
-                creator = request.user.player
-            else:
-                creator = None
+            creator = request.user
 
             subject = Subject.objects.get(title=form.cleaned_data['subject'])
             topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
@@ -437,8 +428,6 @@ def newMultiplechoiceQuestion(request):
             alternative4.save()
             messages.success(request, 'Question successfully created')
             return HttpResponseRedirect('/quiz/new/')
-    else:
-        form = MultipleChoiceQuestionForm()
 
     subjects = Subject.objects.all()
     topics = Topic.objects.all()
@@ -495,10 +484,8 @@ def viewReports(request):
     if user.is_superuser:
         reportesQuestionIDs = QuestionReport.objects.all().values_list('question_id', flat=True)
         questions = Question.objects.filter(id__in=reportesQuestionIDs)
-        reports = []
 
-        for question in questions:
-            reports.append([question, QuestionReport.objects.filter(question_id=question.id).count()])
+        reports = [[question, QuestionReport.objects.filter(question_id=question.id).count()] for question in questions]
 
         reports.sort(key=lambda tup: tup[1], reverse=True)
 

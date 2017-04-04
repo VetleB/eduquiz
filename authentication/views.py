@@ -12,13 +12,18 @@ from quiz.models import Player, PlayerRating, Subject
 
 
 def login(request):
+    """
+    Log in a user, redirect to start page if wrong credentials
 
+    :param request: request to be handled
+    :return: Redirect or render
+    """
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             user = authenticate(
-                username = form.cleaned_data['username'],
-                password = form.cleaned_data['password'],
+                username=form.cleaned_data['username'],
+                password=form.cleaned_data['password'],
             )
             if user is not None:
                 djangologin(request, user)
@@ -36,16 +41,28 @@ def login(request):
 
 
 def logout(request):
+    """
+    Log a user out
+
+    :param request: request to be handled
+    :return: Redirect
+    """
     djangologout(request)
     return HttpResponseRedirect('/')
 
 
 def register(request):
+    """
+    Registers a new user
+
+    :param request: Request to be handled
+    :return: Redirect, render
+    """
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
 
         if form.is_valid():
-            #Dictionary to hold user information
+            # Dictionary to hold user information
             userDict = form.cleaned_data
 
             user = User.objects.create_user(
@@ -70,13 +87,19 @@ def register(request):
         })
 
     context = {
-        'regForm': form,
+        'reg_form': form,
     }
 
     return render(request, 'eduquiz/index.html', context)
 
 
 def account(request):
+    """
+    Creates context for account page
+
+    :param request: Request to be handled
+    :return: Account render
+    """
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/')
 
@@ -99,6 +122,12 @@ def account(request):
 
 
 def change_pswd(request):
+    """
+    Change user's password
+
+    :param request: Request to be handled
+    :return: Account render/redirect
+    """
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/')
 
@@ -122,15 +151,21 @@ def change_pswd(request):
 
 
 def change_name(request):
+    """
+    Change user's username
+
+    :param request: Request to be handled
+    :return: Account render/redirect
+    """
     if not request.user.is_authenticated:
         return HttpResponseRedirect('/')
 
     if request.method == 'POST':
         form = ChangeUsernameForm(request.user, request.POST)
         if form.is_valid():
-            userdict = form.cleaned_data
+            user_dict = form.cleaned_data
             user = request.user
-            user.username = userdict['username']
+            user.username = user_dict['username']
             user.save()
 
             messages.success(request, 'Your username was successfully updated!')

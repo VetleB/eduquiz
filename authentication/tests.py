@@ -254,6 +254,12 @@ class ChangeUsernameTestCase(TestCase):
         self.user = User.objects.create_user(**self.credentials)
         Player.objects.create(user=self.user)
         self.other_user = User.objects.create_user('OTHER_USERNAME', self.TEST_PASS)
+        Player.objects.create(user=self.other_user)
+
+    def test_change_name_page(self):
+        self.client.login(**self.credentials)
+        response = self.client.get('/authentication/change_name/')
+        self.assertEqual(response.status_code, 200)
 
     def test_change_username_without_login(self):
         response = self.client.post('/authentication/change_name/', {
@@ -284,7 +290,7 @@ class ChangeUsernameTestCase(TestCase):
         self.client.login(**self.credentials)
         response = self.client.post('/authentication/change_name/', {
             'username': self.other_user.username,
-            'password': 'WRONG_PASSWORD',
+            'password': self.credentials['password'],
         })
         self.assertEqual(response.status_code, 200)
         self.assertNotEqual(response.context[0].dicts[1]['user'].username, 'NEW_USERNAME')

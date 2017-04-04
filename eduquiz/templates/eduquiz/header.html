@@ -19,6 +19,11 @@
           <a class="item" href="/quiz/select-topics">Select topics</a>
         </div>
       </div>
+      {% if user.is_superuser %}
+        <a class="item" href="/quiz/viewreports/">
+          View reports
+        </a>
+      {% endif %}
       <a class="item" href="/quiz/new/">
         Suggest Question
       </a>

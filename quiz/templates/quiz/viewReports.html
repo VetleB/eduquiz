@@ -14,8 +14,17 @@
 
 {% block content %}
     <div class="reports">
+        {% if not reports %}
+            <div class="ui {% if tuple.1 > 5 %}piled{%endif%} segment report" report="{{ report.id }}">
+                <div class="content">
+                    <div class="ui questionText">
+                        No reports to handle
+                     </div>
+                </div>
+            </div>
+        {% endif %}
         {% for tuple in reports %}
-            <div class="ui piled segment report" report="{{ report.id }}">
+            <div class="ui {% if tuple.1 > 5 %}piled{%endif%} segment report" report="{{ report.id }}">
                 <div class="content">
                     <h4 class="info stuff">
                          {{ tuple.0.topic }} - {{ tuple.0.topic.subject.code }}<br>
@@ -29,7 +38,7 @@
 
                     <div style="position: relative;">
                         <div class="ui reportCount">
-                            {{ tuple.1 }}
+                            reportcount: {{ tuple.1 }}
                          </div>
                     </div>
                 </div>
@@ -37,5 +46,18 @@
             </div>
         {% endfor %}
     </div>
-
+<style>
+.questionText {
+  font-size: 20px;
+}
+.reportCount {
+  font-size: 20px;
+}
+.segment.report {
+  padding: 20px;
+  min-height: 175px !important;
+  height: 175px;
+  margin: 5 !important;
+}
+</style>
 {% endblock content %}

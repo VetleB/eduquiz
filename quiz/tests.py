@@ -935,18 +935,29 @@ class ViewTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/quiz')
 
-    def test_report_delete_as_admin(self):
+    def test_question_delete_as_admin(self):
         self.user.is_superuser = True
         self.user.save()
-        QuestionReport.objects.create(question=self.question_a, player=self.player)
         self.client.get('/quiz/viewreports/deletequestion/%r/' % self.question_a.id)
         # self.assertEqual(QuestionReport.objects.all().count(), 0)
         self.assertEqual(Question.objects.filter(pk=self.question_a.id).count(), 0)
 
-    def test_report_delete_as_nonadmin(self):
-        QuestionReport.objects.create(question=self.question_a, player=self.player)
+    def test_question_delete_as_nonadmin(self):
         self.client.get('/quiz/viewreports/deletequestion/%r/' % self.question_a.id)
         self.assertEqual(Question.objects.filter(pk=self.question_a.id).count(), 1)
+
+    def test_report_delete_as_admin(self):
+        self.user.is_superuser = True
+        self.user.save()
+        report = QuestionReport.objects.create(question=self.question_a, player=self.player)
+        self.client.get('/quiz/viewreports/deletereport/%r/%r/' % (self.question_a.id, report.id))
+        # self.assertEqual(QuestionReport.objects.all().count(), 0)
+        self.assertEqual(QuestionReport.objects.filter(pk=report.id).count(), 0)
+
+    def test_report_delete_as_nonadmin(self):
+        report = QuestionReport.objects.create(question=self.question_a, player=self.player)
+        self.client.get('/quiz/viewreports/deletereport/%r/%r/' % (self.question_a.id, report.id))
+        self.assertEqual(QuestionReport.objects.filter(pk=report.id).count(), 1)
 
     def test_view_reports_as_admin(self):
         self.user.is_superuser = True
@@ -958,12 +969,19 @@ class ViewTestCase(TestCase):
         response = self.client.get('/quiz/viewreports/')
         self.assertNotEqual(response.status_code, 200)
 
-    def test_handle_reports_as_admin(self):
+    def test_handle_reports_as_admin_with_existing_reports(self):
         QuestionReport.objects.create(question=self.question_a, player=self.player)
         self.user.is_superuser = True
         self.user.save()
         response = self.client.get('/quiz/viewreports/handlereport/%r/' % self.question_a.id)
         self.assertEqual(response.status_code, 200)
+
+    def test_handle_reports_as_admin_without_existing_reports(self):
+        self.user.is_superuser = True
+        self.user.save()
+        response = self.client.get('/quiz/viewreports/handlereport/%r/' % self.question_a.id)
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, '/quiz/viewreports/')
 
     def test_handle_reports_as_nonadmin(self):
         QuestionReport.objects.create(question=self.question_a, player=self.player)

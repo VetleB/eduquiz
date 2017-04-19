@@ -9,52 +9,52 @@
           <form class="ui form register" action="/authentication/register/" method = "POST">
               {% csrf_token %}
               <div class="two fields">
-                  <div class="field {% if regForm.errors.firstName %} error registererror {% endif %}">
+                  <div class="field {% if reg_form.errors.firstName %} error registererror {% endif %}">
                       <label for="id_firstName">First name</label>
-                      <input id="id_firstName" placeholder ="First name " maxlength="15" name="firstName" type="text" required="" value="{{ regForm.firstName.value }}">
+                      <input id="id_firstName" placeholder ="First name " maxlength="15" name="firstName" type="text" required="" value="{{ reg_form.firstName.value }}">
                   </div>
 
-              <div class="field {% if regForm.errors.lastName %} error registererror {% endif %}">
+              <div class="field {% if reg_form.errors.lastName %} error registererror {% endif %}">
                 <label for="id_lastName">Last name</label>
-                  <input id="id_lastName" maxlength="15" placeholder ="Last name" name="lastName" type="text" required="" value="{{ regForm.lastName.value }}">
+                  <input id="id_lastName" maxlength="15" placeholder ="Last name" name="lastName" type="text" required="" value="{{ reg_form.lastName.value }}">
               </div>
           </div>
-          <div class="field {% if regForm.errors.email %} error registererror{% endif %}">
+          <div class="field {% if reg_form.errors.email %} error registererror{% endif %}">
               <label for="id_email">Email</label>
-              <input id="id_email" maxlength="50" placeholder ="E-mail" name="email" type="email" required="" value="{{ regForm.email.value }}">
+              <input id="id_email" maxlength="50" placeholder ="E-mail" name="email" type="email" required="" value="{{ reg_form.email.value }}">
           </div>
 
-          {%  if regForm.errors.email and regForm.errors.email.0 != "This field is required." %}
+          {%  if reg_form.errors.email and reg_form.errors.email.0 != "This field is required." %}
               <div class="ui pointing red label registererror">
                   <div class="header">
                         <!--Invalid-->
                   </div>
-                  <p>{{ regForm.errors.email.0 }}</p>
+                  <p>{{ reg_form.errors.email.0 }}</p>
               </div>
           {% endif %}
 
-          <div class="field {% if regForm.errors.username %} error registererror {% endif %}">
+          <div class="field {% if reg_form.errors.username %} error registererror {% endif %}">
             <label for="id_username">Username</label>
-            <input id="id_username" maxlength="15" name="username" placeholder ="Username" type="text" required="" value="{{ regForm.username.value }}">
+            <input id="id_username" maxlength="15" name="username" placeholder ="Username" type="text" required="" value="{{ reg_form.username.value }}">
           </div>
 
-          {%  if regForm.errors.username and regForm.errors.username.0 != "This field is required." %}
+          {%  if reg_form.errors.username and reg_form.errors.username.0 != "This field is required." %}
               <div class="ui pointing red label registererror">
                   <div class="header">
                         <!--Invalid-->
                   </div>
-                  <p>{{ regForm.errors.username.0 }}</p>
+                  <p>{{ reg_form.errors.username.0 }}</p>
               </div>
           {% endif %}
 
 
           <div class="two fields">
-            <div class="field {% if regForm.errors.password or regForm.error.passwordConfirm %} error registererror {% endif %}">
+            <div class="field {% if reg_form.errors.password or reg_form.error.passwordConfirm %} error registererror {% endif %}">
               <label for="id_password">Password</label>
               <input id="id_password" maxlength="30" name="password" placeholder ="Password" type="password" required="">
             </div>
 
-            <div class="field {% if regForm.errors.passwordConfirm or regForm.errors.password %} error registererror {% endif %}">
+            <div class="field {% if reg_form.errors.passwordConfirm or reg_form.errors.password %} error registererror {% endif %}">
               <label for="id_passwordConfirm">Confirm password</label>
               <input id="id_passwordConfirm" maxlength="30" name="passwordConfirm" placeholder ="Confirm password" type="password" required="">
             </div>
@@ -69,6 +69,9 @@
         <div class="ui positive right icon button submit register">
             Submit
         </div>
+        <div class="ui gray left icon button login">
+            Existing user?
+        </div>
     </div>
 </div>
 
@@ -77,7 +80,10 @@
         margin-top: -10px !important;
     }
     .ui.sidebar .item {
-      font-size: 24px;
+        font-size: 24px;
+    }
+    .actions .login.gray {
+        float: left !important;
     }
 </style>
 
@@ -121,5 +127,8 @@
     }
   });
 
+  $(".login.button").click(function() {
+    $('.ui.modal.login').modal('show');
+  });
 
 </script>

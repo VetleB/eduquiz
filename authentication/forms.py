@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
+
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=15, label="username")
     password = forms.CharField(max_length=30, widget=forms.PasswordInput, label="password")
@@ -12,8 +13,8 @@ class LoginForm(forms.Form):
 
         try:
             user = authenticate(
-                username = form_data['username'],
-                password = form_data['password'],
+                username=form_data['username'],
+                password=form_data['password'],
             )
             if user is None:
                 raise ValidationError({'password': 'Wrong username or password.'}, code='invalid')
@@ -27,7 +28,7 @@ class RegistrationForm(forms.Form):
     firstName = forms.CharField(max_length=15, label="firstName")
     lastName = forms.CharField(max_length=15, label="lastName")
     email = forms.EmailField(max_length=50, label="email")
-    username= forms.CharField(max_length=15, label="username")
+    username = forms.CharField(max_length=15, label="username")
     password = forms.CharField(max_length=30, widget=forms.PasswordInput, label="password")
     passwordConfirm = forms.CharField(max_length=30, widget=forms.PasswordInput, label="passwordConfirm")
 
@@ -49,7 +50,35 @@ class RegistrationForm(forms.Form):
             if form_data["password"] != form_data["passwordConfirm"]:
                 raise forms.ValidationError({'passwordConfirm': 'Passwords did not match. Try again.'}, code='invalid')
 
+        except KeyError:
+            pass
 
+        return form_data
+
+
+class ChangeUsernameForm(forms.Form):
+    username = forms.CharField(max_length=15, label='username')
+    password = forms.CharField(max_length=30, widget=forms.PasswordInput, label="password")
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(ChangeUsernameForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        form_data = self.cleaned_data
+        try:
+            try:
+                user = authenticate(
+                    username=self.user.username,
+                    password=form_data['password'],
+                )
+                if user is None:
+                    raise ValidationError({'password': 'Wrong password.'}, code='invalid')
+
+                User.objects.get(username=form_data["username"])
+                raise forms.ValidationError({'username': 'Username already in use.'}, code='invalid')
+            except User.DoesNotExist:
+                pass
 
         except KeyError:
             pass

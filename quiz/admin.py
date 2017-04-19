@@ -259,7 +259,7 @@ class TriggerAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(PropAnswerdQuestionInSubject)
+@admin.register(PropAnsweredQuestionInSubject)
 class PropAnswerdQuestionInSubjectAdmin(admin.ModelAdmin):
     fieldsets=(
         (None, {

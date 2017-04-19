@@ -18,24 +18,24 @@ def question(request):
     """
     if request.method == 'POST':
         try:
-            questionID = int(request.POST['question'])
+            question_id = int(request.POST['question'])
         except ValueError:
             return JsonResponse({}, safe=False)
 
-        questionList = (list(TrueFalseQuestion.objects.filter(id=questionID))
-            + list(MultipleChoiceQuestion.objects.filter(id=questionID))
-            + list(TextQuestion.objects.filter(id=questionID))
-            + list(NumberQuestion.objects.filter(id=questionID)))
+        question_list = (list(TrueFalseQuestion.objects.filter(id=question_id))
+                         + list(MultipleChoiceQuestion.objects.filter(id=question_id))
+                         + list(TextQuestion.objects.filter(id=question_id))
+                         + list(NumberQuestion.objects.filter(id=question_id)))
 
-        if questionList:
-            question = questionList[0]
+        if question_list:
+            question = question_list[0]
         else:
             return JsonResponse({}, safe=False)
 
-        feedback = question.answerFeedbackRaw(request.POST['answer'])
+        feedback = question.answer_feedback_raw(request.POST['answer'])
 
         if hasattr(request, 'user') and hasattr(request.user, 'player') and feedback:
-            result = feedback['answeredCorrect']
+            result = feedback['answered_correct']
             request.user.player.update(question, result)
 
         return JsonResponse(feedback, safe=False)
@@ -48,58 +48,60 @@ def question(request):
             if not topics:
                 return HttpResponseRedirect('/quiz/select-topics')
 
-            virtualRating = request.user.player.virtualRating(topics)
-            questions = Question.objects.filter(topic__in=topics).annotate(dist=Func(F('rating') - virtualRating, function='ABS')).order_by('dist')
+            virtual_rating = request.user.player.virtual_rating(topics)
+            questions = Question.objects.filter(topic__in=topics).annotate(
+                dist=Func(F('rating') - virtual_rating, function='ABS')).order_by('dist')
 
-            REPEAT = 5
+            repeat = 5
 
-            questionReturn = None
+            question_return = None
 
             for question in questions:
-                if question not in [pa.question for pa in list(PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[:REPEAT])]:
-                    questionReturn = question
+                if question not in [pa.question for pa in list(
+                        PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[:repeat])]:
+                    question_return = question
                     break
 
-            if not questionReturn:
-                questionReturn = PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[len(questions)-1].question
+            if not question_return:
+                question_return = PlayerAnswer.objects.filter(player=request.user.player).order_by('-answer_date')[
+                    len(questions) - 1].question
 
-            question = (list(TrueFalseQuestion.objects.filter(id=questionReturn.id))
-                + list(MultipleChoiceQuestion.objects.filter(id=questionReturn.id))
-                + list(TextQuestion.objects.filter(id=questionReturn.id))
-                + list(NumberQuestion.objects.filter(id=questionReturn.id)))[0]
+            question = (list(TrueFalseQuestion.objects.filter(id=question_return.id))
+                        + list(MultipleChoiceQuestion.objects.filter(id=question_return.id))
+                        + list(TextQuestion.objects.filter(id=question_return.id))
+                        + list(NumberQuestion.objects.filter(id=question_return.id)))[0]
 
-            # In order to have recently answered questions from current topics in list over reportable questions in report_modal
-            # How far back the list of questions goes is defined by REPORTABLE_AMOUNT
+            # To have recently answered questions from current topics in list over reportable questions in report_modal
+            # How far back the list of questions goes is defined by reportable_amount
             # Only list questions that have been ANSWERED, not REPORTED (report_skip must equal False)
-            REPORTABLE_AMOUNT = 2
-            recent_questions = [pa.question for pa in PlayerAnswer.objects.order_by('-answer_date') if (pa.question.topic in topics and not pa.report_skip)]
+            reportable_amount = 2
+            recent_questions = [pa.question for pa in PlayerAnswer.objects.order_by('-answer_date') if
+                                (pa.question.topic in topics and not pa.report_skip)]
             q_list = [question]
             for q in recent_questions:
-                if q in q_list:
-                    pass
-                else:
+                if q not in q_list:
                     q_list.append(q)
-            recent_questions = q_list[1:REPORTABLE_AMOUNT+1]
+            recent_questions = q_list[1:reportable_amount + 1]
             context = {
                 'recent_questions': recent_questions,
             }
 
             if isinstance(question, MultipleChoiceQuestion):
-                return multipleChoiceQuestion(request, question, context)
+                return multiple_choice_question(request, question, context)
 
             elif isinstance(question, TrueFalseQuestion):
-                return trueFalseQuestion(request, question, context)
+                return true_false_question(request, question, context)
 
             elif isinstance(question, TextQuestion):
-                return textQuestion(request, question, context)
+                return text_question(request, question, context)
 
             elif isinstance(question, NumberQuestion):
-                return numberQuestion(request, question, context)
+                return number_question(request, question, context)
 
         return HttpResponseRedirect('/')
 
 
-def selectTopic(request):
+def select_topic(request):
     """
     POST: updates a player's PlayerTopic objects
     GET: gets a player's PlayerTopic objects and renders "select topics" page
@@ -138,8 +140,8 @@ def selectTopic(request):
         for topic in topics:
             try:
                 PlayerTopic.objects.create(
-                    player = request.user.player,
-                    topic = Topic.objects.get(title=topic),
+                    player=request.user.player,
+                    topic=Topic.objects.get(title=topic),
                 )
             except Topic.DoesNotExist:
                 pass
@@ -149,34 +151,34 @@ def selectTopic(request):
         subjects = Subject.objects.all()
         topics = Topic.objects.all()
 
-        showtopics = []
+        show_topics = []
         for topic in topics:
             if topic.question_set.count() > 0:
-                showtopics.append(topic)
+                show_topics.append(topic)
 
-
-        topicsInPlayer = PlayerTopic.objects.filter(player=request.user.player)
+        topics_in_player = PlayerTopic.objects.filter(player=request.user.player)
         try:
-            subject = topicsInPlayer.first().topic.subject
-            allTopics = Topic.objects.all().filter(subject=subject)
+            subject = topics_in_player.first().topic.subject
+            all_topics = Topic.objects.all().filter(subject=subject)
         except AttributeError:
-            subject=None
-            allTopics = topics
+            subject = None
+            all_topics = topics
 
-        playerTopics = [playerTopic.topic for playerTopic in topicsInPlayer] if len(topicsInPlayer) != allTopics.count() else []
+        player_topics = [playerTopic.topic for playerTopic in topics_in_player] if \
+            len(topics_in_player) != all_topics.count() else []
 
         context = {
             'subjects': subjects,
-            'topics': showtopics,
+            'topics': show_topics,
             'subject': subject,
-            'playerTopics': playerTopics,
+            'player_topics': player_topics,
 
         }
 
         return render(request, 'quiz/select_topic.html', context)
 
 
-def multipleChoiceQuestion(request, question, context):
+def multiple_choice_question(request, question, context):
     """
     Renders a MC-question
 
@@ -196,7 +198,7 @@ def multipleChoiceQuestion(request, question, context):
     return render(request, 'quiz/multipleChoiceQuestion.html', context)
 
 
-def trueFalseQuestion(request, question, context):
+def true_false_question(request, question, context):
     """
     Renders a TF-question
 
@@ -216,7 +218,7 @@ def trueFalseQuestion(request, question, context):
     return render(request, 'quiz/trueFalseQuestion.html', context)
 
 
-def textQuestion(request, question, context):
+def text_question(request, question, context):
     """
     Renders a text question
 
@@ -236,7 +238,7 @@ def textQuestion(request, question, context):
     return render(request, 'quiz/textQuestion.html', context)
 
 
-def numberQuestion(request, question, context):
+def number_question(request, question, context):
     """
     Renders a number question
 
@@ -256,7 +258,7 @@ def numberQuestion(request, question, context):
     return render(request, 'quiz/numberQuestion.html', context)
 
 
-def newQuestion(request):
+def new_question(request):
     """
     Renders "new question" page if user is logged in
 
@@ -277,7 +279,7 @@ def newQuestion(request):
     return HttpResponseRedirect('/')
 
 
-def newTextQuestion(request):
+def new_text_question(request):
     """
     POST: creates new text or number question if form valid and redirects back to "new question" page
     Otherwise renders "new question" page
@@ -286,38 +288,35 @@ def newTextQuestion(request):
 
     :return: HttPResponse, render
     """
+    form = TextQuestionForm()
+
     if request.method == 'POST':
         form = TextQuestionForm(request.POST)
         if form.is_valid():
-            if hasattr(request, 'user') and hasattr(request.user, 'player'):
-                creator = request.user.player
-            else:
-                creator = None
+            creator = request.user
 
             subject = Subject.objects.get(title=form.cleaned_data['subject'])
             topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
 
             if form.cleaned_data['text'] == 'True':
                 question = TextQuestion(
-                    question_text = form.cleaned_data['question'],
-                    creator = creator,
-                    rating = 800 + 100 * int(form.cleaned_data['rating']),
-                    topic = topic,
-                    answer = form.cleaned_data['answer'],
+                    question_text=form.cleaned_data['question'],
+                    creator=creator,
+                    rating=800 + 100 * int(form.cleaned_data['rating']),
+                    topic=topic,
+                    answer=form.cleaned_data['answer'],
                 )
-            elif form.cleaned_data['text'] == 'False':
+            else:
                 question = NumberQuestion(
-                    question_text = form.cleaned_data['question'],
-                    creator = creator,
-                    rating = 800 + 100 * int(form.cleaned_data['rating']),
-                    topic = topic,
-                    answer = form.cleaned_data['answer'],
+                    question_text=form.cleaned_data['question'],
+                    creator=creator,
+                    rating=800 + 100 * int(form.cleaned_data['rating']),
+                    topic=topic,
+                    answer=form.cleaned_data['answer'],
                 )
             question.save()
             messages.success(request, 'Question successfully created')
             return HttpResponseRedirect('/quiz/new/')
-    else:
-        form = TextQuestionForm()
 
     subjects = Subject.objects.all()
     topics = Topic.objects.all()
@@ -332,7 +331,7 @@ def newTextQuestion(request):
     return render(request, 'quiz/newQuestion.html', context)
 
 
-def newTrueFalseQuestion(request):
+def new_true_false_question(request):
     """
     POST: creates new TF-question if form valid and redirects back to "new question" page
     Otherwise renders "new question" page
@@ -341,29 +340,26 @@ def newTrueFalseQuestion(request):
 
     :return: HttPResponse, render
     """
+    form = TrueFalseQuestionForm()
+
     if request.method == 'POST':
         form = TrueFalseQuestionForm(request.POST)
         if form.is_valid():
-            if hasattr(request, 'user') and hasattr(request.user, 'player'):
-                creator = request.user.player
-            else:
-                creator = None
+            creator = request.user
 
             subject = Subject.objects.get(title=form.cleaned_data['subject'])
             topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
 
             question = TrueFalseQuestion(
-                question_text = form.cleaned_data['question'],
-                creator = creator,
-                rating = 800 + 100 * int(form.cleaned_data['rating']),
-                topic = topic,
-                answer = form.cleaned_data['correct'] == 'True',
+                question_text=form.cleaned_data['question'],
+                creator=creator,
+                rating=800 + 100 * int(form.cleaned_data['rating']),
+                topic=topic,
+                answer=form.cleaned_data['correct'] == 'True',
             )
             question.save()
             messages.success(request, 'Question successfully created')
             return HttpResponseRedirect('/quiz/new/')
-    else:
-        form = TrueFalseQuestionForm()
 
     subjects = Subject.objects.all()
     topics = Topic.objects.all()
@@ -378,7 +374,7 @@ def newTrueFalseQuestion(request):
     return render(request, 'quiz/newQuestion.html', context)
 
 
-def newMultiplechoiceQuestion(request):
+def new_multiple_choice_question(request):
     """
     POST: creates new MC-question if form valid and redirects back to "new question" page
     Otherwise renders "new question" page
@@ -387,48 +383,47 @@ def newMultiplechoiceQuestion(request):
 
     :return: HttPResponse, render
     """
+    form = MultipleChoiceQuestionForm()
+
     if request.method == 'POST':
         form = MultipleChoiceQuestionForm(request.POST)
 
         if form.is_valid():
-            if hasattr(request, 'user') and hasattr(request.user, 'player'):
-                creator = request.user.player
-            else:
-                creator = None
+            creator = request.user
 
             subject = Subject.objects.get(title=form.cleaned_data['subject'])
             topic = Topic.objects.get(subject=subject, title=form.cleaned_data['topics'])
 
             question = MultipleChoiceQuestion(
-                question_text = form.cleaned_data['question'],
-                creator = creator,
-                rating = 800 + 100 * int(form.cleaned_data['rating']),
-                topic = topic,
+                question_text=form.cleaned_data['question'],
+                creator=creator,
+                rating=800 + 100 * int(form.cleaned_data['rating']),
+                topic=topic,
             )
             question.save()
 
             alternative1 = MultipleChoiceAnswer(
-                question = question,
-                answer = form.cleaned_data['answer1'],
-                correct = form.cleaned_data['correct'] == 'Alt1',
+                question=question,
+                answer=form.cleaned_data['answer1'],
+                correct=form.cleaned_data['correct'] == 'Alt1',
             )
 
             alternative2 = MultipleChoiceAnswer(
-                question = question,
-                answer = form.cleaned_data['answer2'],
-                correct = form.cleaned_data['correct'] == 'Alt2',
+                question=question,
+                answer=form.cleaned_data['answer2'],
+                correct=form.cleaned_data['correct'] == 'Alt2',
             )
 
             alternative3 = MultipleChoiceAnswer(
-                question = question,
-                answer = form.cleaned_data['answer3'],
-                correct = form.cleaned_data['correct'] == 'Alt3',
+                question=question,
+                answer=form.cleaned_data['answer3'],
+                correct=form.cleaned_data['correct'] == 'Alt3',
             )
 
             alternative4 = MultipleChoiceAnswer(
-                question = question,
-                answer = form.cleaned_data['answer4'],
-                correct = form.cleaned_data['correct'] == 'Alt4',
+                question=question,
+                answer=form.cleaned_data['answer4'],
+                correct=form.cleaned_data['correct'] == 'Alt4',
             )
 
             alternative1.save()
@@ -437,8 +432,6 @@ def newMultiplechoiceQuestion(request):
             alternative4.save()
             messages.success(request, 'Question successfully created')
             return HttpResponseRedirect('/quiz/new/')
-    else:
-        form = MultipleChoiceQuestionForm()
 
     subjects = Subject.objects.all()
     topics = Topic.objects.all()
@@ -466,39 +459,38 @@ def report(request):
     if request.method == 'POST':
         form = ReportForm(request.POST)
         if form.is_valid():
-            userDict = form.cleaned_data
+            user_dict = form.cleaned_data
             QuestionReport.objects.create(
                 player=request.user.player,
-                question=Question.objects.get(pk=userDict['question_id']),
-                red_right=userDict['red_right'],
-                green_wrong=userDict['green_wrong'],
-                unclear=userDict['unclear'],
-                off_topic=userDict['off_topic'],
-                inappropriate=userDict['inappropriate'],
-                other=userDict['other'],
-                comment=userDict['comment'],
+                question=Question.objects.get(pk=user_dict['question_id']),
+                red_right=user_dict['red_right'],
+                green_wrong=user_dict['green_wrong'],
+                unclear=user_dict['unclear'],
+                off_topic=user_dict['off_topic'],
+                inappropriate=user_dict['inappropriate'],
+                other=user_dict['other'],
+                comment=user_dict['comment'],
             )
             # Make a PA-object so that player doesn't get this question again immediately
             # (set report_skip to True to mark it as skipped because of a report)
             PlayerAnswer.objects.create(
                 player=request.user.player,
-                question=Question.objects.get(pk=userDict['question_id']),
+                question=Question.objects.get(pk=user_dict['question_id']),
                 result=True,
                 report_skip=True,
             )
     return HttpResponseRedirect('/quiz')
 
- 
-def viewReports(request):
+
+def view_reports(request):
     # Only site admins are allowed to see and handle reports
     user = request.user
     if user.is_superuser:
-        reportQuestionIDs = QuestionReport.objects.all().values_list('question_id', flat=True)
-        questions = Question.objects.filter(id__in=reportQuestionIDs)
+        reported_question_ids = QuestionReport.objects.all().values_list('question_id', flat=True)
+        questions = Question.objects.filter(id__in=reported_question_ids)
         reports = []
 
-        for question in questions:
-            reports.append([question, QuestionReport.objects.filter(question_id=question.id).count()])
+        reports = [[question, QuestionReport.objects.filter(question_id=question.id).count()] for question in questions]
 
         reports.sort(key=lambda tup: tup[1], reverse=True)
 
@@ -511,7 +503,7 @@ def viewReports(request):
     return HttpResponseRedirect('/')
 
 
-def handleReport(request, question_id):
+def handle_report(request, question_id):
     # Only site admins are allowed to see and handle reports
     user = request.user
     if user.is_superuser:
@@ -536,8 +528,7 @@ def handleReport(request, question_id):
     return HttpResponseRedirect('/')
 
 
-def deleteQuestion(request, question_id):
-
+def delete_question(request, question_id):
     # Only site admins are allowed to delete questions
     user = request.user
     if user.is_superuser:
@@ -555,8 +546,8 @@ def deleteReport(request, question_id, report_id):
         return HttpResponseRedirect('/quiz/viewreports/handlereport/'+question_id+'/')
     return HttpResponseRedirect('/')
 
-
-def statsDefault(request):
+  
+def stats_default(request):
     try:
         return HttpResponseRedirect('/quiz/stats/%r' % request.user.player.subject().id)
     except AttributeError:
@@ -573,7 +564,7 @@ def stats(request, subject_id):
     context = {
         'subjects': subjects,
         'subject': subject,
-        'ratingList': request.user.player.ratingList(subject),
-        'subjectAnswers': request.user.player.subjectAnswers(),
+        'ratingList': request.user.player.rating_list(subject),
+        'subjectAnswers': request.user.player.subject_answers(),
     }
     return render(request, 'quiz/stats.html', context)

@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^viewreports/$', views.view_reports, name='viewReport'),
     url(r'^viewreports/handlereport/(?P<question_id>[0-9]+)/$', views.handle_report, name='handleReport'),
     url(r'^viewreports/deletequestion/(?P<question_id>[0-9]+)/$', views.delete_question, name='deleteQuestion'),
-    url(r'^viewreports/deletereport/(?P<question_id>[0-9]+)/(?P<report_id>[0-9]+)/$', views.deleteReport, name='deleteReport'),
+    url(r'^viewreports/deletereport/(?P<question_id>[0-9]+)/(?P<report_id>[0-9]+)/$', views.delete_report, name='deleteReport'),
     url(r'^stats/(?P<subject_id>[0-9]+)', views.stats, name='stats'),
     url(r'^stats/', views.stats_default, name='statsDefault'),
 ]

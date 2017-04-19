@@ -9,192 +9,172 @@ from django.test import Client
 class TextQuestionTestCase(TestCase):
 
     def setUp(self):
-        TextQuestion.objects.create(
+        self.question = TextQuestion.objects.create(
             question_text='TEST_QUESTION',
             answer='Answer',
         )
 
     def test_str_returns_question_text(self):
-        tq = TextQuestion.objects.get()
-        self.assertEqual(str(tq), 'TEST_QUESTION')
+        self.assertEqual(str(self.question), 'TEST_QUESTION')
 
     def test_raw_feedback(self):
-        tq = TextQuestion.objects.get()
-        self.assertEqual(tq.answer_feedback_raw('fail'),
+        self.assertEqual(self.question.answer_feedback_raw('fail'),
                          {'answer': 'fail', 'correct': 'Answer', 'answered_correct': False})
 
     def test_validation_ignores_capitalization(self):
-        question = TextQuestion.objects.get()
-        self.assertTrue(question.validate('ansWer'))
-        question.answer = 'ANSWER'
-        self.assertTrue(question.validate('ansWer'))
+        self.assertTrue(self.question.validate('ansWer'))
+        self.question.answer = 'ANSWER'
+        self.assertTrue(self.question.validate('ansWer'))
 
     def test_validation_ignores_special_characters(self):
-        question = TextQuestion.objects.get()
-        question.answer = 'this answer'
-        self.assertTrue(question.validate('this-answer'))
-        self.assertTrue(question.validate('this_answer'))
-        self.assertTrue(question.validate('this.answer'))
-        self.assertTrue(question.validate('this answer'))
-        self.assertTrue(question.validate('thisanswer'))
-        question.answer = 'this-answer'
-        self.assertTrue(question.validate('this answer'))
-        question.answer = 'this_answer'
-        self.assertTrue(question.validate('this answer'))
-        question.answer = 'thisanswer'
-        self.assertTrue(question.validate('this answer'))
+        self.question.answer = 'this answer'
+        self.assertTrue(self.question.validate('this-answer'))
+        self.assertTrue(self.question.validate('this_answer'))
+        self.assertTrue(self.question.validate('this.answer'))
+        self.assertTrue(self.question.validate('this answer'))
+        self.assertTrue(self.question.validate('thisanswer'))
+        self.question.answer = 'this-answer'
+        self.assertTrue(self.question.validate('this answer'))
+        self.question.answer = 'this_answer'
+        self.assertTrue(self.question.validate('this answer'))
+        self.question.answer = 'thisanswer'
+        self.assertTrue(self.question.validate('this answer'))
 
     def test_validation_not_ignores_numbers(self):
-        question = TextQuestion.objects.get()
-        question.answer = 'this answer'
-        self.assertFalse(question.validate('this0answer'))
-        question.answer = 'this answer1'
-        self.assertFalse(question.validate('this answer'))
+        self.question.answer = 'this answer'
+        self.assertFalse(self.question.validate('this0answer'))
+        self.question.answer = 'this answer1'
+        self.assertFalse(self.question.validate('this answer'))
+
+    def test_answer_to_list_returns_list_with_answer(self):
+        self.assertEqual(self.question.answer_to_list(), [self.question.answer])
 
 
 class NumberQuestionTestCase(TestCase):
 
     def setUp(self):
-        NumberQuestion.objects.create(
+        self.question = NumberQuestion.objects.create(
             question_text='TEST_QUESTION',
             answer='1.000',
         )
 
     def test_str_returns_question_text(self):
-        q = NumberQuestion.objects.get()
-        self.assertEqual(str(q), 'TEST_QUESTION')
+        self.assertEqual(str(self.question), 'TEST_QUESTION')
 
     def test_raw_feedback(self):
-        nq = NumberQuestion.objects.get()
-        self.assertEqual(nq.answer_feedback_raw('2'), {'answer': '2', 'correct': '1.000', 'answered_correct': False})
+        self.assertEqual(self.question.answer_feedback_raw('2'), {'answer': '2', 'correct': '1.000', 'answered_correct': False})
 
     def test_empty_returns_false(self):
-        question = NumberQuestion.objects.get()
-        self.assertFalse(question.validate(''))
+        self.assertFalse(self.question.validate(''))
 
     def test_validation_of_correct_answer(self):
-        question = NumberQuestion.objects.get()
-        question.answer = '1231231.45'
-        self.assertTrue(question.validate('1231231.45'))
-        self.assertFalse(question.validate('12312314.5'))
+        self.question.answer = '1231231.45'
+        self.assertTrue(self.question.validate('1231231.45'))
+        self.assertFalse(self.question.validate('12312314.5'))
 
     def test_validation_of_float_when_answer_is_int(self):
-        question = NumberQuestion.objects.get()
-        question.answer = '42'
-        self.assertTrue(question.validate('42.0'))
-        question.answer = 'AB'
-        self.assertTrue(question.validate('AB.0'))
+        self.question.answer = '42'
+        self.assertTrue(self.question.validate('42.0'))
+        self.question.answer = 'AB'
+        self.assertTrue(self.question.validate('AB.0'))
 
     def test_validation_of_answer_without_decimal_part2(self):
-        question = NumberQuestion.objects.get()
-        question.answer = '133769'
-        self.assertTrue(question.validate('133769'))
-        self.assertTrue(question.validate('133769.'))
-        self.assertFalse(question.validate('1.33769'))
-        self.assertFalse(question.validate('1.3376.9'))
+        self.question.answer = '133769'
+        self.assertTrue(self.question.validate('133769'))
+        self.assertTrue(self.question.validate('133769.'))
+        self.assertFalse(self.question.validate('1.33769'))
+        self.assertFalse(self.question.validate('1.3376.9'))
 
     def test_validation_of_comma_as_decimal_mark(self):
-        question = NumberQuestion.objects.get()
-        self.assertTrue(question.validate('1.000'))
-        self.assertTrue(question.validate('1,000'))
+        self.assertTrue(self.question.validate('1.000'))
+        self.assertTrue(self.question.validate('1,000'))
 
     def test_validation_of_superfluous_spaces(self):
-        question = NumberQuestion.objects.get()
-        self.assertTrue(question.validate(' 1.000'))
-        self.assertTrue(question.validate('1.000 '))
-        self.assertTrue(question.validate(' 1.000 '))
+        self.assertTrue(self.question.validate(' 1.000'))
+        self.assertTrue(self.question.validate('1.000 '))
+        self.assertTrue(self.question.validate(' 1.000 '))
 
     def test_validation_of_answer_without_decimal_part(self):
-        question = NumberQuestion.objects.get()
-        self.assertTrue(question.validate('1'))
-        self.assertTrue(question.validate('1.'))
+        self.assertTrue(self.question.validate('1'))
+        self.assertTrue(self.question.validate('1.'))
 
     def test_validation_of_answer_without_integer_part(self):
-        question = NumberQuestion.objects.get()
-        question.answer = '0.001'
-        self.assertTrue(question.validate('.001'))
-        question.answer = '1.001'
-        self.assertFalse(question.validate('.001'))
+        self.question.answer = '0.001'
+        self.assertTrue(self.question.validate('.001'))
+        self.question.answer = '1.001'
+        self.assertFalse(self.question.validate('.001'))
 
     def test_validation_of_trailing_zeros(self):
-        question = NumberQuestion.objects.get()
-        question.answer = '0.1'
-        self.assertTrue(question.validate('0.10'))
-        self.assertFalse(question.validate('0.10010'))
+        self.question.answer = '0.1'
+        self.assertTrue(self.question.validate('0.10'))
+        self.assertFalse(self.question.validate('0.10010'))
 
     def test_validation_of_zero(self):
-        question = NumberQuestion.objects.get()
-        question.answer = '0'
-        self.assertTrue(question.validate('0'))
-        self.assertTrue(question.validate('0.'))
-        self.assertTrue(question.validate('.'))
-        self.assertTrue(question.validate('.0'))
+        self.question.answer = '0'
+        self.assertTrue(self.question.validate('0'))
+        self.assertTrue(self.question.validate('0.'))
+        self.assertTrue(self.question.validate('.'))
+        self.assertTrue(self.question.validate('.0'))
 
     def test_validation_of_leading_zeroes(self):
-        question = NumberQuestion.objects.get()
-        question.answer = '10'
-        self.assertTrue(question.validate('010'))
+        self.question.answer = '10'
+        self.assertTrue(self.question.validate('010'))
 
     def test_validation_of_hexadecimal_capitalization(self):
-        question = NumberQuestion.objects.get()
-        question.answer = 'aB3.bF1'
-        self.assertTrue(question.validate('ab3.bf1'))
-        self.assertTrue(question.validate('AB3.BF1'))
-        self.assertTrue(question.validate('Ab3.Bf1'))
-        question.answer = 'AB123ef'
-        self.assertTrue(question.validate('Ab123eF'))
+        self.question.answer = 'aB3.bF1'
+        self.assertTrue(self.question.validate('ab3.bf1'))
+        self.assertTrue(self.question.validate('AB3.BF1'))
+        self.assertTrue(self.question.validate('Ab3.Bf1'))
+        self.question.answer = 'AB123ef'
+        self.assertTrue(self.question.validate('Ab123eF'))
+
+    def test_answer_to_list_returns_list_with_answer(self):
+        self.assertEqual(self.question.answer_to_list(), [self.question.answer])
 
 
 class MultipleChoiceTestCase(TestCase):
 
     def setUp(self):
-        question = MultipleChoiceQuestion.objects.create(
+        self.question = MultipleChoiceQuestion.objects.create(
             question_text='TEST_QUESTION',
         )
-        answers = [MultipleChoiceAnswer.objects.create(
-                question=question,
+        self.answers = [MultipleChoiceAnswer.objects.create(
+                question=self.question,
                 answer='TEST_ANSWER_%s' % ans,
-                correct=False,
+                correct=(ans == 'A'),
             ) for ans in ('A', 'B', 'C', 'D')]
-        true_answer = answers[random.randint(0, 3)]
-        true_answer.correct = True
-        true_answer.save()
 
     def test_str_returns_question_text(self):
-        q = MultipleChoiceQuestion.objects.get()
-        self.assertEqual(str(q), 'TEST_QUESTION')
+        self.assertEqual(str(self.question), 'TEST_QUESTION')
 
     def test_raw_feedback_valid_id(self):
-        mcq = MultipleChoiceQuestion.objects.get()
         correct_answers = MultipleChoiceAnswer.objects.filter(
-            question=mcq,
+            question=self.question,
             correct=True,
         )
         correct_answer = correct_answers[0]
-        self.assertEqual(mcq.answer_feedback_raw(str(correct_answer.id)),
+        self.assertEqual(self.question.answer_feedback_raw(str(correct_answer.id)),
                          {'answer': correct_answer.id,
                           'correct': [correctAnswer.id for correctAnswer in correct_answers], 'answered_correct': True})
 
     def test_raw_feedback_invalid_id(self):
-        mcq = MultipleChoiceQuestion.objects.get()
         correct_answers = MultipleChoiceAnswer.objects.filter(
-            question=mcq,
+            question=self.question,
             correct=True,
         )
         correct_answer = correct_answers[0]
         answered_correct = True if correct_answer.id == 1 else False
-        self.assertEqual(mcq.answer_feedback_raw("fail"),
+        self.assertEqual(self.question.answer_feedback_raw("fail"),
                          {'answer': 1, 'correct': [correctAnswer.id for correctAnswer in correct_answers],
                           'answered_correct': answered_correct})
 
     def testAnswerCorrect(self):
-        question = MultipleChoiceQuestion.objects.get(question_text='TEST_QUESTION')
         correct_answers = MultipleChoiceAnswer.objects.filter(
-            question=question,
+            question=self.question,
             correct=True,
         )
         correct_answer = correct_answers[0]
-        response = question.answer_feedback(correct_answer.id)
+        response = self.question.answer_feedback(correct_answer.id)
         json = {
             'answer': correct_answer.id,
             'correct': [correctAnswer.id for correctAnswer in correct_answers],
@@ -203,23 +183,31 @@ class MultipleChoiceTestCase(TestCase):
         self.assertEqual(response, json)
 
     def testAnswerIncorrect(self):
-        question = MultipleChoiceQuestion.objects.get(question_text='TEST_QUESTION')
         wrong_answers = MultipleChoiceAnswer.objects.filter(
-            question=question,
+            question=self.question,
             correct=False,
             )
         correct_answers = MultipleChoiceAnswer.objects.filter(
-            question=question,
+            question=self.question,
             correct=True,
             )
         wrong_answer = wrong_answers[0]
-        response = question.answer_feedback(wrong_answer.id)
+        response = self.question.answer_feedback(wrong_answer.id)
         json = {
             'answer': wrong_answer.id,
             'correct': [correctAnswer.id for correctAnswer in correct_answers],
             'answered_correct': False,
         }
         self.assertEqual(response, json)
+
+    def test_answer_to_list_returns_list_with_answer(self):
+        compare_list = [
+            '-TEST_ANSWER_A -> Correct\n',
+            '-TEST_ANSWER_B\n',
+            '-TEST_ANSWER_C\n',
+            '-TEST_ANSWER_D\n'
+        ]
+        self.assertEqual(self.question.answer_to_list(), compare_list)
 
 
 class TrueFalseTestCase(TestCase):
@@ -258,6 +246,17 @@ class TrueFalseTestCase(TestCase):
             'answered_correct': False,
         }
         self.assertEqual(response, json)
+
+
+class QuestionTestCase(TestCase):
+
+    def setUp(self):
+        self.question = Question.objects.create(
+            question_text='TEST_QUESTION_TEXT',
+        )
+
+    def test_answer_to_list_returns_empty_list(self):
+        self.assertEqual(self.question.answer_to_list(), [])
 
 
 class AchievementTestCase(TestCase):

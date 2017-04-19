@@ -538,7 +538,7 @@ def delete_question(request, question_id):
     return HttpResponseRedirect('/')
 
 
-def deleteReport(request, question_id, report_id):
+def delete_report(request, question_id, report_id):
     user = request.user
     if user.is_superuser:
         report = QuestionReport.objects.get(pk=report_id)

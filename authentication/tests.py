@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.test import Client
 from quiz.models import Player
 
+
 class LogoutTestCase(TestCase):
 
     def setUp(self):
@@ -175,6 +176,7 @@ class LoginTestCase(TestCase):
         self.assertFalse(response.context['user'].is_authenticated)
         self.assertEqual(response.status_code, 200)
 
+
 class AccountTestCase(TestCase):
     TEST_USERNAME = 'TEST_USERNAME'
     TEST_PASS = 'TEST_PASSWORD'
@@ -305,4 +307,3 @@ class ChangeUsernameTestCase(TestCase):
         response = self.client.post('/authentication/change_name/')
         self.assertEqual(response.status_code, 200)
         self.assertNotEqual(response.context[0].dicts[1]['user'].username, 'NEW_USERNAME')
-

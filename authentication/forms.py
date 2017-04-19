@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
+
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=15, label="username")
     password = forms.CharField(max_length=30, widget=forms.PasswordInput, label="password")
@@ -27,7 +28,7 @@ class RegistrationForm(forms.Form):
     firstName = forms.CharField(max_length=15, label="firstName")
     lastName = forms.CharField(max_length=15, label="lastName")
     email = forms.EmailField(max_length=50, label="email")
-    username= forms.CharField(max_length=15, label="username")
+    username = forms.CharField(max_length=15, label="username")
     password = forms.CharField(max_length=30, widget=forms.PasswordInput, label="password")
     passwordConfirm = forms.CharField(max_length=30, widget=forms.PasswordInput, label="passwordConfirm")
 
@@ -48,8 +49,6 @@ class RegistrationForm(forms.Form):
 
             if form_data["password"] != form_data["passwordConfirm"]:
                 raise forms.ValidationError({'passwordConfirm': 'Passwords did not match. Try again.'}, code='invalid')
-
-
 
         except KeyError:
             pass

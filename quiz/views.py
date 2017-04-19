@@ -488,6 +488,7 @@ def view_reports(request):
     if user.is_superuser:
         reported_question_ids = QuestionReport.objects.all().values_list('question_id', flat=True)
         questions = Question.objects.filter(id__in=reported_question_ids)
+        reports = []
 
         reports = [[question, QuestionReport.objects.filter(question_id=question.id).count()] for question in questions]
 
@@ -506,9 +507,20 @@ def handle_report(request, question_id):
     # Only site admins are allowed to see and handle reports
     user = request.user
     if user.is_superuser:
+        questionList = (list(TrueFalseQuestion.objects.filter(id=question_id))
+            + list(MultipleChoiceQuestion.objects.filter(id=question_id))
+            + list(TextQuestion.objects.filter(id=question_id))
+            + list(NumberQuestion.objects.filter(id=question_id)))
+
+        reports = QuestionReport.objects.filter(question_id=question_id)
+
+        if not reports:
+            return HttpResponseRedirect('/quiz/viewreports/')
+
         context = {
+            'question': questionList[0],
             'question_id': question_id,
-            'reports': QuestionReport.objects.filter(question_id=question_id),
+            'reports': reports,
         }
 
         return render(request, 'quiz/handleReport.html', context)
@@ -516,7 +528,7 @@ def handle_report(request, question_id):
     return HttpResponseRedirect('/')
 
 
-def delete_report(request, question_id):
+def delete_question(request, question_id):
     # Only site admins are allowed to delete questions
     user = request.user
     if user.is_superuser:
@@ -526,6 +538,15 @@ def delete_report(request, question_id):
     return HttpResponseRedirect('/')
 
 
+def deleteReport(request, question_id, report_id):
+    user = request.user
+    if user.is_superuser:
+        report = QuestionReport.objects.get(pk=report_id)
+        report.delete()
+        return HttpResponseRedirect('/quiz/viewreports/handlereport/'+question_id+'/')
+    return HttpResponseRedirect('/')
+
+  
 def stats_default(request):
     try:
         return HttpResponseRedirect('/quiz/stats/%r' % request.user.player.subject().id)

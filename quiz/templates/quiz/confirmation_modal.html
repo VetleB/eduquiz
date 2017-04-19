@@ -1,0 +1,33 @@
+<div class="ui modal delete_question">
+    <div class="header">
+        Are you sure you want to delete this question?
+    </div>
+    <div class="actions">
+        <a class="ui negative right icon button submit delete"
+           href="/quiz/viewreports/deletequestion/{{ question_id }}/">
+            Delete question
+        </a>
+        <a class="ui gray left icon button submit cancel">
+            Cancel
+        </a>
+    </div>
+</div>
+
+<style>
+    .button.cancel {
+        float: left;
+    }
+</style>
+
+<script>
+  $(".delete_question.button").click(function() {
+    $('.ui.modal.delete_question').modal('show');
+  });
+
+  $(".cancel.button").click(function() {
+    $('.ui.modal.delete_question').modal('hide');
+  });
+
+
+</script>
+

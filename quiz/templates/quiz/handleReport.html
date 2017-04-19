@@ -14,13 +14,28 @@
 
 {% block content %}
     <div class="reports">
-        <div class="actions">
-            <a class="ui negative right icon button submit delete" href="/quiz/viewreports/deletequestion/{{ question_id }}">
-                Delete
-            </a>
+
+        <div class="ui segment report" report="{{ report.id }}">
+            <div class="content">
+                <h2>
+                    {{ question }}
+                </h2>
+                <br>
+                {% for a in question.answer_to_list %}
+                    <p>
+                        {{ a }}
+                    </p>
+                {% endfor %}
+                <div class="actions">
+                    <a class="ui negative right icon button submit delete_question">
+                        Delete question
+                    </a>
+                </div>
+            </div>
         </div>
+
         {% for report in reports %}
-            <div class="ui piled segment report" report="{{ report.id }}">
+            <div class="ui segment report" report="{{ report.id }}">
                 <div class="content">
                     {% if report.red_right %}
                         <div class="questionText">Red right</div>
@@ -41,9 +56,25 @@
                         <div class="questionText">Other</div>
                     {% endif %}
                     <div class="questionText">{{ report.comment }}</div>
+                    <div class="actions">
+                        <a class="ui negative right icon button submit delete_report" href="/quiz/viewreports/deletereport/{{ question_id }}/{{ report.id }}">
+                            Delete report
+                        </a>
+                    </div>
                 </div>
             </div>
         {% endfor %}
     </div>
+  <style>
+    .delete_question {
+      opacity: 0.9;
+    }
+
+    .delete_report {
+      opacity: 0.8;
+    }
+
+
+  </style>
 
 {% endblock content %}

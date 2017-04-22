@@ -183,7 +183,7 @@ class Player(models.Model):
         # Get the virtual_c latest answers that are not reports
         # (report_skip must equal False) and in/decrease rating thereafter
         answers = [pa for pa in PlayerAnswer.objects.filter(player=self, question__topic__in=topics)
-            .order_by('-answer_date') if pa.report_skip is not True][:virtual_c]
+                   .order_by('-answer_date') if pa.report_skip is not True][:virtual_c]
 
         virtual = sum([virtual_k if answer.result else -virtual_k for answer in answers])
         return PlayerRating.get_rating(self) + virtual
@@ -374,6 +374,7 @@ class TextQuestion(Question):
         """
         return [self.answer]
 
+
 class NumberQuestion(Question):
     answer = models.CharField(max_length=50, verbose_name='Answer')
 
@@ -467,6 +468,7 @@ class NumberQuestion(Question):
         :rtype: list
         """
         return [self.answer]
+
 
 class TrueFalseQuestion(Question):
     answer = models.BooleanField(verbose_name='Answer')

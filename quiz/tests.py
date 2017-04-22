@@ -168,7 +168,7 @@ class MultipleChoiceTestCase(TestCase):
                          {'answer': 1, 'correct': [correctAnswer.id for correctAnswer in correct_answers],
                           'answered_correct': answered_correct})
 
-    def testAnswerCorrect(self):
+    def test_answer_correct(self):
         correct_answers = MultipleChoiceAnswer.objects.filter(
             question=self.question,
             correct=True,
@@ -182,7 +182,7 @@ class MultipleChoiceTestCase(TestCase):
         }
         self.assertEqual(response, json)
 
-    def testAnswerIncorrect(self):
+    def test_answer_incorrect(self):
         wrong_answers = MultipleChoiceAnswer.objects.filter(
             question=self.question,
             correct=False,
@@ -227,7 +227,7 @@ class TrueFalseTestCase(TestCase):
         self.assertEqual(tfq.answer_feedback_raw('False'),
                          {'answer': False, 'correct': True, 'answered_correct': False})
 
-    def testAnswerCorrect(self):
+    def test_answer_correct(self):
         question = TrueFalseQuestion.objects.get(question_text='TEST_QUESTION')
         response = question.answer_feedback(True)
         json = {
@@ -237,7 +237,7 @@ class TrueFalseTestCase(TestCase):
         }
         self.assertEqual(response, json)
 
-    def testAnswerIncorrect(self):
+    def test_answer_incorrect(self):
         question = TrueFalseQuestion.objects.get(question_text='TEST_QUESTION')
         response = question.answer_feedback(False)
         json = {
@@ -286,7 +286,7 @@ class AchievementTestCase(TestCase):
         player = Player.objects.get()
         self.assertFalse(achievement.is_achieved(player))
 
-    def testTrigger(self):
+    def test_trigger(self):
         player = Player.objects.get()
         prop = Property.objects.get(name='TEST_PROPERTY')
 
@@ -296,7 +296,7 @@ class AchievementTestCase(TestCase):
 
         self.assertEqual(property_unlocks.count(), 1)
 
-    def testAchieve(self):
+    def test_achieve(self):
         player = Player.objects.get()
         achievement = Achievement.objects.get(name='TEST_ACHIEVEMENT')
 
@@ -306,7 +306,7 @@ class AchievementTestCase(TestCase):
 
         self.assertEqual(achievement_unlock.count(), 1)
 
-    def testTitle(self):
+    def test_title(self):
         player = Player.objects.get()
         title = Title.objects.get(title='TEST_TITLE')
 
@@ -623,11 +623,11 @@ class StatsTestCase(TestCase):
         self.playerB.set_rating(1250)
         self.assertEqual(self.subjectA.high_score(), [(1, 'TEST_USER_A', 1300), (2, 'TEST_USER_B', 1250)])
 
-    def test_setRating(self):
+    def test_set_rating(self):
         self.playerA.set_rating(1500)
         self.assertEqual(PlayerRating.get_rating(self.playerA), 1500)
 
-    def test_ratingList(self):
+    def test_ratinglist(self):
         self.playerA.update(self.questionA, True)
         self.playerA.update(self.questionA, True)
         self.playerA.update(self.questionA, True)
@@ -638,7 +638,7 @@ class StatsTestCase(TestCase):
         a, b, c = rating_list[0]
         self.assertTrue(a < b < c)
 
-    def test_ratingList2(self):
+    def test_ratinglist2(self):
         self.playerA.update(self.questionA, False)
         self.playerA.update(self.questionA, False)
         self.playerA.update(self.questionA, False)
@@ -647,7 +647,7 @@ class StatsTestCase(TestCase):
         a, b, c = rating_list[0]
         self.assertTrue(a > b > c)
 
-    def test_subjectAnswers(self):
+    def test_subject_answers(self):
         self.playerA.update(self.questionA, False)
         self.playerA.update(self.questionA, True)
         self.playerA.update(self.questionB, False)

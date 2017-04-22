@@ -42,9 +42,6 @@
                 {% endfor %}
               </div>
             </div>
-
-            Leave blank to select all topics in subject.
-
           </form>
         </div>
 
@@ -55,7 +52,10 @@
             </div>
 
             <div class="ui icon button gray left clear emptytopics">
-                Clear topics
+              Clear topics
+            </div>
+            <div class="ui icon button gray left clear addalltopics">
+              All topics
             </div>
           </div>
         </div>
@@ -68,15 +68,19 @@
       vertical-align: top;
       width: 100%;
     }
-    .actions.select .clear{
-        float: left !important;
+
+    .actions.select .clear {
+      float: left !important;
     }
+
     .actions.select.topics {
       text-align: right;
     }
+
     .column.select.topics {
       margin-top: 100px;
     }
+
     .column.select {
       width: -webkit-fit-content !important;
       width: -moz-fit-content !important;
@@ -85,39 +89,44 @@
 
   <script>
 
-    function filterTopics() {
-      $('.topic.item').each(function() {
-        if ($(this).attr('subject') != $('input[name="subject"]').val()) {
-          $(this).addClass('disabled');
-          $(this).css('display', 'none');
-        } else {
-          $(this).removeClass('disabled');
-          $(this).css('display', 'block');
-        }
-        $('.topics.dropdown').dropdown('clear');
+      function filterTopics() {
+          $('.topic.item').each(function () {
+              if ($(this).attr('subject') != $('input[name="subject"]').val()) {
+                  $(this).addClass('disabled');
+                  $(this).css('display', 'none');
+              } else {
+                  $(this).removeClass('disabled');
+                  $(this).css('display', 'block');
+              }
+              $('.topics.dropdown').dropdown('clear');
+          });
+      };
+
+      $(function () {
+          $('.topics.dropdown').dropdown();
+          $('.subject.dropdown').dropdown();
+
+          // filter topics based on subject when subject is changed
+          $('input[name="subject"].dummy').change(function () {
+              filterTopics();
+          });
+
+          $('.subject.dropdown').dropdown('set exactly', '{{ subject.title }}');
+          filterTopics();
+          $('.topics.dropdown').dropdown('set exactly', [{% for element in playerTopics %}'{{ element }}', {% endfor %}]);
+
+          $(".button.submit").click(function () {
+              $('form.topics').submit();
+          });
+          $('.button.emptytopics').click(function () {
+              $('.topics.dropdown').dropdown('set exactly', '{{ None }}');
+          });
+          $('.button.addalltopics').click(function () {
+              var subject = $('input[name=subject]').val();
+              var subject_dict = {{ subject_dict|safe }};
+            $('.topics.dropdown').dropdown('set exactly', subject_dict[subject]);
+          });
       });
-    };
-
-    $(function() {
-      $('.topics.dropdown').dropdown();
-      $('.subject.dropdown').dropdown();
-
-      // filter topics based on subject when subject is changed
-      $('input[name="subject"].dummy').change(function() {
-        filterTopics();
-      });
-
-      $('.subject.dropdown').dropdown('set exactly', '{{ subject.title }}');
-      filterTopics();
-      $('.topics.dropdown').dropdown('set exactly', [{% for element in playerTopics %}'{{ element }}', {% endfor %}] );
-
-      $(".button.submit").click(function() {
-        $('form.topics').submit();
-      });
-    $('.button.emptytopics').click(function () {
-        $('.topics.dropdown').dropdown('set exactly', '{{ None }}');
-        })
-    });
 
   </script>
 

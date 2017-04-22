@@ -5,6 +5,7 @@ from django.shortcuts import render
 from quiz.models import *
 from quiz.forms import *
 from django.contrib import messages
+import json
 
 
 def question(request):
@@ -151,10 +152,13 @@ def select_topic(request):
         subjects = Subject.objects.all()
         topics = Topic.objects.all()
 
+        subject_dict = dict([(subject.title, []) for subject in subjects])
+
         show_topics = []
         for topic in topics:
             if topic.question_set.count() > 0:
                 show_topics.append(topic)
+                subject_dict[topic.subject.title].append(topic.title)
 
         topics_in_player = PlayerTopic.objects.filter(player=request.user.player)
         try:
@@ -172,7 +176,7 @@ def select_topic(request):
             'topics': show_topics,
             'subject': subject,
             'player_topics': player_topics,
-
+            'subject_dict': json.dumps(subject_dict),
         }
 
         return render(request, 'quiz/select_topic.html', context)

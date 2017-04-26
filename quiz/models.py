@@ -301,7 +301,7 @@ class PlayerRating(models.Model):
 
 
 class Question(models.Model):
-    question_text = models.TextField(max_length=200, verbose_name='Question')
+    question_text = models.TextField(max_length=300, verbose_name='Question')
     creator = models.ForeignKey(User, blank=True, null=True)
     creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
     rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
@@ -556,7 +556,7 @@ class MultipleChoiceQuestion(Question):
 
 class MultipleChoiceAnswer(models.Model):
     question = models.ForeignKey(MultipleChoiceQuestion)
-    answer = models.CharField(max_length=100, verbose_name='Answer')
+    answer = models.CharField(max_length=300, verbose_name='Answer')
     correct = models.BooleanField(verbose_name='Correct')
 
     def __str__(self):

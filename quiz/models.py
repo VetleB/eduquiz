@@ -305,7 +305,13 @@ class Question(models.Model):
     creator = models.ForeignKey(User, blank=True, null=True)
     creation_date = models.DateTimeField(default=timezone.now, verbose_name='Date')
     rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Rating')
+    original_rating = models.DecimalField(default=1200, max_digits=8, decimal_places=3, verbose_name='Original rating')
     topic = models.ForeignKey(Topic, null=True, blank=True)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if not self.pk:
+            self.original_rating = self.rating
+        super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self):
         return self.question_text

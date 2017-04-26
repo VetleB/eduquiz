@@ -39,6 +39,7 @@ class MultipleChoiceQuestionAdmin(admin.ModelAdmin):
                 'creator',
                 'creation_date',
                 'rating',
+                'original_rating',
             ),
         }),
     )
@@ -66,6 +67,7 @@ class TextQuestionAdmin(admin.ModelAdmin):
                 'creator',
                 'creation_date',
                 'rating',
+                'original_rating',
             ),
         }),
     )
@@ -89,6 +91,7 @@ class NumberQuestionAdmin(admin.ModelAdmin):
                 'creator',
                 'creation_date',
                 'rating',
+                'original_rating',
             ),
         }),
     )
@@ -113,6 +116,7 @@ class TrueFalseQuestionAdmin(admin.ModelAdmin):
                 'creator',
                 'creation_date',
                 'rating',
+                'original_rating',
             ),
         }),
     )

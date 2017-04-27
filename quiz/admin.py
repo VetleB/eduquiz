@@ -231,6 +231,17 @@ class PlayerAnswerAdmin(admin.ModelAdmin):
         }),
     )
 
+@admin.register(PlayerRating)
+class PlayerRatingAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+           'fields': (
+               'player',
+               'subject',
+               'rating',
+           )
+        }),
+    )
 
 class TitleInline(admin.TabularInline):
     model = Title
